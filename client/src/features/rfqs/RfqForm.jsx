@@ -1,0 +1,23 @@
+import { useEffect, useState } from 'react';
+import { ArrowRight } from 'lucide-react';
+import { api } from '../../lib/api.js';
+
+const initial = { rfqNumber: '', customerId: '', receivedDate: '', dueDate: '', assignedEstimatorId: '', sourceNotes: '', part: { name: '', description: '', material: '', grossWeight: '', annualVolume: '' } };
+export function RfqForm({ rfq, onSaved, onCancel }) {
+  const [form, setForm] = useState(rfq ? {
+    ...initial,
+    rfqNumber: rfq.rfq_number,
+    customerId: rfq.customer_id,
+    receivedDate: rfq.received_date?.slice(0, 10),
+    dueDate: rfq.due_date?.slice(0, 10),
+    assignedEstimatorId: rfq.owner_id,
+    status: rfq.status,
+    sourceNotes: rfq.source_notes,
+    part: { name: rfq.part_name, description: rfq.description, material: rfq.material, grossWeight: rfq.gross_weight, annualVolume: rfq.annual_volume }
+  } : initial);
+  const [refs, setRefs] = useState({ customers: [], estimators: [] }); const [error, setError] = useState('');
+  useEffect(() => { Promise.all([api('/customers'), api('/users/estimators')]).then(([customers, estimators]) => setRefs({ customers: customers.data, estimators: estimators.data })).catch(() => setError('Reference data could not be loaded.')); }, []);
+  const update = (key, value) => setForm({ ...form, [key]: value }); const updatePart = (key, value) => setForm({ ...form, part: { ...form.part, [key]: value } });
+  async function submit(event) { event.preventDefault(); setError(''); try { const body = { ...form, part: { ...form.part, grossWeight: Number(form.part.grossWeight), annualVolume: Number(form.part.annualVolume) } }; await api(rfq ? `/rfqs/${rfq.id}` : '/rfqs', { method: rfq ? 'PUT' : 'POST', body: JSON.stringify(body) }); onSaved(); } catch (err) { setError(err.message); } }
+  return <form className="panel mb-5" onSubmit={submit}><div className="mb-5 flex justify-between"><div><h2 className="font-display text-lg font-semibold text-navy">{rfq ? 'Edit RFQ' : 'Create RFQ'}</h2><p className="mt-1 text-sm text-slate-500">Capture the request before it gets lost in a thread.</p></div></div>{error && <div className="mb-4 rounded-lg bg-red-50 p-3 text-sm text-red-700">{error}</div>}<div className="grid gap-x-4 md:grid-cols-3">{[['RFQ number','rfqNumber'],['Received date','receivedDate'],['Due date','dueDate'],['Part name','partName'],['Material','material'],['Gross weight (kg)','grossWeight'],['Annual volume','annualVolume']].map(([label, key]) => <label className="mb-4 block text-sm font-semibold" key={key}>{label}{key === 'partName' ? <input className="field" required value={form.part.name} onChange={event => updatePart('name', event.target.value)} /> : key === 'material' ? <input className="field" required value={form.part.material} onChange={event => updatePart('material', event.target.value)} /> : key === 'grossWeight' || key === 'annualVolume' ? <input className="field" required type="number" min="0.001" step={key === 'grossWeight' ? '0.001' : '1'} value={form.part[key === 'grossWeight' ? 'grossWeight' : 'annualVolume']} onChange={event => updatePart(key, event.target.value)} /> : <input className="field" required type={key.includes('Date') ? 'date' : 'text'} value={form[key]} onChange={event => update(key, event.target.value)} />}</label>)}<label className="mb-4 block text-sm font-semibold">Customer<select className="field" required value={form.customerId} onChange={event => update('customerId', event.target.value)}><option value="">Select customer</option>{refs.customers.map(item => <option value={item.id} key={item.id}>{item.name}</option>)}</select></label><label className="mb-4 block text-sm font-semibold">Assigned estimator<select className="field" required value={form.assignedEstimatorId} onChange={event => update('assignedEstimatorId', event.target.value)}><option value="">Select estimator</option>{refs.estimators.map(item => <option value={item.id} key={item.id}>{item.name}</option>)}</select></label></div><label className="mb-4 block text-sm font-semibold">Description<textarea className="field min-h-20" value={form.part.description} onChange={event => updatePart('description', event.target.value)} /></label><label className="mb-5 block text-sm font-semibold">Source notes<textarea className="field min-h-20" value={form.sourceNotes} onChange={event => update('sourceNotes', event.target.value)} /></label><div className="flex gap-3"><button className="button button-primary" type="submit">{rfq ? 'Save changes' : 'Create RFQ'} <ArrowRight size={17} /></button>{onCancel && <button className="button border border-slate-200 text-slate-600" type="button" onClick={onCancel}>Cancel</button>}</div></form>;
+}

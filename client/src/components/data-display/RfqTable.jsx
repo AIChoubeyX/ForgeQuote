@@ -1,0 +1,5 @@
+import { StatusBadge } from './StatusBadge.jsx';
+
+export function RfqTable({ rows, onSelect }) {
+  return <div className="overflow-auto"><table className="w-full text-left text-sm"><thead className="text-xs uppercase tracking-wide text-slate-400"><tr><th className="px-3 py-3">RFQ</th><th className="px-3 py-3">Customer</th><th className="px-3 py-3">Part</th><th className="px-3 py-3">Status</th><th className="px-3 py-3">Due</th></tr></thead><tbody>{rows.map(row => <tr key={row.id || row.rfq_number} className="border-t border-slate-100 hover:bg-slate-50" onClick={() => onSelect?.(row.id)}><td className="px-3 py-4 font-semibold text-navy">{row.rfq_number}</td><td className="px-3 py-4 text-slate-600">{row.customer_name}</td><td className="px-3 py-4 text-slate-600">{row.part_name}</td><td className="px-3 py-4"><StatusBadge status={row.status} /></td><td className="px-3 py-4 text-slate-600">{new Date(row.due_date).toLocaleDateString('en-IN', { day: '2-digit', month: 'short' })}</td></tr>)}</tbody></table></div>;
+}

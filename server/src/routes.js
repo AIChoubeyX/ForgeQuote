@@ -1,0 +1,15 @@
+import { Router } from 'express';
+import { authenticate } from './shared/middleware/authenticate.js';
+import authRoutes from './modules/auth/auth.routes.js';
+import customerRoutes from './modules/customers/customers.routes.js';
+import userRoutes from './modules/users/users.routes.js';
+import rfqRoutes from './modules/rfqs/rfqs.routes.js';
+import dashboardRoutes from './modules/dashboard/dashboard.routes.js';
+const router = Router();
+router.use('/auth', authRoutes);
+router.use(authenticate);
+router.use('/dashboard', dashboardRoutes);
+router.use('/customers', customerRoutes);
+router.use('/users', userRoutes);
+router.use('/rfqs', rfqRoutes);
+export default router;
