@@ -12,6 +12,9 @@ import commercialReviewRoutes from './modules/commercialReviews/commercialReview
 import quotationRoutes from './modules/quotations/quotations.routes.js';
 import rfqDocumentRoutes from './modules/rfqDocuments/rfqDocuments.routes.js';
 import auditRoutes from './modules/audit/audit.routes.js';
+import aiIntakeRoutes from './modules/aiIntake/aiIntake.routes.js';
+import aiReviewRoutes from './modules/aiReview/aiReview.routes.js';
+
 const router = Router();
 router.use('/auth', authRoutes);
 router.use(authenticate);
@@ -26,4 +29,6 @@ router.use('/commercial-reviews', commercialReviewRoutes);
 router.use('/quotations', quotationRoutes);
 router.use('/', rfqDocumentRoutes);
 router.use('/audit-events', auditRoutes);
+router.use('/ai-intake', aiIntakeRoutes);
+router.use('/ai-reviews', aiReviewRoutes);
 export default router;

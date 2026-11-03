@@ -84,4 +84,28 @@ export const get = async (id, user) => {
   if (user.role === 'estimator' && value.owner_id !== user.id) throw new AppError(403, 'You do not have permission to view this costing');
   return value;
 };
+export async function aiContext(id, user) {
+  const value = await get(id, user);
+  return {
+    rfq: {
+      id: value.rfq_id,
+      number: value.rfq_number,
+      customer: value.customer_name,
+      part: value.name,
+      description: value.description,
+      material: value.material,
+      grossWeight: value.gross_weight,
+      annualVolume: value.annual_volume
+    },
+    revision: {
+      id: value.id,
+      revision: value.revision,
+      status: value.status,
+      costingDate: value.costing_date,
+      inputs: value.inputs,
+      calculations: value.calculations,
+      operations: value.operations
+    }
+  };
+}
 export const queue = ({ status } = {}) => repository.pending({ status });

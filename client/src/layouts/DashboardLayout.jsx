@@ -8,6 +8,7 @@ const roles = { estimator: 'Estimator', sales_head: 'Sales Head', plant_head: 'P
 export const navigation = [
   { label: 'Dashboard', to: '/app', icon: BarChart3, roles: ['estimator', 'plant_head', 'sales_head', 'admin'] },
   { label: 'RFQ register', to: '/app/rfqs', icon: ClipboardList, roles: ['estimator', 'plant_head', 'sales_head', 'admin'] },
+  { label: 'AI RFQ intake', to: '/app/rfqs/ai-intake', icon: ClipboardList, roles: ['estimator'] },
   { label: 'Routing reviews', to: '/app/routing-reviews', icon: GitPullRequest, roles: ['plant_head'] },
   { label: 'Commercial reviews', to: '/app/commercial-reviews', icon: BadgeCheck, roles: ['sales_head'] },
   { label: 'Rate Masters', to: '/app/rate-masters', icon: Settings, roles: ['admin', 'estimator', 'sales_head', 'plant_head'] },

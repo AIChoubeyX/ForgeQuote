@@ -57,3 +57,20 @@ Incoming RFQ PDFs and Excel part lists are stored outside the public web root in
 `PRIVATE_DOCUMENTS_DIR` (default `server/private-documents`). PostgreSQL stores
 their metadata, versions, and replacement relationships; downloads are served
 only through authenticated API routes.
+
+## AI-assisted RFQ intake
+
+Estimator-only AI intake is available at `/app/rfqs/ai-intake`. It accepts
+text-based PDFs, XLS/XLSX files, or pasted RFQ email text. The server extracts
+bounded source text, sends it to Groq using `GROQ_API_KEY`, validates the
+structured response, and stores the extraction for human review. Scanned PDFs
+are rejected with an OCR message; no RFQ is created until the estimator
+confirms corrected values.
+
+Set `GROQ_MODEL` when a different supported Groq model is approved. The default
+is `openai/gpt-oss-20b`; verify availability in the Groq account before changing
+it. AI does not
+perform costing, select rates, approve routes, approve quotations, or issue
+documents. Routing suggestions are retrieved from the authenticated
+estimator's historical approved or submitted costing operations and remain
+subject to the existing plant-head workflow.
