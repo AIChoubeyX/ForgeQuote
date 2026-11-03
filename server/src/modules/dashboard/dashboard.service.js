@@ -1,2 +1,2 @@
 import * as repository from './dashboard.repository.js';
-export const getMetrics = () => repository.metrics();
+export const getMetrics = user => repository.metrics(user);

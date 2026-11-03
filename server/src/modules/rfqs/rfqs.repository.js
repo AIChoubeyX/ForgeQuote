@@ -1,8 +1,9 @@
 import { query } from '../../config/database.js';
-export async function list({ search, status, page, pageSize, sort }) {
-  const params = [`%${search}%`, status || null, pageSize, (page - 1) * pageSize];
-  const rows = await query(`SELECT r.id,r.rfq_number,r.received_date,r.due_date,r.status,r.created_at,c.name AS customer_name,u.name AS estimator_name,p.name AS part_name FROM rfqs r JOIN customers c ON c.id=r.customer_id JOIN users u ON u.id=r.owner_id JOIN rfq_parts p ON p.rfq_id=r.id WHERE ($1='%%' OR r.rfq_number ILIKE $1 OR c.name ILIKE $1 OR p.name ILIKE $1) AND ($2::text IS NULL OR r.status=$2) ORDER BY ${sort === 'created_at' ? 'r.created_at' : 'r.due_date'} ASC LIMIT $3 OFFSET $4`, params);
-  const count = await query(`SELECT count(*)::int AS count FROM rfqs r JOIN customers c ON c.id=r.customer_id JOIN rfq_parts p ON p.rfq_id=r.id WHERE ($1='%%' OR r.rfq_number ILIKE $1 OR c.name ILIKE $1 OR p.name ILIKE $1) AND ($2::text IS NULL OR r.status=$2)`, params.slice(0, 2));
+export async function list({ search, status, page, pageSize, sort, user }) {
+  const scopedOwner = user.role === 'estimator' ? user.id : null;
+  const params = [`%${search}%`, status || null, scopedOwner, pageSize, (page - 1) * pageSize];
+  const rows = await query(`SELECT r.id,r.rfq_number,r.received_date,r.due_date,r.status,r.created_at,c.name AS customer_name,u.name AS estimator_name,p.name AS part_name FROM rfqs r JOIN customers c ON c.id=r.customer_id JOIN users u ON u.id=r.owner_id JOIN rfq_parts p ON p.rfq_id=r.id WHERE ($1='%%' OR r.rfq_number ILIKE $1 OR c.name ILIKE $1 OR p.name ILIKE $1) AND ($2::text IS NULL OR r.status=$2) AND ($3::uuid IS NULL OR r.owner_id=$3) ORDER BY ${sort === 'created_at' ? 'r.created_at' : 'r.due_date'} ASC LIMIT $4 OFFSET $5`, params);
+  const count = await query(`SELECT count(*)::int AS count FROM rfqs r JOIN customers c ON c.id=r.customer_id JOIN rfq_parts p ON p.rfq_id=r.id WHERE ($1='%%' OR r.rfq_number ILIKE $1 OR c.name ILIKE $1 OR p.name ILIKE $1) AND ($2::text IS NULL OR r.status=$2) AND ($3::uuid IS NULL OR r.owner_id=$3)`, params.slice(0, 3));
   return { rows: rows.rows, total: count.rows[0].count };
 }
 export async function findById(id, client = { query }) {
