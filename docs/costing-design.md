@@ -30,3 +30,18 @@ Costing revisions move through `draft`, `pending_review`, `approved`, and
 Only the plant head can make a pending review decision. Decisions require a
 comment and optimistic `row_version` matching; submitted revisions are
 immutable and a returned route is resubmitted as a new revision.
+
+## Commercial approval and quotations
+
+Plant approval creates one pending `commercial_reviews` record for the approved
+costing revision. A sales head may approve or return it only while it is
+pending; approval creates an immutable quotation snapshot and a unique
+quotation number using a PostgreSQL sequence. Commercial return moves the
+costing revision to `changes_requested`, so estimator correction creates a new
+revision and requires plant review again.
+
+PDF generation is idempotent through the unique quotation-document relation.
+The PDF is generated only for an approved review and is stored as protected
+database bytes. `COMPANY_NAME`, `COMPANY_ADDRESS`, `QUOTATION_TAX_RATE`, and
+`QUOTATION_VALIDITY_DAYS` must be configured before PDF generation; the service
+rejects incomplete configuration instead of inventing company or tax data.

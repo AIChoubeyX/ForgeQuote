@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { calculateCost } from '../src/modules/costing/costing.calculator.js';
+import { calculateCost, decimal } from '../src/modules/costing/costing.calculator.js';
 
 const input = {
   materialRate: '420', scrapRate: '3', overheadRate: '12', packingRate: '25',
@@ -17,5 +17,11 @@ describe('cost calculator', () => {
   it('uses margin as a percentage of selling price', () => {
     const result = calculateCost(input);
     expect(result.components.sellingPrice).toBe('3457.012195');
+  });
+  it('calculates and formats tax in rupees from fixed-point values', () => {
+    const taxable = decimal.parse('3185.041502');
+    const tax = decimal.percent(taxable, '18');
+    expect(decimal.formatCurrency(tax)).toBe('573.31');
+    expect(decimal.formatCurrency(taxable + tax)).toBe('3758.35');
   });
 });

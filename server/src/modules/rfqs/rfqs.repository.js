@@ -1,9 +1,23 @@
 import { query } from '../../config/database.js';
-export async function list({ search, status, page, pageSize, sort, user }) {
+export async function list({ search, status, workflow, page, pageSize, sort, user }) {
   const scopedOwner = user.role === 'estimator' ? user.id : null;
   const params = [`%${search}%`, status || null, scopedOwner, pageSize, (page - 1) * pageSize];
-  const rows = await query(`SELECT r.id,r.rfq_number,r.received_date,r.due_date,r.status,r.created_at,c.name AS customer_name,u.name AS estimator_name,p.name AS part_name FROM rfqs r JOIN customers c ON c.id=r.customer_id JOIN users u ON u.id=r.owner_id JOIN rfq_parts p ON p.rfq_id=r.id WHERE ($1='%%' OR r.rfq_number ILIKE $1 OR c.name ILIKE $1 OR p.name ILIKE $1) AND ($2::text IS NULL OR r.status=$2) AND ($3::uuid IS NULL OR r.owner_id=$3) ORDER BY ${sort === 'created_at' ? 'r.created_at' : 'r.due_date'} ASC LIMIT $4 OFFSET $5`, params);
-  const count = await query(`SELECT count(*)::int AS count FROM rfqs r JOIN customers c ON c.id=r.customer_id JOIN rfq_parts p ON p.rfq_id=r.id WHERE ($1='%%' OR r.rfq_number ILIKE $1 OR c.name ILIKE $1 OR p.name ILIKE $1) AND ($2::text IS NULL OR r.status=$2) AND ($3::uuid IS NULL OR r.owner_id=$3)`, params.slice(0, 3));
+  const workflowFilters = {
+    open: `r.status NOT IN ('closed','quoted')`,
+    costing: `(latest_costing.status IS NULL OR latest_costing.status='draft')`,
+    plant_review: `latest_costing.status='pending_review'`,
+    returned: `(latest_costing.status='changes_requested' OR latest_commercial.status='changes_requested')`,
+    commercial: `latest_commercial.status='pending'`,
+    issued: `latest_quotation.status='issued'`
+  };
+  const workflowFilter = workflowFilters[workflow] || 'TRUE';
+  const from = `FROM rfqs r JOIN customers c ON c.id=r.customer_id JOIN users u ON u.id=r.owner_id JOIN rfq_parts p ON p.rfq_id=r.id
+    LEFT JOIN LATERAL (SELECT status FROM costing_revisions WHERE rfq_part_id=p.id ORDER BY revision DESC LIMIT 1) latest_costing ON TRUE
+    LEFT JOIN LATERAL (SELECT c.status FROM commercial_reviews c JOIN costing_revisions x ON x.id=c.costing_revision_id WHERE x.rfq_part_id=p.id ORDER BY c.created_at DESC LIMIT 1) latest_commercial ON TRUE
+    LEFT JOIN LATERAL (SELECT q.status FROM quotations q JOIN commercial_reviews c ON c.id=q.commercial_review_id JOIN costing_revisions x ON x.id=c.costing_revision_id WHERE x.rfq_part_id=p.id ORDER BY q.created_at DESC LIMIT 1) latest_quotation ON TRUE`;
+  const where = `WHERE ($1='%%' OR r.rfq_number ILIKE $1 OR c.name ILIKE $1 OR p.name ILIKE $1) AND ($2::text IS NULL OR r.status=$2) AND ($3::uuid IS NULL OR r.owner_id=$3) AND ${workflowFilter}`;
+  const rows = await query(`SELECT r.id,r.rfq_number,r.received_date,r.due_date,r.status,r.created_at,c.name AS customer_name,u.name AS estimator_name,p.name AS part_name ${from} ${where} ORDER BY ${sort === 'created_at' ? 'r.created_at' : 'r.due_date'} ASC LIMIT $4 OFFSET $5`, params);
+  const count = await query(`SELECT count(*)::int AS count ${from} ${where}`, params.slice(0, 3));
   return { rows: rows.rows, total: count.rows[0].count };
 }
 export async function findById(id, client = { query }) {

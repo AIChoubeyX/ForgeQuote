@@ -20,4 +20,9 @@ export const env = {
   clientOrigin: process.env.CLIENT_ORIGIN || 'http://localhost:5173',
   port: Number(process.env.PORT || 4000),
   cookieSecure: process.env.COOKIE_SECURE === 'true'
+  ,companyName: process.env.COMPANY_NAME || '',
+  companyAddress: process.env.COMPANY_ADDRESS || '',
+  quotationTaxRate: process.env.QUOTATION_TAX_RATE || '',
+  quotationValidityDays: Number(process.env.QUOTATION_VALIDITY_DAYS || 0),
+  quotationHighValueThreshold: process.env.QUOTATION_HIGH_VALUE_THRESHOLD || '100000'
 };

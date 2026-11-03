@@ -9,22 +9,36 @@ export async function metrics(user) {
     return { role: user.role, ...result.rows[0], recent: [], state: 'ready' };
   }
   if (user.role === 'sales_head') {
-    const result = await query(`SELECT count(*) FILTER (WHERE status='ready_for_quote')::int AS pending_approval,
-      count(*) FILTER (WHERE status='quoted')::int AS approved_sent FROM rfqs`);
-    return { role: user.role, ...result.rows[0], high_value: 0, recent: [], state: 'quotation_workflow_pending' };
+    const result = await query(`SELECT
+      count(*) FILTER (WHERE cr.status='pending')::int AS pending_approval,
+      count(*) FILTER (WHERE cr.status='approved' AND q.status IN ('approved','issued'))::int AS approved_quotations,
+      count(*) FILTER (WHERE cr.status='approved' AND q.status='issued')::int AS issued_quotations,
+      count(*) FILTER (WHERE cr.status='changes_requested')::int AS returned_quotations,
+      count(*) FILTER (WHERE cr.status='pending' AND (crv.calculations->'components'->>'sellingPrice')::numeric >= $1::numeric)::int AS high_value
+      FROM commercial_reviews cr
+      JOIN costing_revisions crv ON crv.id=cr.costing_revision_id
+      LEFT JOIN quotations q ON q.commercial_review_id=cr.id`, [process.env.QUOTATION_HIGH_VALUE_THRESHOLD || '100000']);
+    return { role: user.role, ...result.rows[0], approved_sent: result.rows[0].issued_quotations, recent: [], state: 'ready' };
   }
   if (user.role === 'plant_head') {
     const result = await query(`SELECT count(*) FILTER (WHERE status='pending_review')::int AS pending_routing,
       count(*) FILTER (WHERE status='pending_review' AND created_at < now() - interval '7 days')::int AS overdue_routing,
-      count(*) FILTER (WHERE status IN ('approved','changes_requested') AND reviewed_at >= now() - interval '30 days')::int AS recently_reviewed,
+      count(*) FILTER (WHERE status='approved')::int AS approved_routing,
       count(*) FILTER (WHERE status='changes_requested')::int AS routing_issues FROM costing_revisions`);
     return { role: user.role, ...result.rows[0], recent: [], state: 'ready' };
   }
-  const totals = await query(`SELECT count(*) FILTER (WHERE owner_id=$1 AND status NOT IN ('closed','quoted'))::int AS open,
-    count(*) FILTER (WHERE owner_id=$1 AND due_date < current_date AND status NOT IN ('closed','quoted'))::int AS overdue,
-    count(*) FILTER (WHERE owner_id=$1 AND due_date >= current_date AND due_date <= current_date + 7 AND status NOT IN ('closed','quoted'))::int AS due_soon,
-    count(*) FILTER (WHERE owner_id=$1 AND status='in_progress')::int AS awaiting_costing,
-    count(*) FILTER (WHERE owner_id=$1 AND status='ready_for_quote')::int AS awaiting_routing FROM rfqs`, [user.id]);
+  const totals = await query(`SELECT count(*) FILTER (WHERE r.owner_id=$1 AND r.status NOT IN ('closed','quoted'))::int AS open,
+    count(*) FILTER (WHERE r.owner_id=$1 AND r.due_date < current_date AND r.status NOT IN ('closed','quoted'))::int AS overdue,
+    count(*) FILTER (WHERE r.owner_id=$1 AND r.due_date >= current_date AND r.due_date <= current_date + 7 AND r.status NOT IN ('closed','quoted'))::int AS due_soon,
+    count(*) FILTER (WHERE r.owner_id=$1 AND (cr.status IS NULL OR cr.status='draft'))::int AS awaiting_costing,
+    count(*) FILTER (WHERE r.owner_id=$1 AND cr.status='pending_review')::int AS awaiting_routing,
+    count(*) FILTER (WHERE r.owner_id=$1 AND cr.status='changes_requested')::int AS returned_correction,
+    count(*) FILTER (WHERE r.owner_id=$1 AND cm.status='pending')::int AS awaiting_commercial,
+    count(*) FILTER (WHERE r.owner_id=$1 AND q.status='issued')::int AS issued_quotations
+    FROM rfqs r JOIN rfq_parts p ON p.rfq_id=r.id
+    LEFT JOIN LATERAL (SELECT status FROM costing_revisions WHERE rfq_part_id=p.id ORDER BY revision DESC LIMIT 1) cr ON true
+    LEFT JOIN LATERAL (SELECT c.status FROM commercial_reviews c JOIN costing_revisions x ON x.id=c.costing_revision_id WHERE x.rfq_part_id=p.id ORDER BY c.created_at DESC LIMIT 1) cm ON true
+    LEFT JOIN LATERAL (SELECT q.status FROM quotations q JOIN commercial_reviews c ON c.id=q.commercial_review_id JOIN costing_revisions x ON x.id=c.costing_revision_id WHERE x.rfq_part_id=p.id ORDER BY q.created_at DESC LIMIT 1) q ON true`, [user.id]);
   const recent = await query(`SELECT r.id,r.rfq_number,c.name AS customer_name,p.name AS part_name,r.status,r.due_date
     FROM rfqs r JOIN customers c ON c.id=r.customer_id JOIN rfq_parts p ON p.rfq_id=r.id
     WHERE r.owner_id=$1 ORDER BY r.created_at DESC LIMIT 5`, [user.id]);

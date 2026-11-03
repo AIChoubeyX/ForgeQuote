@@ -6,7 +6,7 @@ import { ErrorState, LoadingState } from '../../components/feedback/States.jsx';
 const initialOperation = { sequence: 1, operationName: '', machineCode: 'MACHINE-REAR-SPINDLE', cycleTimeMinutes: '10' };
 const initial = { costingDate: new Date().toISOString().slice(0, 10), materialRateCode: 'MATERIAL-AL6061', materialWeight: '', scrapRateCode: 'SCRAP-DEFAULT', overheadRateCode: 'OVERHEAD-DEFAULT', packingRateCode: 'PACKING-DEFAULT', freightRateCode: 'FREIGHT-DEFAULT', marginRateCode: 'MARGIN-DEFAULT', operations: [initialOperation] };
 
-export function CostingPage({ rfqId }) {
+export function CostingPage({ rfqId, canEdit = true }) {
   const [data, setData] = useState(null);
   const [form, setForm] = useState(initial);
   const [error, setError] = useState('');
@@ -38,13 +38,13 @@ export function CostingPage({ rfqId }) {
   if (error && !data) return <main className="mx-auto max-w-6xl p-5 md:p-10"><ErrorState message={error} /></main>;
   const calculations = data.revision?.calculations;
   const status = data.revision?.status;
-  const isLocked = status === 'pending_review' || status === 'approved';
+  const isLocked = !canEdit || status === 'pending_review' || status === 'approved';
   const isReturned = status === 'changes_requested';
   return <main className="mx-auto max-w-6xl p-5 md:p-10">
     <div className="mb-8"><p className="mb-2 text-xs font-bold uppercase tracking-[.14em] text-forge">Estimator costing</p><h1 className="font-display text-4xl font-semibold text-navy">{data.part.rfq_number} · {data.part.name}</h1><p className="mt-2 text-sm text-slate-500">{data.part.customer_name} · {data.part.material} · {data.part.gross_weight} kg · annual volume {data.part.annual_volume}</p></div>
     {error && <div className="mb-4 rounded-lg bg-red-50 p-3 text-sm text-red-700">{error}</div>}
     {message && <div className="mb-4 rounded-lg bg-green-50 p-3 text-sm text-green-700">{message}</div>}
-    {isLocked && <div className="mb-4 rounded-lg bg-slate-100 p-3 text-sm text-slate-600">This costing revision is {status.replace('_', ' ')} and is read-only. A submitted revision cannot be overwritten.</div>}
+    {isLocked && <div className="mb-4 rounded-lg bg-slate-100 p-3 text-sm text-slate-600">{!canEdit ? 'This costing is read-only for your role.' : `This costing revision is ${status.replace('_', ' ')} and is read-only. A submitted revision cannot be overwritten.`}</div>}
     {isReturned && <div className="mb-4 rounded-lg bg-amber-50 p-3 text-sm text-amber-800">This route was returned for revision. Saving creates a new costing revision and preserves the previous review.</div>}
     <div className="grid gap-6 lg:grid-cols-[1.4fr_.9fr]">
       <section className="panel">

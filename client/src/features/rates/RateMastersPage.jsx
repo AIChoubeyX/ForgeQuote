@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import { useSearchParams } from 'react-router-dom';
 import { ArrowRight, RefreshCw } from 'lucide-react';
 import { api } from '../../lib/api.js';
 import { ErrorState, LoadingState } from '../../components/feedback/States.jsx';
@@ -10,9 +11,9 @@ const categories = [
 const empty = { code: '', name: '', category: 'machine_hour', unit: 'INR/hour', machineOrOperation: '', value: '', effectiveFrom: '', effectiveTo: '' };
 
 export function RateMastersPage({ canManage }) {
-  const [rows, setRows] = useState(null); const [search, setSearch] = useState(''); const [category, setCategory] = useState(''); const [form, setForm] = useState(empty); const [error, setError] = useState(''); const [message, setMessage] = useState('');
-  const load = () => api(`/rate-masters?search=${encodeURIComponent(search)}&category=${category}`).then(result => setRows(result.data)).catch(() => setRows({ error: true }));
-  useEffect(() => { load(); }, [search, category]);
+  const [params] = useSearchParams(); const effective = params.get('effective') || ''; const [rows, setRows] = useState(null); const [search, setSearch] = useState(''); const [category, setCategory] = useState(''); const [form, setForm] = useState(empty); const [error, setError] = useState(''); const [message, setMessage] = useState('');
+  const load = () => api(`/rate-masters?search=${encodeURIComponent(search)}&category=${category}&effective=${effective}`).then(result => setRows(result.data)).catch(() => setRows({ error: true }));
+  useEffect(() => { load(); }, [search, category, effective]);
   function update(key, value) { setForm({ ...form, [key]: value }); }
   async function submit(event) {
     event.preventDefault(); setError(''); setMessage('');

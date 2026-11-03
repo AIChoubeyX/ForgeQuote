@@ -1,9 +1,10 @@
 const API = import.meta.env.VITE_API_URL || 'http://localhost:4000/api';
 
 export async function api(path, options = {}) {
+  const isFormData = options.body instanceof FormData;
   const response = await fetch(`${API}${path}`, {
     credentials: 'include',
-    headers: { 'Content-Type': 'application/json', ...options.headers },
+    headers: isFormData ? { ...options.headers } : { 'Content-Type': 'application/json', ...options.headers },
     ...options
   });
   if (!response.ok) {

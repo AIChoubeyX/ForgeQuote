@@ -41,4 +41,14 @@ export function calculateCost({ materialRate, scrapRate, overheadRate, packingRa
   };
 }
 
-export const decimal = { parse, format };
+function formatCurrency(value) {
+  const amount = typeof value === 'bigint' ? value : parse(value);
+  const sign = amount < 0n ? '-' : '';
+  const absolute = amount < 0n ? -amount : amount;
+  const roundedCents = (absolute * 100n + SCALE / 2n) / SCALE;
+  const whole = roundedCents / 100n;
+  const cents = (roundedCents % 100n).toString().padStart(2, '0');
+  return `${sign}${whole}.${cents}`;
+}
+
+export const decimal = { parse, format, percent, formatCurrency };
