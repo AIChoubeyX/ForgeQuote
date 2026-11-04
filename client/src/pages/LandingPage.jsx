@@ -1,6 +1,29 @@
-import { ArrowRight } from 'lucide-react';
-import { Link } from 'react-router-dom';
+import { LandingHeader } from '../components/landing/LandingHeader.jsx';
+import { HeroSection } from '../components/landing/HeroSection.jsx';
+import { WorkflowSection } from '../components/landing/WorkflowSection.jsx';
+import { ProductCapabilities } from '../components/landing/ProductCapabilities.jsx';
+import { LandingFooter } from '../components/landing/LandingFooter.jsx';
 
 export function LandingPage() {
-  return <main><section className="mx-auto grid max-w-6xl items-center gap-12 px-6 py-20 md:grid-cols-[1fr_.8fr] md:py-28"><div><p className="mb-4 text-xs font-bold uppercase tracking-[.14em] text-forge">Manufacturing intelligence, without the noise</p><h1 className="max-w-2xl font-display text-5xl font-semibold leading-tight tracking-tight text-navy md:text-7xl">From RFQ to quotation, without the spreadsheet chaos.</h1><p className="my-7 max-w-xl text-lg text-slate-500">ForgeQuote gives technical teams one traceable workspace to move from customer request to confident manufacturing quotation.</p><Link className="button button-primary" to="/login">Open workspace <ArrowRight size={17} /></Link></div><div className="rounded-2xl border border-slate-200 bg-slate-50 p-6 shadow-xl shadow-slate-900/5"><div className="flex justify-between"><strong>RFQ workspace</strong><span className="rounded-full bg-emerald-50 px-2 py-1 text-xs font-semibold text-emerald-700">Live</span></div><div className="my-6 grid grid-cols-3 gap-3 border-y border-slate-200 py-6"><b className="font-display text-xl">18<small className="block text-xs font-normal text-slate-500">Open RFQs</small></b><b className="font-display text-xl">06<small className="block text-xs font-normal text-slate-500">Due this week</small></b><b className="font-display text-xl">₹42.8L<small className="block text-xs font-normal text-slate-500">Pipeline value</small></b></div>{['RFQ-2026-014', 'RFQ-2026-009'].map((item, index) => <div className="flex justify-between border-b border-slate-200 py-3 text-sm" key={item}><span>{item}</span><strong className="text-xs text-slate-500">{index ? 'Ready to quote' : 'In progress'}</strong></div>)}</div></section><section className="mx-auto grid max-w-6xl gap-8 px-6 pb-24 md:grid-cols-3">{[['01', 'Capture clearly', 'Keep customer, part, and delivery requirements together.'], ['02', 'Estimate confidently', 'Give every estimator due-date clarity and ownership.'], ['03', 'Quote traceably', 'Build a reliable foundation for approvals and costing.']].map(([number, title, text]) => <div key={number}><span className="text-sm font-bold text-forge">{number}</span><h2 className="mt-3 font-display text-xl font-semibold">{title}</h2><p className="text-sm text-slate-500">{text}</p></div>)}</section><footer className="border-t border-slate-200 py-6 text-center text-xs text-slate-400">ForgeQuote · Technical quotation operations</footer></main>;
+  return (
+    <div className="min-h-screen bg-[#080808] text-[#F5F5F5] antialiased selection:bg-forge selection:text-white">
+      {/* Editorial Navigation Header */}
+      <LandingHeader />
+
+      {/* Main Content Area */}
+      <main>
+        {/* Section 1: Hero Section with Black & Industrial Orange Theme */}
+        <HeroSection />
+
+        {/* Section 2: Manufacturing Workflow Infographic */}
+        <WorkflowSection />
+
+        {/* Section 3: Product Capabilities & Governance Reinforcement */}
+        <ProductCapabilities />
+      </main>
+
+      {/* Enterprise Footer */}
+      <LandingFooter />
+    </div>
+  );
 }

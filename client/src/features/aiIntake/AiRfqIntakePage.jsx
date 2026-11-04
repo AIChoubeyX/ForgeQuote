@@ -177,64 +177,109 @@ export function AiRfqIntakePage() {
   }
 
   return (
-    <main className="mx-auto max-w-6xl p-5 md:p-10">
+    <main className="mx-auto max-w-6xl p-5 md:p-10 text-[#F5F5F5]">
       <div className="mb-8">
-        <Link className="text-sm font-semibold text-forge" to="/app">← Dashboard</Link>
+        <Link className="text-sm font-semibold text-forge hover:text-[#E94B13] transition-colors" to="/app">← Dashboard</Link>
         <p className="mb-2 mt-6 text-xs font-bold uppercase tracking-[.14em] text-forge">Estimator tools</p>
-        <h1 className="font-display text-4xl font-semibold text-navy">AI-assisted RFQ intake</h1>
-        <p className="mt-2 text-sm text-slate-500">Extract a proposal, then review every value before creating an RFQ.</p>
+        <h1 className="font-display text-4xl font-semibold text-[#F5F5F5]">AI-assisted RFQ intake</h1>
+        <p className="mt-2 text-sm text-[#A3A3A3]">Extract a proposal, then review every value before creating an RFQ.</p>
       </div>
       {error && <div className="mb-5"><ErrorState message={error} /></div>}
       {!extraction ? (
         <form className="panel max-w-3xl" onSubmit={extract}>
-          <label className="block text-sm font-semibold">RFQ document
+          <label className="block text-sm font-semibold text-[#F5F5F5]">RFQ document
             <input className="field" type="file" accept=".pdf,.xls,.xlsx" onChange={event => setFile(event.target.files?.[0] || null)} />
-            <span className="mt-1 block text-xs font-normal text-slate-500">PDF, XLS, or XLSX; maximum 10 MB. Scanned PDFs require OCR first.</span>
+            <span className="mt-1 block text-xs font-normal text-[#737373]">PDF, XLS, or XLSX; maximum 10 MB. Scanned PDFs require OCR first.</span>
           </label>
-          <div className="my-5 text-center text-xs font-semibold uppercase tracking-wide text-slate-400">or paste email text</div>
+          <div className="my-5 text-center text-xs font-semibold uppercase tracking-wide text-[#737373]">or paste email text</div>
           <textarea className="field min-h-40" maxLength="50000" placeholder="Paste the RFQ email content here…" value={emailText} onChange={event => setEmailText(event.target.value)} />
-          <button className="button button-primary mt-4" disabled={busy || (!file && !emailText.trim())}>{busy ? 'Extracting…' : <><UploadCloud size={17} />Extract for review</>}</button>
+          <button className="button button-primary mt-4" disabled={busy || (!file && !emailText.trim())}>
+            {busy ? 'Extracting…' : <><UploadCloud size={17} />Extract for review</>}
+          </button>
         </form>
       ) : (
         <form onSubmit={confirm} noValidate>
           <section className="panel mb-5">
-            <h2 className="font-display text-lg font-semibold text-navy">Review extraction</h2>
-            <p className="mt-1 text-sm text-slate-500">AI values are proposals. Confirm only values supported by the source or your review.</p>
-            {customerMatch?.type === 'document' && <p className="mt-3 rounded bg-blue-50 p-3 text-sm text-blue-800">Customer from document: <strong>{customerMatch.name}</strong>. Select the matching database customer below. No similar customer is assigned automatically.</p>}
-            {customerMatch?.type === 'matched' && <p className="mt-3 rounded bg-green-50 p-3 text-sm text-green-700">Matched customer record: <strong>{customerMatch.name}</strong>. Verify the selection before confirming.</p>}
-            {extraction.result.warnings.concat(extraction.result.conflicts).map((item, index) => <p className="mt-3 rounded bg-amber-50 p-2 text-sm text-amber-800" key={`${item}-${index}`}>{item}</p>)}
-            {extraction.result.missingFields.length > 0 && <p className="mt-3 rounded bg-red-50 p-2 text-sm text-red-700">Missing from document: {extraction.result.missingFields.join(', ')}. Enter any required values manually.</p>}
+            <h2 className="font-display text-lg font-semibold text-[#F5F5F5]">Review extraction</h2>
+            <p className="mt-1 text-sm text-[#A3A3A3]">AI values are proposals. Confirm only values supported by the source or your review.</p>
+            {customerMatch?.type === 'document' && (
+              <p className="mt-3 rounded-lg bg-[#FF5A1F]/15 border border-[#66301C] p-3 text-sm text-[#F5F5F5]">
+                Customer from document: <strong className="text-forge">{customerMatch.name}</strong>. Select the matching database customer below. No similar customer is assigned automatically.
+              </p>
+            )}
+            {customerMatch?.type === 'matched' && (
+              <p className="mt-3 rounded-lg bg-emerald-500/15 border border-emerald-500/30 p-3 text-sm text-emerald-300">
+                Matched customer record: <strong>{customerMatch.name}</strong>. Verify the selection before confirming.
+              </p>
+            )}
+            {extraction.result.warnings.concat(extraction.result.conflicts).map((item, index) => (
+              <p className="mt-3 rounded-lg bg-amber-500/15 border border-amber-500/30 p-2 text-sm text-amber-300" key={`${item}-${index}`}>{item}</p>
+            ))}
+            {extraction.result.missingFields.length > 0 && (
+              <p className="mt-3 rounded-lg border border-[#EF4444]/30 bg-[#EF4444]/10 p-2 text-sm text-[#EF4444]">
+                Missing from document: {extraction.result.missingFields.join(', ')}. Enter any required values manually.
+              </p>
+            )}
             <div className="mt-5 grid gap-4 md:grid-cols-2">
               {[
                 ['RFQ number', 'rfqNumber'],
                 ['Received date', 'receivedDate'],
                 ['Due date', 'dueDate']
-              ].map(([label, key]) => <label className="text-sm font-semibold" key={key}>{label}<input className="field" required type={key.includes('Date') ? 'date' : 'text'} value={form[key]} onChange={event => setValue([key], event.target.value)} /></label>)}
-              <label className="text-sm font-semibold">Confirm customer record
-                <span className="mb-2 block text-xs font-normal text-slate-500">
-                  Proposed from document: <strong className="text-slate-700">{customerName || 'Not extracted'}</strong>
+              ].map(([label, key]) => (
+                <label className="text-sm font-semibold text-[#F5F5F5]" key={key}>
+                  {label}
+                  <input className="field" required type={key.includes('Date') ? 'date' : 'text'} value={form[key]} onChange={event => setValue([key], event.target.value)} />
+                </label>
+              ))}
+              <label className="text-sm font-semibold text-[#F5F5F5]">Confirm customer record
+                <span className="mb-2 block text-xs font-normal text-[#737373]">
+                  Proposed from document: <strong className="text-forge">{customerName || 'Not extracted'}</strong>
                 </span>
-                <select className="field" required value={form.customerId} disabled={customersLoading} onChange={event => setValue(['customerId'], event.target.value)}>
-                  <option value="">{customersLoading ? 'Loading customer directory…' : 'Select matching customer'}</option>
-                  {customers.map(customer => <option value={customer.id} key={customer.id}>{customer.name}{normalize(customer.name) === normalize(customerName) ? ' · exact name match' : ''}</option>)}
+                <select className="field bg-[#111111]" required value={form.customerId} disabled={customersLoading} onChange={event => setValue(['customerId'], event.target.value)}>
+                  <option value="" className="bg-[#111111]">{customersLoading ? 'Loading customer directory…' : 'Select matching customer'}</option>
+                  {customers.map(customer => <option value={customer.id} key={customer.id} className="bg-[#111111]">{customer.name}{normalize(customer.name) === normalize(customerName) ? ' · exact name match' : ''}</option>)}
                 </select>
               </label>
-              <label className="text-sm font-semibold">Part name<input className="field" required value={form.part.name} onChange={event => setValue(['part', 'name'], event.target.value)} /></label>
-              <label className="text-sm font-semibold">Material<input className="field" required value={form.part.material} onChange={event => setValue(['part', 'material'], event.target.value)} /></label>
-              <label className="text-sm font-semibold">Gross weight<input className="field" required type="number" min="0.001" step="0.001" value={form.part.grossWeight} onChange={event => setValue(['part', 'grossWeight'], event.target.value)} /></label>
-              <label className="text-sm font-semibold">Annual volume<input className="field" required type="number" min="1" step="1" value={form.part.annualVolume} onChange={event => setValue(['part', 'annualVolume'], event.target.value)} /></label>
+              <label className="text-sm font-semibold text-[#F5F5F5]">Part name<input className="field" required value={form.part.name} onChange={event => setValue(['part', 'name'], event.target.value)} /></label>
+              <label className="text-sm font-semibold text-[#F5F5F5]">Material<input className="field" required value={form.part.material} onChange={event => setValue(['part', 'material'], event.target.value)} /></label>
+              <label className="text-sm font-semibold text-[#F5F5F5]">Gross weight (kg)<input className="field" required type="number" min="0.001" step="0.001" value={form.part.grossWeight} onChange={event => setValue(['part', 'grossWeight'], event.target.value)} /></label>
+              <label className="text-sm font-semibold text-[#F5F5F5]">Annual volume<input className="field" required type="number" min="1" step="1" value={form.part.annualVolume} onChange={event => setValue(['part', 'annualVolume'], event.target.value)} /></label>
             </div>
-            <label className="mt-4 block text-sm font-semibold">Description<textarea className="field" value={form.part.description} onChange={event => setValue(['part', 'description'], event.target.value)} /></label>
-            <div className="mt-6 border-t border-slate-100 pt-4">
-              <h3 className="text-sm font-semibold text-navy">Source evidence</h3>
-              {Object.entries(extraction.result.fields).filter(([, field]) => field.evidence.length).map(([name, field]) => <details className="mt-2 rounded border border-slate-200 p-2 text-sm" key={name}><summary className="cursor-pointer font-semibold">{name} · {field.status}</summary>{field.evidence.map(item => <p className="mt-2 text-xs text-slate-600" key={`${item.source}-${item.quote}`}>{item.source}: “{item.quote}”</p>)}</details>)}
+            <label className="mt-4 block text-sm font-semibold text-[#F5F5F5]">Description<textarea className="field" value={form.part.description} onChange={event => setValue(['part', 'description'], event.target.value)} /></label>
+            <div className="mt-6 border-t border-[#292D34] pt-4">
+              <h3 className="text-sm font-semibold text-[#F5F5F5]">Source evidence</h3>
+              {Object.entries(extraction.result.fields).filter(([, field]) => field.evidence.length).map(([name, field]) => (
+                <details className="mt-2 rounded-lg border border-[#292D34] bg-[#111111] p-2.5 text-sm" key={name}>
+                  <summary className="cursor-pointer font-semibold text-[#F5F5F5]">{name} · {field.status}</summary>
+                  {field.evidence.map(item => <p className="mt-2 text-xs text-[#A3A3A3]" key={`${item.source}-${item.quote}`}>{item.source}: “{item.quote}”</p>)}
+                </details>
+              ))}
             </div>
-            {routing && <div className="mt-6 rounded-lg bg-slate-50 p-4"><h3 className="font-semibold text-navy">Routing suggestions</h3><p className="mt-1 text-xs text-slate-500">Historical references only; plant-head approval is still required.</p>{routing.status === 'insufficient_evidence' ? <p className="mt-3 text-sm text-amber-700">{routing.warnings.join(' ')}</p> : routing.suggestions.map(item => <div className="mt-3 border-t border-slate-200 pt-3 text-sm" key={`${item.sequence}-${item.operationName}`}><strong>{item.sequence}. {item.operationName} · {item.machineCode}</strong><p className="text-slate-600">{item.rationale}</p></div>)}</div>}
+            {routing && (
+              <div className="mt-6 rounded-lg bg-[#111111] border border-[#292D34] p-4">
+                <h3 className="font-semibold text-[#F5F5F5]">Routing suggestions</h3>
+                <p className="mt-1 text-xs text-[#737373]">Historical references only; plant-head approval is still required.</p>
+                {routing.status === 'insufficient_evidence' ? (
+                  <p className="mt-3 text-sm text-amber-400">{routing.warnings.join(' ')}</p>
+                ) : (
+                  routing.suggestions.map(item => (
+                    <div className="mt-3 border-t border-[#292D34] pt-3 text-sm" key={`${item.sequence}-${item.operationName}`}>
+                      <strong className="text-[#F5F5F5]">{item.sequence}. {item.operationName} · {item.machineCode}</strong>
+                      <p className="text-[#A3A3A3]">{item.rationale}</p>
+                    </div>
+                  ))
+                )}
+              </div>
+            )}
           </section>
-          <div className="flex flex-wrap gap-3">
-            <button className="button border border-slate-200 text-slate-600" type="button" disabled={busy || !form.part.name || !form.part.material} onClick={suggestRouting}>Suggest from historical parts</button>
-            {!canConfirm && <p className="w-full text-sm text-amber-700">{customersLoading ? 'Loading the customer directory…' : 'Click confirm to see the exact fields that still need attention.'}</p>}
-            <button className="button button-primary" disabled={busy || customersLoading}>{busy ? 'Creating RFQ…' : <>Confirm and create RFQ <ArrowRight size={17} /></>}</button>
+          <div className="flex flex-wrap gap-3 items-center">
+            <button className="button border border-[#292D34] bg-[#181818] text-[#A3A3A3] hover:text-[#F5F5F5] hover:border-[#737373]" type="button" disabled={busy || !form.part.name || !form.part.material} onClick={suggestRouting}>
+              Suggest from historical parts
+            </button>
+            {!canConfirm && <p className="w-full text-sm text-amber-400">{customersLoading ? 'Loading the customer directory…' : 'Click confirm to see the exact fields that still need attention.'}</p>}
+            <button className="button button-primary" disabled={busy || customersLoading}>
+              {busy ? 'Creating RFQ…' : <>Confirm and create RFQ <ArrowRight size={17} /></>}
+            </button>
           </div>
         </form>
       )}

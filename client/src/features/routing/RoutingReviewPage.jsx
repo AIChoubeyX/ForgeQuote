@@ -61,21 +61,21 @@ export function RoutingReviewPage() {
     }
   }
 
-  if (!rows) return <main className="mx-auto max-w-6xl p-5 md:p-10"><LoadingState label="Loading routing queue…" /></main>;
+  if (!rows) return <main className="mx-auto max-w-6xl p-5 md:p-10 text-[#F5F5F5]"><LoadingState label="Loading routing queue…" /></main>;
 
   return (
-    <main className="mx-auto max-w-6xl p-5 md:p-10">
+    <main className="mx-auto max-w-6xl p-5 md:p-10 text-[#F5F5F5]">
       <div className="mb-8">
-        <Link className="text-sm font-semibold text-forge" to="/app">← Dashboard</Link>
+        <Link className="text-sm font-semibold text-forge hover:text-[#E94B13] transition-colors" to="/app">← Dashboard</Link>
         <p className="mb-2 mt-6 text-xs font-bold uppercase tracking-[.14em] text-forge">Plant review</p>
-        <h1 className="font-display text-4xl font-semibold text-navy">
+        <h1 className="font-display text-4xl font-semibold text-[#F5F5F5]">
           {statusFilter === 'pending_review' ? 'Routing review queue' : statusFilter === 'overdue' ? 'Overdue routing reviews' : 'Routing decision history'}
         </h1>
-        <p className="mt-2 text-sm text-slate-500">Review submitted operations and preserved plant decisions.</p>
+        <p className="mt-2 text-sm text-[#A3A3A3]">Review submitted operations and preserved plant decisions.</p>
       </div>
 
       {error && <div className="mb-4"><ErrorState message={error} /></div>}
-      {message && <div className="mb-4 rounded-lg bg-green-50 p-3 text-sm text-green-700">{message}</div>}
+      {message && <div className="mb-4 rounded-lg border border-emerald-500/30 bg-emerald-500/10 p-3 text-sm text-emerald-400">{message}</div>}
 
       {!rows.length ? (
         <EmptyState title={statusFilter === 'overdue' ? 'No overdue routes' : 'No routes are pending review'} message="New estimator submissions will appear here." />
@@ -85,7 +85,7 @@ export function RoutingReviewPage() {
             <div className="table-scroll">
               <table className="w-full text-left text-sm">
                 <thead>
-                  <tr className="border-b border-slate-200 text-xs uppercase text-slate-400">
+                  <tr className="border-b border-[#292D34] text-xs uppercase text-[#737373]">
                     <th className="p-3">RFQ</th>
                     <th className="p-3">Part</th>
                     <th className="p-3">Estimator</th>
@@ -94,19 +94,28 @@ export function RoutingReviewPage() {
                 <tbody>
                   {rows.map(row => (
                     <tr
-                      className={`cursor-pointer border-b border-slate-100 hover:bg-slate-50 ${selected?.id === row.id ? 'bg-blue-50' : ''}`}
+                      aria-label={`Open routing review for ${row.rfq_number}, ${row.name}`}
+                      className={`cursor-pointer border-b border-[#292D34] hover:bg-[#202020] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-forge transition-colors ${selected?.id === row.id ? 'bg-[#FF5A1F]/10 border-l-2 border-forge' : ''}`}
+                      onKeyDown={event => {
+                        if (event.key === 'Enter' || event.key === ' ') {
+                          event.preventDefault();
+                          open(row);
+                        }
+                      }}
                       onClick={() => open(row)}
                       key={row.id}
+                      role="button"
+                      tabIndex={0}
                     >
-                      <td className="p-3 font-semibold">{row.rfq_number}</td>
-                      <td className="p-3">{row.name}</td>
-                      <td className="p-3">{row.estimator_name}</td>
+                      <td className="p-3 font-semibold text-[#F5F5F5]">{row.rfq_number}</td>
+                      <td className="p-3 text-[#A3A3A3]">{row.name}</td>
+                      <td className="p-3 text-[#A3A3A3]">{row.estimator_name}</td>
                     </tr>
                   ))}
                 </tbody>
               </table>
             </div>
-            {loadingId && <p className="mt-3 text-sm text-slate-500">Loading route…</p>}
+            {loadingId && <p className="mt-3 text-sm text-[#A3A3A3]">Loading route…</p>}
           </section>
 
           {selected && (
@@ -119,22 +128,22 @@ export function RoutingReviewPage() {
                 context={selected}
               />
               <div>
-                <h2 className="font-display text-lg font-semibold text-navy">{selected.rfq_number} · {selected.name}</h2>
-                <p className="my-2 text-sm text-slate-500">{selected.material} · {selected.gross_weight} kg · annual volume {selected.annual_volume}</p>
+                <h2 className="font-display text-lg font-semibold text-[#F5F5F5]">{selected.rfq_number} · {selected.name}</h2>
+                <p className="my-2 text-sm text-[#A3A3A3]">{selected.material} · {selected.gross_weight} kg · annual volume {selected.annual_volume}</p>
               </div>
 
               <div className="space-y-2">
-                <p className="text-xs font-semibold uppercase tracking-wider text-slate-400">Operations in Route</p>
+                <p className="text-xs font-semibold uppercase tracking-wider text-[#737373]">Operations in Route</p>
                 {selected.operations?.map(operation => (
-                  <div className="rounded border border-slate-100 p-3 text-sm bg-slate-50/50" key={operation.id}>
-                    <strong className="block">{operation.sequence}. {operation.operation_name}</strong>
-                    <span className="mt-1 block text-slate-500">{operation.machine_code} · {operation.cycle_time_minutes} min · {operation.rate_value} {operation.rate_unit}</span>
+                  <div className="rounded border border-[#292D34] p-3 text-sm bg-[#111111]" key={operation.id}>
+                    <strong className="block text-[#F5F5F5]">{operation.sequence}. {operation.operation_name}</strong>
+                    <span className="mt-1 block text-[#A3A3A3]">{operation.machine_code} · {operation.cycle_time_minutes} min · {operation.rate_value} {operation.rate_unit}</span>
                   </div>
                 ))}
               </div>
 
               <div>
-                <label className="block text-sm font-semibold mb-1">Decision explanation</label>
+                <label className="block text-sm font-semibold mb-1 text-[#F5F5F5]">Decision explanation</label>
                 <textarea
                   className="field min-h-24"
                   placeholder="Explain the approval or requested correction"
@@ -147,7 +156,7 @@ export function RoutingReviewPage() {
                 <button className="button button-primary w-full sm:w-auto" type="button" disabled={loading} onClick={() => decide('approved')}>
                   {loading ? 'Saving…' : 'Approve route'}
                 </button>
-                <button className="button w-full border border-slate-200 text-slate-600 sm:w-auto" type="button" disabled={loading} onClick={() => decide('changes_requested')}>
+                <button className="button w-full border border-[#292D34] bg-[#181818] text-[#A3A3A3] hover:text-[#EF4444] hover:border-[#EF4444] sm:w-auto" type="button" disabled={loading} onClick={() => decide('changes_requested')}>
                   {loading ? 'Saving…' : 'Return for revision'}
                 </button>
               </div>

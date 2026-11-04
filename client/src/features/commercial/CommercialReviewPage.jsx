@@ -58,19 +58,19 @@ export function CommercialReviewPage() {
     URL.revokeObjectURL(url);
   }
 
-  if (!rows) return <main className="mx-auto max-w-6xl p-5 md:p-10"><LoadingState label="Loading commercial queue…" /></main>;
+  if (!rows) return <main className="mx-auto max-w-6xl p-5 md:p-10 text-[#F5F5F5]"><LoadingState label="Loading commercial queue…" /></main>;
 
   return (
-    <main className="mx-auto max-w-6xl p-5 md:p-10">
+    <main className="mx-auto max-w-6xl p-5 md:p-10 text-[#F5F5F5]">
       <div className="mb-8">
-        <Link className="text-sm font-semibold text-forge" to="/app">← Dashboard</Link>
+        <Link className="text-sm font-semibold text-forge hover:text-[#E94B13] transition-colors" to="/app">← Dashboard</Link>
         <p className="mb-2 mt-6 text-xs font-bold uppercase tracking-[.14em] text-forge">Commercial review</p>
-        <h1 className="font-display text-4xl font-semibold text-navy">
+        <h1 className="font-display text-4xl font-semibold text-[#F5F5F5]">
           {highValue ? 'High-value approvals' : statusFilter === 'pending' ? 'Quotation approvals' : 'Commercial decision history'}
         </h1>
-        <p className="mt-2 text-sm text-slate-500">Approve or inspect persisted commercial decisions.</p>
+        <p className="mt-2 text-sm text-[#A3A3A3]">Approve or inspect persisted commercial decisions.</p>
         {(highValue || statusFilter !== 'pending') && (
-          <Link className="mt-3 inline-block text-sm font-semibold text-forge underline" to="/app/commercial-reviews">
+          <Link className="mt-3 inline-block text-sm font-semibold text-forge hover:text-[#E94B13] underline" to="/app/commercial-reviews">
             Clear active filter
           </Link>
         )}
@@ -78,19 +78,21 @@ export function CommercialReviewPage() {
 
       {error && <ErrorState message={error} />}
       {quotationId && (
-        <div className="mb-5 rounded-lg bg-green-50 p-3 text-sm text-green-700">
-          Quotation approved. <button className="font-semibold underline" onClick={download}>Download PDF</button>
+        <div className="mb-5 rounded-lg border border-emerald-500/30 bg-emerald-500/10 p-4 text-sm text-emerald-400 flex items-center justify-between">
+          <span>Quotation approved successfully.</span>
+          <button className="button button-primary py-1.5 px-3 text-xs" onClick={download}>Download PDF</button>
         </div>
       )}
 
       {!rows.length ? (
-        <section className="panel"><p className="text-sm text-slate-500">No quotations are pending commercial review.</p></section>
+        <section className="panel"><p className="text-sm text-[#A3A3A3]">No quotations are pending commercial review.</p></section>
       ) : (
         <div className="grid gap-6 lg:grid-cols-[1fr_1.2fr]">
-          <section className="panel overflow-auto">
+          <section className="panel min-w-0">
+            <div className="table-scroll" tabIndex={0} role="region" aria-label="Commercial review queue. Scroll horizontally for more columns.">
             <table className="w-full min-w-[500px] text-left text-sm">
               <thead>
-                <tr className="border-b border-slate-200 text-xs uppercase text-slate-400">
+                <tr className="border-b border-[#292D34] text-xs uppercase text-[#737373]">
                   <th className="p-3">RFQ</th>
                   <th className="p-3">Customer</th>
                   <th className="p-3">Part</th>
@@ -99,17 +101,27 @@ export function CommercialReviewPage() {
               <tbody>
                 {rows.map(row => (
                   <tr
-                    className={`cursor-pointer border-b border-slate-100 hover:bg-slate-50 ${selected?.id === row.id ? 'bg-blue-50' : ''}`}
+                    aria-label={`Open commercial review for ${row.rfq_number}, ${row.name}`}
+                    className={`cursor-pointer border-b border-[#292D34] hover:bg-[#202020] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-forge transition-colors ${selected?.id === row.id ? 'bg-[#FF5A1F]/10 border-l-2 border-forge' : ''}`}
+                    onKeyDown={event => {
+                      if (event.key === 'Enter' || event.key === ' ') {
+                        event.preventDefault();
+                        open(row.id);
+                      }
+                    }}
                     onClick={() => open(row.id)}
                     key={row.id}
+                    role="button"
+                    tabIndex={0}
                   >
-                    <td className="p-3 font-semibold">{row.rfq_number}</td>
-                    <td className="p-3">{row.customer_name}</td>
-                    <td className="p-3">{row.name}</td>
+                    <td className="p-3 font-semibold text-[#F5F5F5]">{row.rfq_number}</td>
+                    <td className="p-3 text-[#A3A3A3]">{row.customer_name}</td>
+                    <td className="p-3 text-[#A3A3A3]">{row.name}</td>
                   </tr>
                 ))}
               </tbody>
             </table>
+            </div>
           </section>
 
           {selected && (
@@ -124,24 +136,24 @@ export function CommercialReviewPage() {
               />
 
               <div>
-                <h2 className="font-display text-lg font-semibold text-navy">{selected.rfq_number} · {selected.name}</h2>
-                <p className="my-2 text-sm text-slate-500">{selected.customer_name} · {selected.material} · annual volume {selected.annual_volume}</p>
+                <h2 className="font-display text-lg font-semibold text-[#F5F5F5]">{selected.rfq_number} · {selected.name}</h2>
+                <p className="my-2 text-sm text-[#A3A3A3]">{selected.customer_name} · {selected.material} · annual volume {selected.annual_volume}</p>
               </div>
 
-              <div className="rounded-lg border border-slate-100 p-3 bg-slate-50/50">
-                <p className="text-xs font-semibold uppercase tracking-wider text-slate-400 mb-2">Cost & Pricing Breakdown</p>
+              <div className="rounded-lg border border-[#292D34] p-3 bg-[#111111]">
+                <p className="text-xs font-semibold uppercase tracking-wider text-[#737373] mb-2">Cost & Pricing Breakdown</p>
                 <div className="space-y-1.5 text-sm">
                   {Object.entries(selected.calculations?.components || {}).map(([key, value]) => (
-                    <div className="flex justify-between border-b border-slate-100 py-1.5 text-xs" key={key}>
-                      <span className="capitalize text-slate-500">{key.replace(/([A-Z])/g, ' $1')}</span>
-                      <strong className="text-slate-800">{value}</strong>
+                    <div className="flex justify-between border-b border-[#292D34] py-1.5 text-xs" key={key}>
+                      <span className="capitalize text-[#A3A3A3]">{key.replace(/([A-Z])/g, ' $1')}</span>
+                      <strong className="text-[#F5F5F5]">{value}</strong>
                     </div>
                   ))}
                 </div>
               </div>
 
               <div>
-                <label className="block text-sm font-semibold mb-1">Decision explanation (required)</label>
+                <label className="block text-sm font-semibold mb-1 text-[#F5F5F5]">Decision explanation (required)</label>
                 <textarea
                   className="field min-h-24"
                   placeholder="Explain the commercial approval or requested changes"
@@ -154,7 +166,7 @@ export function CommercialReviewPage() {
                 <button className="button button-primary" disabled={!comment.trim()} onClick={() => decide('approved')}>
                   Approve quotation
                 </button>
-                <button className="button border border-slate-200 text-slate-600" disabled={!comment.trim()} onClick={() => decide('changes_requested')}>
+                <button className="button border border-[#292D34] bg-[#181818] text-[#A3A3A3] hover:text-[#EF4444] hover:border-[#EF4444]" disabled={!comment.trim()} onClick={() => decide('changes_requested')}>
                   Return for correction
                 </button>
               </div>
