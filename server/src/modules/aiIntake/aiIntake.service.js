@@ -16,7 +16,7 @@ export const upload = multer({
 
 export async function extract(req) {
   const source = await parseSource({ file: req.file, emailText: req.body.emailText });
-  const result = await groq.extract(source.sourceText);
+  const result = await groq.extract(source.sourceText, req.correlationId);
   const saved = await repository.insert({ ...source, actorId: req.user.id, result });
   await audit.record(
     { query },

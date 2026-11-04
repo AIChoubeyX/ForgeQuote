@@ -6,11 +6,26 @@ export class AppError extends Error {
   }
 }
 
-export function errorHandler(error, _req, res, _next) {
-  console.error(error);
+export function errorHandler(error, req, res, _next) {
+  const correlationId = req?.correlationId;
   if (error.name === 'ZodError') {
-    return res.status(400).json({ error: { message: 'Invalid request data', details: error.flatten() } });
+    return res.status(400).json({
+      error: {
+        message: 'Invalid request data',
+        details: error.flatten(),
+        correlationId
+      }
+    });
   }
   const status = error.status || 500;
-  res.status(status).json({ error: { message: status === 500 ? 'Unexpected server error' : error.message, details: error.details } });
+  if (status === 500) {
+    console.error(`[Internal Error ${correlationId || 'unknown'}]`, error);
+  }
+  res.status(status).json({
+    error: {
+      message: status === 500 ? 'An unexpected server error occurred. Please contact support.' : error.message,
+      details: status === 500 ? undefined : error.details,
+      correlationId
+    }
+  });
 }

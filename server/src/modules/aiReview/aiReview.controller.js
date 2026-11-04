@@ -6,7 +6,7 @@ export async function review(req, res) {
     ...req.body,
     reviewType: req.body.reviewType || req.params.type
   });
-  const data = await service.executeReview(input, req.user);
+  const data = await service.executeReview({ ...input, correlationId: req.correlationId }, req.user);
   res.json({ data });
 }
 

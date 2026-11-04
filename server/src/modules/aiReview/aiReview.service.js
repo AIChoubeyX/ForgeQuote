@@ -74,8 +74,8 @@ export async function executeReview(input, user) {
     throw new AppError(400, `Unsupported review type: ${reviewType}`);
   }
 
-  // Check cache
-  const cacheKey = `${reviewType}:${costingRevisionId || commercialReviewId || rfqId}:${targetVersion}`;
+  // Check cache (scoped to reviewType, role, target entity and row version)
+  const cacheKey = `${reviewType}:${user.role}:${costingRevisionId || commercialReviewId || rfqId}:${targetVersion}`;
   const cached = getCached(cacheKey);
   if (cached) {
     return cached;
@@ -118,7 +118,8 @@ export async function executeReview(input, user) {
       aiResult = await groqClient.callGroqReview({
         reviewType,
         context,
-        deterministicFindings
+        deterministicFindings,
+        correlationId: input.correlationId
       });
     } catch (groqError) {
       // If Groq fails (e.g. rate limit or provider down), we do NOT invent a review;
