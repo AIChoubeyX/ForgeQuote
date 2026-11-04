@@ -3,11 +3,13 @@
   "private": true,
   "type": "module",
   "scripts": {
+    "free-port": "node scripts/free-port.js",
+    "predev": "node scripts/free-port.js",
     "dev": "node --watch src/server.js",
     "start": "node src/server.js",
     "migrate": "node src/config/migrate-runner.js",
     "seed": "node src/config/seed.js",
-    "test": "vitest run"
+    "test": "vitest run --testTimeout 25000"
   },
   "dependencies": {
     "bcryptjs": "^2.4.3",

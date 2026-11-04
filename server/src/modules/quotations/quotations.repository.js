@@ -12,11 +12,7 @@ export async function list(status, user) {
     JOIN rfqs r ON r.id=p.rfq_id
     JOIN customers c ON c.id=r.customer_id
     WHERE ($2::uuid IS NULL OR r.owner_id=$2)
-      AND (
-      $1::text IS NULL
-      OR ($1='approved' AND q.status IN ('approved','issued'))
-      OR ($1<>'approved' AND q.status=$1)
-    )
+      AND ($1::text IS NULL OR q.status = $1)
     ORDER BY q.created_at DESC`, [status || null, user.role === 'estimator' ? user.id : null]);
   return result.rows;
 }

@@ -69,8 +69,35 @@ export async function download(id, user) {
     } else if (quotation.status !== 'issued') {
       await client.query(`UPDATE quotations SET status='issued',issued_at=COALESCE(issued_at,now()),issued_by=COALESCE(issued_by,$2) WHERE id=$1`, [id, user.id]);
       await client.query(`UPDATE rfqs SET status='quoted',updated_at=now() WHERE id=$1`, [quotation.rfq_id]);
+      await audit.record(client, { actorId: user.id, entityType: 'quotation', entityId: id, action: 'issued', metadata: { quotationNumber: quotation.quotation_number, costingRevisionId: quotation.costing_revision_id } });
     }
     await client.query('COMMIT');
-    return { quotation, document: document.rows[0] };
+    const updated = await findQuotation(id);
+    return { quotation: updated, document: document.rows[0] };
+  } catch (error) { await client.query('ROLLBACK'); throw error; } finally { client.release(); }
+}
+
+export async function issue(id, user) {
+  const quotation = await findQuotation(id);
+  if (!quotation) throw new AppError(404, 'Quotation not found');
+  if (quotation.review_status !== 'approved') throw new AppError(409, 'Only approved quotations can be issued');
+  if (!quotation.snapshot?.company) throw new AppError(422, 'Quotation snapshot is incomplete');
+  if (quotation.status === 'issued') {
+    return quotation;
+  }
+  const client = await pool.connect();
+  try {
+    await client.query('BEGIN');
+    let document = await client.query('SELECT * FROM quotation_documents WHERE quotation_id=$1', [id]);
+    if (!document.rows[0]) {
+      const content = await render(quotation.snapshot);
+      await client.query(`INSERT INTO quotation_documents (quotation_id,content) VALUES ($1,$2)`, [id, content]);
+      await audit.record(client, { actorId: user.id, entityType: 'quotation', entityId: id, action: 'pdf_generated', metadata: { quotationNumber: quotation.quotation_number } });
+    }
+    await client.query(`UPDATE quotations SET status='issued',issued_at=COALESCE(issued_at,now()),issued_by=COALESCE(issued_by,$2) WHERE id=$1`, [id, user.id]);
+    await client.query(`UPDATE rfqs SET status='quoted',updated_at=now() WHERE id=$1`, [quotation.rfq_id]);
+    await audit.record(client, { actorId: user.id, entityType: 'quotation', entityId: id, action: 'issued', metadata: { quotationNumber: quotation.quotation_number, costingRevisionId: quotation.costing_revision_id } });
+    await client.query('COMMIT');
+    return findQuotation(id);
   } catch (error) { await client.query('ROLLBACK'); throw error; } finally { client.release(); }
 }

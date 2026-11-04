@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { BarChart3, ClipboardList, LogOut, Menu, X, Settings, GitPullRequest, BadgeCheck, ShieldCheck, FileText } from 'lucide-react';
-import { NavLink, Outlet, useNavigate } from 'react-router-dom';
+import { NavLink, Outlet, useLocation, useNavigate } from 'react-router-dom';
 import { Logo } from '../components/ui/Logo.jsx';
 import { api } from '../lib/api.js';
 
@@ -20,7 +20,21 @@ export const navigation = [
 export function DashboardLayout({ user, onLogout }) {
   const [open, setOpen] = useState(false);
   const navigate = useNavigate();
+  const location = useLocation();
   async function logout() { await api('/auth/logout', { method: 'POST' }); onLogout(); navigate('/'); }
+
+  const userNav = navigation.filter(item => item.roles.includes(user.role));
+
+  function isNavItemActive(itemTo, pathname) {
+    if (pathname === itemTo) return true;
+    if (itemTo !== '/app' && pathname.startsWith(`${itemTo}/`)) {
+      const hasMoreSpecificMatch = userNav.some(
+        other => other.to !== itemTo && other.to.length > itemTo.length && (pathname === other.to || pathname.startsWith(`${other.to}/`))
+      );
+      return !hasMoreSpecificMatch;
+    }
+    return false;
+  }
 
   return (
     <div className="flex min-h-screen bg-[#080808] text-[#F5F5F5]">
@@ -44,24 +58,26 @@ export function DashboardLayout({ user, onLogout }) {
         </p>
 
         <div className="space-y-1">
-          {navigation.filter(item => item.roles.includes(user.role)).map(({ label, to, icon: Icon }) => (
-            <NavLink
-              end={to === '/app'}
-              className={({ isActive }) =>
-                `flex min-h-11 items-center gap-3 rounded-md px-3 py-2.5 text-sm transition-colors duration-150 ${
-                  isActive
-                    ? 'bg-[#FF5A1F]/15 text-[#FF5A1F] border-l-2 border-forge font-semibold'
-                    : 'text-[#A3A3A3] hover:bg-[#181818] hover:text-[#F5F5F5]'
-                }`
-              }
-              to={to}
-              onClick={() => setOpen(false)}
-              key={to}
-            >
-              <Icon size={18} />
-              <span>{label}</span>
-            </NavLink>
-          ))}
+          {userNav.map(({ label, to, icon: Icon }) => {
+            const active = isNavItemActive(to, location.pathname);
+            return (
+              <NavLink
+                className={() =>
+                  `flex min-h-11 items-center gap-3 rounded-md px-3 py-2.5 text-sm transition-colors duration-150 ${
+                    active
+                      ? 'bg-[#FF5A1F]/15 text-[#FF5A1F] border-l-2 border-forge font-semibold'
+                      : 'text-[#A3A3A3] hover:bg-[#181818] hover:text-[#F5F5F5]'
+                  }`
+                }
+                to={to}
+                onClick={() => setOpen(false)}
+                key={to}
+              >
+                <Icon size={18} />
+                <span>{label}</span>
+              </NavLink>
+            );
+          })}
         </div>
 
         {/* User Profile Footer */}
@@ -112,7 +128,7 @@ export function DashboardLayout({ user, onLogout }) {
         </header>
         
         <div className="flex-1 bg-[#080808]">
-          <Outlet />
+          <Outlet context={{ user }} />
         </div>
       </div>
     </div>

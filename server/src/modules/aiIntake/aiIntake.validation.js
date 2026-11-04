@@ -7,9 +7,9 @@ const evidence = z.object({
 });
 
 export const extractedField = z.object({
-  value: z.union([z.string().max(500), z.number(), z.null()]),
+  value: z.union([z.string().max(1000), z.number(), z.null()]),
   status: fieldStatus,
-  evidence: z.array(evidence).max(5),
+  evidence: z.array(evidence).max(10),
   note: z.string().max(500).default('')
 });
 
@@ -37,19 +37,19 @@ export const extractionResult = z.object({
 
 export const confirmInput = z.object({
   extractionId: z.string().uuid(),
-  rfqNumber: z.string().trim().min(1).max(80),
-  customerId: z.string().uuid(),
-  customerName: z.string().trim().min(1).max(200),
+  rfqNumber: z.string().trim().min(1, 'RFQ number is required').max(80),
+  customerId: z.string().uuid().optional(),
+  customerName: z.string().trim().min(1, 'Customer name is required').max(200),
   receivedDate: z.string().date(),
   dueDate: z.string().date(),
   assignedEstimatorId: z.string().uuid().optional(),
   sourceNotes: z.string().max(2000).default(''),
   part: z.object({
-    name: z.string().trim().min(1).max(160),
+    name: z.string().trim().min(1, 'Part name is required').max(160),
     description: z.string().max(2000).default(''),
-    material: z.string().trim().min(1).max(120),
-    grossWeight: z.number().positive(),
-    annualVolume: z.number().int().positive()
+    material: z.string().trim().min(1, 'Material is required').max(120),
+    grossWeight: z.number().positive('Gross weight must be positive'),
+    annualVolume: z.number().int().positive('Annual volume must be a positive integer')
   })
 }).refine(value => value.dueDate >= value.receivedDate, {
   message: 'Due date cannot be before received date',

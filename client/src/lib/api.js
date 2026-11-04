@@ -13,3 +13,22 @@ export async function api(path, options = {}) {
   }
   return response.status === 204 ? null : response.json();
 }
+
+export async function downloadFile(path, filename) {
+  const response = await fetch(`${API}${path}`, {
+    credentials: 'include'
+  });
+  if (!response.ok) {
+    const body = await response.json().catch(() => ({}));
+    throw new Error(body.error?.message || 'Download failed');
+  }
+  const blob = await response.blob();
+  const url = window.URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = filename || 'document.pdf';
+  document.body.appendChild(a);
+  a.click();
+  a.remove();
+  window.URL.revokeObjectURL(url);
+}
