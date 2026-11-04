@@ -3,6 +3,9 @@ export default {
   content: ['./index.html', './src/**/*.{js,jsx}'],
   theme: {
     extend: {
+      screens: {
+        xs: '420px'
+      },
       colors: {
         forge: '#FF5A1F',
         'forge-hover': '#E94B13',

@@ -32,10 +32,27 @@ body {
   overflow-x: hidden;
   background-color: #080808;
   color: #F5F5F5;
+  -webkit-tap-highlight-color: transparent;
+}
+
+#root {
+  min-height: 100vh;
+  width: 100%;
+  overflow-x: hidden;
 }
 
 button, input, select, textarea {
   font: inherit;
+}
+
+@layer utilities {
+  .scrollbar-none::-webkit-scrollbar {
+    display: none;
+  }
+  .scrollbar-none {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
 }
 
 @layer components {
@@ -64,13 +81,13 @@ button, input, select, textarea {
     @apply text-[11px] font-bold uppercase tracking-[.16em] text-forge;
   }
   .page-title {
-    @apply font-display text-3xl font-semibold tracking-tight text-[#F5F5F5] md:text-4xl;
+    @apply font-display text-2xl xs:text-3xl font-semibold tracking-tight text-[#F5F5F5] md:text-4xl;
   }
 }
 
 @media (max-width: 767px) {
   .panel { padding: 1rem; }
-  .table-scroll table { min-width: 680px; }
+  .table-scroll table { min-width: 600px; }
 }
 
 @media (prefers-reduced-motion: reduce) {

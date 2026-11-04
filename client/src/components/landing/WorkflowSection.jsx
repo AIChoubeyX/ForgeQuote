@@ -41,28 +41,28 @@ const workflowStages = [
 
 export function WorkflowSection() {
   return (
-    <section id="workflow" className="relative scroll-mt-20 border-t border-[#292D34] bg-[#111111] py-16 sm:py-20 lg:py-28 overflow-hidden">
+    <section id="workflow" className="relative scroll-mt-20 border-t border-[#292D34] bg-[#111111] py-12 sm:py-16 lg:py-24 overflow-hidden">
       <div className="relative mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         
         {/* Section Header */}
-        <div className="mb-12 lg:mb-16 text-center max-w-3xl mx-auto">
-          <p className="eyebrow mb-3">Structured Manufacturing Governance</p>
-          <h2 className="font-display text-3xl sm:text-4xl lg:text-5xl font-bold tracking-tight text-[#F5F5F5]">
+        <div className="mb-10 sm:mb-14 lg:mb-16 text-center max-w-3xl mx-auto">
+          <p className="eyebrow mb-2 sm:mb-3">Structured Manufacturing Governance</p>
+          <h2 className="font-display text-2xl xs:text-3xl sm:text-4xl lg:text-5xl font-bold tracking-tight text-[#F5F5F5]">
             The Quotation Engineering Workflow
           </h2>
-          <p className="mt-4 text-base sm:text-lg text-[#A3A3A3]">
+          <p className="mt-3 sm:mt-4 text-sm sm:text-base lg:text-lg text-[#A3A3A3] leading-relaxed">
             A continuous, auditable progression where automated intelligence assists, deterministic calculations guarantee accuracy, and human department heads hold final authority.
           </p>
         </div>
 
         {/* WORKFLOW INFOGRAPHIC */}
-        <div className="grid gap-10 lg:grid-cols-[380px_1fr] xl:grid-cols-[420px_1fr] lg:items-center">
+        <div className="grid gap-8 sm:gap-10 lg:grid-cols-[340px_1fr] xl:grid-cols-[400px_1fr] lg:items-center">
           
-          {/* LEFT: LARGE CENTRAL CONCENTRIC CIRCLE (Black & Industrial Orange) */}
+          {/* LEFT: CONCENTRIC CIRCLE BRAND EMBLEM */}
           <div className="relative flex flex-col items-center justify-center">
             
             {/* Multi-Ring Concentric Circle Container */}
-            <div className="relative flex h-60 w-60 sm:h-76 sm:w-76 md:h-88 md:w-88 lg:h-96 lg:w-96 items-center justify-center rounded-full bg-[#181818] p-4 sm:p-5 ring-4 sm:ring-8 ring-[#292D34]">
+            <div className="relative flex h-52 w-52 xs:h-60 xs:w-60 sm:h-72 sm:w-72 lg:h-80 lg:w-80 xl:h-88 xl:w-88 items-center justify-center rounded-full bg-[#181818] p-3 sm:p-5 ring-4 sm:ring-8 ring-[#292D34]">
               
               {/* Outer Accent Orbit Ring Arc in Vivid Orange */}
               <div 
@@ -72,56 +72,56 @@ export function WorkflowSection() {
 
               {/* Secondary Concentric Ring */}
               <div 
-                className="absolute inset-3 sm:inset-5 rounded-full border border-[#292D34] bg-gradient-to-br from-[#111111] to-[#080808]"
+                className="absolute inset-2.5 sm:inset-4 rounded-full border border-[#292D34] bg-gradient-to-br from-[#111111] to-[#080808]"
                 aria-hidden="true" 
               />
 
               {/* Inner Circle Content */}
-              <div className="relative z-10 flex flex-col items-center justify-center text-center px-4 sm:px-6">
-                <span className="font-mono text-[10px] sm:text-xs font-bold uppercase tracking-[0.2em] text-forge mb-1">
+              <div className="relative z-10 flex flex-col items-center justify-center text-center px-3 sm:px-5">
+                <span className="font-mono text-[9px] sm:text-xs font-bold uppercase tracking-[0.2em] text-forge mb-1">
                   FORGEQUOTE
                 </span>
                 
-                <h3 className="font-display text-xl sm:text-2xl md:text-3xl font-black uppercase tracking-tight text-[#F5F5F5] leading-tight">
+                <h3 className="font-display text-lg xs:text-xl sm:text-2xl lg:text-3xl font-black uppercase tracking-tight text-[#F5F5F5] leading-tight">
                   RFQ TO<br />QUOTATION
                 </h3>
 
-                <div className="my-2 sm:my-3 h-0.5 w-10 sm:w-12 bg-forge rounded-full" />
+                <div className="my-1.5 sm:my-2.5 h-0.5 w-8 sm:w-12 bg-forge rounded-full" />
 
-                <p className="text-[11px] sm:text-xs md:text-sm font-medium text-[#A3A3A3] italic max-w-[180px] sm:max-w-[210px]">
+                <p className="text-[10px] sm:text-xs md:text-sm font-medium text-[#A3A3A3] italic max-w-[150px] xs:max-w-[180px] sm:max-w-[210px]">
                   &ldquo;One connected manufacturing workflow&rdquo;
                 </p>
 
-                <div className="mt-2.5 sm:mt-3 inline-flex items-center gap-1.5 rounded-full bg-[#181818] border border-[#292D34] px-2.5 py-0.5 sm:px-3 sm:py-1 text-[9px] sm:text-[10px] font-semibold text-[#A3A3A3]">
-                  <ShieldCheck size={12} className="text-forge shrink-0" />
+                <div className="mt-2 sm:mt-2.5 inline-flex items-center gap-1 sm:gap-1.5 rounded-full bg-[#181818] border border-[#292D34] px-2 py-0.5 sm:px-3 sm:py-1 text-[8px] sm:text-[10px] font-semibold text-[#A3A3A3]">
+                  <ShieldCheck size={11} className="text-forge shrink-0" />
                   <span>Deterministic Engine</span>
                 </div>
               </div>
             </div>
 
             {/* Orbit Connector Label */}
-            <div className="mt-5 text-center text-xs font-semibold uppercase tracking-wider text-[#737373]">
+            <div className="mt-4 text-center text-[10px] sm:text-xs font-semibold uppercase tracking-wider text-[#737373]">
               End-to-End Governance Model
             </div>
           </div>
 
-          {/* RIGHT: FOUR DISTINCT WORKFLOW STAGES (Charcoal & Orange Capsules) */}
-          <div className="relative space-y-4 sm:space-y-5 lg:space-y-6">
+          {/* RIGHT: FOUR DISTINCT WORKFLOW STAGES */}
+          <div className="relative space-y-3.5 sm:space-y-4 lg:space-y-5">
             
-            {/* Desktop Curved Connector SVG in Vivid Orange */}
-            <div className="pointer-events-none absolute -left-10 top-0 bottom-0 hidden lg:block w-10" aria-hidden="true">
-              <svg className="h-full w-full" preserveAspectRatio="none" viewBox="0 0 40 480" fill="none">
-                <path d="M 0 240 C 20 240, 20 60, 40 60" stroke="#FF5A1F" strokeWidth="2" strokeDasharray="4 4" />
-                <circle cx="40" cy="60" r="4" fill="#FF5A1F" />
+            {/* Desktop Curved Connector SVG */}
+            <div className="pointer-events-none absolute -left-8 top-0 bottom-0 hidden lg:block w-8" aria-hidden="true">
+              <svg className="h-full w-full" preserveAspectRatio="none" viewBox="0 0 32 440" fill="none">
+                <path d="M 0 220 C 16 220, 16 55, 32 55" stroke="#FF5A1F" strokeWidth="2" strokeDasharray="4 4" />
+                <circle cx="32" cy="55" r="3.5" fill="#FF5A1F" />
                 
-                <path d="M 0 240 C 20 240, 25 180, 40 180" stroke="#FF5A1F" strokeWidth="2" />
-                <circle cx="40" cy="180" r="4" fill="#FF5A1F" />
+                <path d="M 0 220 C 16 220, 20 165, 32 165" stroke="#FF5A1F" strokeWidth="2" />
+                <circle cx="32" cy="165" r="3.5" fill="#FF5A1F" />
 
-                <path d="M 0 240 C 20 240, 25 300, 40 300" stroke="#FF5A1F" strokeWidth="2" />
-                <circle cx="40" cy="300" r="4" fill="#FF5A1F" />
+                <path d="M 0 220 C 16 220, 20 275, 32 275" stroke="#FF5A1F" strokeWidth="2" />
+                <circle cx="32" cy="275" r="3.5" fill="#FF5A1F" />
 
-                <path d="M 0 240 C 20 240, 20 420, 40 420" stroke="#22C55E" strokeWidth="2" strokeDasharray="4 4" />
-                <circle cx="40" cy="420" r="4" fill="#22C55E" />
+                <path d="M 0 220 C 16 220, 16 385, 32 385" stroke="#22C55E" strokeWidth="2" strokeDasharray="4 4" />
+                <circle cx="32" cy="385" r="3.5" fill="#22C55E" />
               </svg>
             </div>
 
@@ -131,21 +131,21 @@ export function WorkflowSection() {
               return (
                 <article
                   key={stage.step}
-                  className="group relative flex flex-col sm:flex-row items-stretch sm:items-center rounded-2xl sm:rounded-full bg-[#181818] text-[#F5F5F5] transition-colors duration-150 hover:border-forge border border-[#292D34] p-2 sm:p-2.5"
+                  className="group relative flex flex-col sm:flex-row items-stretch sm:items-center rounded-xl sm:rounded-full bg-[#181818] text-[#F5F5F5] transition-colors duration-150 hover:border-forge border border-[#292D34] p-3 sm:p-2.5 shadow-sm"
                 >
-                  {/* Left Circular Icon Badge in Vivid Orange */}
-                  <div className="flex items-center gap-3 p-1.5 sm:p-0">
-                    <div className="relative flex h-12 w-12 sm:h-14 sm:w-14 lg:h-16 lg:w-16 shrink-0 items-center justify-center rounded-full bg-forge text-white ring-2 sm:ring-4 ring-[#080808]">
-                      <Icon size={22} className="text-white drop-shadow-sm sm:w-6 sm:h-6" />
+                  {/* Left Circular Icon Badge */}
+                  <div className="flex items-center gap-3 sm:block">
+                    <div className="relative flex h-11 w-11 sm:h-13 sm:w-13 lg:h-14 lg:w-14 shrink-0 items-center justify-center rounded-full bg-forge text-white ring-2 sm:ring-4 ring-[#080808]">
+                      <Icon size={20} className="text-white drop-shadow-sm sm:w-5 sm:h-5" />
                       {/* Step Number Dot Overlay */}
-                      <span className="absolute -top-1 -right-1 flex h-5 w-5 sm:h-6 sm:w-6 items-center justify-center rounded-full bg-[#080808] border border-[#66301C] font-mono text-[10px] sm:text-[11px] font-black text-forge">
+                      <span className="absolute -top-1 -right-1 flex h-5 w-5 sm:h-5 sm:w-5 items-center justify-center rounded-full bg-[#080808] border border-[#66301C] font-mono text-[9px] sm:text-[10px] font-black text-forge">
                         {stage.step}
                       </span>
                     </div>
 
                     {/* Mobile Title View */}
-                    <div className="sm:hidden min-w-0">
-                      <span className="text-[10px] font-bold uppercase tracking-wider text-forge block truncate">
+                    <div className="sm:hidden min-w-0 flex-1">
+                      <span className="text-[9px] font-bold uppercase tracking-wider text-forge block truncate">
                         {stage.role}
                       </span>
                       <h3 className="font-display text-sm font-bold text-[#F5F5F5] truncate">
@@ -155,12 +155,12 @@ export function WorkflowSection() {
                   </div>
 
                   {/* Capsule Body Content */}
-                  <div className="flex-1 px-2 sm:px-5 py-1.5 sm:py-2 min-w-0">
+                  <div className="flex-1 mt-2.5 sm:mt-0 px-0 sm:px-4 py-0 sm:py-1.5 min-w-0">
                     <div className="hidden sm:flex items-center justify-between gap-2 mb-1">
-                      <h3 className="font-display text-base lg:text-lg font-bold tracking-tight text-[#F5F5F5]">
+                      <h3 className="font-display text-sm lg:text-base font-bold tracking-tight text-[#F5F5F5]">
                         {stage.step} — {stage.title}
                       </h3>
-                      <span className="rounded-full bg-[#111111] border border-[#292D34] px-2.5 py-0.5 text-[10px] font-semibold uppercase tracking-wider text-[#A3A3A3] shrink-0">
+                      <span className="rounded-full bg-[#111111] border border-[#292D34] px-2 py-0.5 text-[9px] lg:text-[10px] font-semibold uppercase tracking-wider text-[#A3A3A3] shrink-0">
                         {stage.role}
                       </span>
                     </div>
@@ -170,8 +170,8 @@ export function WorkflowSection() {
                     </p>
                   </div>
 
-                  {/* Flow Direction Indicator */}
-                  <div className="hidden sm:flex items-center pr-4 text-[#737373] group-hover:text-forge transition-colors shrink-0" aria-hidden="true">
+                  {/* Flow Direction Indicator (Desktop/Tablet) */}
+                  <div className="hidden sm:flex items-center pr-3 text-[#737373] group-hover:text-forge transition-colors shrink-0" aria-hidden="true">
                     <ChevronRight size={18} />
                   </div>
                 </article>
@@ -182,12 +182,12 @@ export function WorkflowSection() {
         </div>
 
         {/* Human Authority Assurance Banner */}
-        <div className="mt-12 rounded-2xl border border-[#292D34] bg-[#181818] p-4 sm:p-6 text-center text-sm text-[#F5F5F5] max-w-4xl mx-auto">
-          <div className="flex flex-col sm:flex-row items-center justify-center gap-3">
-            <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-forge text-white">
+        <div className="mt-10 sm:mt-12 rounded-xl sm:rounded-2xl border border-[#292D34] bg-[#181818] p-4 sm:p-5 text-center sm:text-left text-sm text-[#F5F5F5] max-w-4xl mx-auto">
+          <div className="flex flex-col sm:flex-row items-center sm:items-start gap-3 sm:gap-4">
+            <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-forge text-white mt-0.5">
               <UserCheck size={18} />
             </div>
-            <p className="text-left font-medium text-[#A3A3A3] text-xs sm:text-sm">
+            <p className="font-medium text-[#A3A3A3] text-xs sm:text-sm leading-relaxed">
               <strong className="text-[#F5F5F5]">Human Authority Remains Decisive:</strong>{' '}
               AI extraction and deterministic algorithms assist by checking rate masters and verifying operation syntax, but only authorized human estimators, plant heads, and sales leaders can sign off and issue binding commercial quotations.
             </p>
