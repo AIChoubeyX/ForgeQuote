@@ -58,10 +58,10 @@ export function CommercialReviewPage() {
     URL.revokeObjectURL(url);
   }
 
-  if (!rows) return <main className="mx-auto max-w-6xl p-5 md:p-10 text-[#F5F5F5]"><LoadingState label="Loading commercial queue…" /></main>;
+  if (!rows) return <main className="mx-auto w-full max-w-6xl px-3.5 py-4 sm:p-6 md:p-10 text-[#F5F5F5] min-w-0"><LoadingState label="Loading commercial queue…" /></main>;
 
   return (
-    <main className="mx-auto max-w-6xl p-5 md:p-10 text-[#F5F5F5]">
+    <main className="mx-auto w-full max-w-6xl px-3.5 py-4 sm:p-6 md:p-10 text-[#F5F5F5] min-w-0">
       <div className="mb-8">
         <Link className="text-sm font-semibold text-forge hover:text-[#E94B13] transition-colors" to="/app">← Dashboard</Link>
         <p className="mb-2 mt-6 text-xs font-bold uppercase tracking-[.14em] text-forge">Commercial review</p>
@@ -85,10 +85,10 @@ export function CommercialReviewPage() {
       )}
 
       {!rows.length ? (
-        <section className="panel"><p className="text-sm text-[#A3A3A3]">No quotations are pending commercial review.</p></section>
+        <section className="panel min-w-0 w-full"><p className="text-sm text-[#A3A3A3]">No quotations are pending commercial review.</p></section>
       ) : (
-        <div className="grid gap-6 lg:grid-cols-[1fr_1.2fr]">
-          <section className="panel min-w-0">
+        <div className="grid gap-6 lg:grid-cols-[1fr_1.2fr] min-w-0 w-full">
+          <section className="panel min-w-0 w-full">
             <div className="table-scroll" tabIndex={0} role="region" aria-label="Commercial review queue. Scroll horizontally for more columns.">
             <table className="w-full min-w-[500px] text-left text-sm">
               <thead>
@@ -125,7 +125,7 @@ export function CommercialReviewPage() {
           </section>
 
           {selected && (
-            <section className="panel space-y-6">
+            <section className="panel min-w-0 w-full space-y-6">
               <AiReviewPanel
                 feature="commercial"
                 reviewType="commercial_review"

@@ -114,7 +114,7 @@ export function RfqForm({ rfq, onSaved, onCancel }) {
   }
 
   return (
-    <form className="panel mb-6 p-6 md:p-8" onSubmit={submit}>
+    <form className="panel mb-6 p-4 sm:p-6 md:p-8 min-w-0 w-full" onSubmit={submit}>
       <div className="mb-6 border-b border-[#292D34] pb-4">
         <h2 className="font-display text-xl font-bold text-[#F5F5F5]">
           {rfq ? 'Edit RFQ Record' : 'Register New RFQ'}

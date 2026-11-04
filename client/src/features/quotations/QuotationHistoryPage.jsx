@@ -121,7 +121,7 @@ export function QuotationHistoryPage() {
   }
 
   return (
-    <main className="mx-auto max-w-7xl p-5 md:p-8 lg:p-10 text-[#F5F5F5]">
+    <main className="mx-auto w-full max-w-7xl px-3.5 py-4 sm:p-6 md:p-8 lg:p-10 text-[#F5F5F5] min-w-0">
       <header className="mb-8">
         <Link
           className="inline-flex min-h-11 items-center gap-2 text-sm font-semibold text-forge hover:text-[#E94B13] transition-colors focus:outline-none focus:ring-2 focus:ring-forge"
@@ -175,50 +175,50 @@ export function QuotationHistoryPage() {
       ) : (
         <>
           {/* Summary KPI Cards */}
-          <section aria-label="Quotation summary" className="mb-8 grid gap-4 grid-cols-2 lg:grid-cols-4">
-            <article className="panel flex items-center gap-4 p-5">
+          <section aria-label="Quotation summary" className="mb-8 grid gap-3 sm:gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 min-w-0 w-full">
+            <article className="panel flex items-center gap-4 p-4 sm:p-5 min-w-0">
               <span className="grid h-10 w-10 shrink-0 place-items-center rounded-lg bg-[#FF5A1F]/15 border border-[#66301C] text-forge">
                 <FileText size={18} aria-hidden="true" />
               </span>
-              <div>
-                <p className="text-xs font-semibold uppercase tracking-wider text-[#A3A3A3]">Total records</p>
+              <div className="min-w-0">
+                <p className="text-xs font-semibold uppercase tracking-wider text-[#A3A3A3] truncate">Total records</p>
                 <p className="mt-1 font-display text-2xl font-bold text-[#F5F5F5]">{summary.total}</p>
               </div>
             </article>
 
-            <article className="panel flex items-center gap-4 p-5">
+            <article className="panel flex items-center gap-4 p-4 sm:p-5 min-w-0">
               <span className="grid h-10 w-10 shrink-0 place-items-center rounded-lg bg-emerald-500/15 border border-emerald-500/30 text-emerald-400">
                 <PackageCheck size={18} aria-hidden="true" />
               </span>
-              <div>
-                <p className="text-xs font-semibold uppercase tracking-wider text-[#A3A3A3]">Issued records</p>
+              <div className="min-w-0">
+                <p className="text-xs font-semibold uppercase tracking-wider text-[#A3A3A3] truncate">Issued records</p>
                 <p className="mt-1 font-display text-2xl font-bold text-[#F5F5F5]">{summary.issued}</p>
               </div>
             </article>
 
-            <article className="panel flex items-center gap-4 p-5">
+            <article className="panel flex items-center gap-4 p-4 sm:p-5 min-w-0">
               <span className="grid h-10 w-10 shrink-0 place-items-center rounded-lg bg-amber-500/15 border border-amber-500/30 text-amber-400">
                 <FileCheck2 size={18} aria-hidden="true" />
               </span>
-              <div>
-                <p className="text-xs font-semibold uppercase tracking-wider text-[#A3A3A3]">Approved records</p>
+              <div className="min-w-0">
+                <p className="text-xs font-semibold uppercase tracking-wider text-[#A3A3A3] truncate">Approved records</p>
                 <p className="mt-1 font-display text-2xl font-bold text-[#F5F5F5]">{summary.approved}</p>
               </div>
             </article>
 
-            <article className="panel flex items-center gap-4 p-5">
+            <article className="panel flex items-center gap-4 p-4 sm:p-5 min-w-0">
               <span className="grid h-10 w-10 shrink-0 place-items-center rounded-lg bg-[#FF5A1F]/15 border border-[#66301C] text-forge">
                 <IndianRupee size={18} aria-hidden="true" />
               </span>
-              <div>
-                <p className="text-xs font-semibold uppercase tracking-wider text-[#A3A3A3]">Visible value</p>
-                <p className="mt-1 font-display text-2xl font-bold text-forge">{summary.value}</p>
+              <div className="min-w-0">
+                <p className="text-xs font-semibold uppercase tracking-wider text-[#A3A3A3] truncate">Visible value</p>
+                <p className="mt-1 font-display text-2xl font-bold text-forge truncate">{summary.value}</p>
               </div>
             </article>
           </section>
 
           {!rows.length ? (
-            <section className="panel py-16 text-center">
+            <section className="panel py-16 text-center min-w-0 w-full">
               <FileCheck2 className="mx-auto text-[#737373]" size={36} aria-hidden="true" />
               <h2 className="mt-4 font-display text-lg font-semibold text-[#F5F5F5]">No quotations found</h2>
               <p className="mx-auto mt-1 max-w-sm text-sm leading-6 text-[#A3A3A3]">
@@ -234,8 +234,8 @@ export function QuotationHistoryPage() {
               )}
             </section>
           ) : (
-            <section className="panel overflow-hidden p-0">
-              <div className="overflow-x-auto">
+            <section className="panel overflow-hidden p-0 min-w-0 w-full">
+              <div className="table-scroll">
                 <table className="w-full min-w-[850px] text-left text-sm">
                   <caption className="sr-only">Authoritative quotation records</caption>
                   <thead className="bg-[#111111] border-b border-[#292D34]">

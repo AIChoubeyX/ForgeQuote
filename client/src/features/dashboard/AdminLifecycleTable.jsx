@@ -146,23 +146,23 @@ export function AdminLifecycleTable({ initialRecords = [] }) {
   ];
 
   return (
-    <section className="panel p-6">
+    <section className="panel p-4 sm:p-6 min-w-0 w-full overflow-hidden">
       {/* Header */}
-      <div className="mb-6 flex flex-col justify-between gap-4 lg:flex-row lg:items-center">
-        <div>
+      <div className="mb-6 flex flex-col justify-between gap-4 lg:flex-row lg:items-center min-w-0 w-full">
+        <div className="min-w-0 flex-1">
           <div className="flex items-center gap-2">
-            <span className="grid h-7 w-7 place-items-center rounded bg-[#FF5A1F]/15 border border-[#66301C] text-forge">
+            <span className="grid h-7 w-7 place-items-center rounded bg-[#FF5A1F]/15 border border-[#66301C] text-forge shrink-0">
               <FileCheck2 size={16} />
             </span>
-            <h2 className="font-display text-xl font-bold tracking-tight text-[#F5F5F5]">
+            <h2 className="font-display text-lg sm:text-xl font-bold tracking-tight text-[#F5F5F5] break-words">
               Enterprise RFQ & Quotation Lifecycle
             </h2>
           </div>
-          <p className="mt-1 text-sm text-[#A3A3A3]">
+          <p className="mt-1 text-xs sm:text-sm text-[#A3A3A3] break-words">
             Authoritative visibility across all customer inquiries, engineering stages, costing revisions, and issued commercial quotations.
           </p>
         </div>
-        <div className="flex items-center gap-2">
+        <div className="flex flex-wrap items-center gap-2">
           <Link
             to="/app/quotations"
             className="inline-flex min-h-10 items-center gap-1.5 rounded-lg border border-[#292D34] bg-[#181818] px-3.5 py-2 text-xs font-semibold text-[#D4D4D4] hover:border-forge hover:text-[#F5F5F5] transition-colors"
@@ -217,7 +217,7 @@ export function AdminLifecycleTable({ initialRecords = [] }) {
         </nav>
 
         {/* Search input */}
-        <div className="relative min-w-[260px]">
+        <div className="relative w-full sm:w-auto sm:min-w-[260px]">
           <Search size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-[#737373]" />
           <input
             type="search"
@@ -239,7 +239,7 @@ export function AdminLifecycleTable({ initialRecords = [] }) {
 
       {/* Table */}
       <div className="table-scroll">
-        <table className="w-full text-left text-sm">
+        <table className="w-full text-left text-sm min-w-[760px]">
           <thead className="border-b border-[#292D34] text-xs font-semibold uppercase tracking-wider text-[#737373]">
             <tr>
               <th scope="col" className="px-4 py-3">RFQ & Customer</th>

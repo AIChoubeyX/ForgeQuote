@@ -33,11 +33,11 @@ export function LandingHeader() {
   return (
     <header className="sticky top-0 z-50 border-b border-[#292D34] bg-[#080808]/95 backdrop-blur-md transition-all">
       <div className="mx-auto flex h-16 sm:h-20 max-w-7xl items-center justify-between px-4 sm:px-6 lg:px-8">
-        {/* Brand: Forge Code at top-left, with ForgeQuote™ product badge */}
+        {/* Brand: ForgeQuote at top-left, with ForgeQuote™ product badge */}
         <Link 
           to="/" 
           className="group flex items-center gap-2.5 sm:gap-3 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-forge rounded-lg p-1 -m-1 min-w-0"
-          aria-label="Forge Code Homepage"
+          aria-label="ForgeQuote Homepage"
           onClick={() => setMobileOpen(false)}
         >
           {/* Logo Mark: FQ */}
@@ -50,7 +50,7 @@ export function LandingHeader() {
           <div className="flex flex-col min-w-0">
             <div className="flex items-center gap-2">
               <span className="font-display text-lg sm:text-xl font-bold tracking-tight text-[#F5F5F5] truncate">
-                FORGE CODE
+                FORGEQUOTE
               </span>
               <span className="hidden xs:inline-flex rounded bg-forge/15 border border-[#66301C] px-1.5 py-0.5 text-[9px] sm:text-[10px] font-semibold tracking-wider text-forge uppercase shrink-0">
                 ForgeQuote™

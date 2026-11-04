@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { BarChart3, ClipboardList, LogOut, Menu, X, Settings, GitPullRequest, BadgeCheck, ShieldCheck, FileText } from 'lucide-react';
 import { NavLink, Outlet, useLocation, useNavigate } from 'react-router-dom';
 import { Logo } from '../components/ui/Logo.jsx';
@@ -21,6 +21,42 @@ export function DashboardLayout({ user, onLogout }) {
   const [open, setOpen] = useState(false);
   const navigate = useNavigate();
   const location = useLocation();
+
+  // Prevent background scrolling when mobile sidebar is open
+  useEffect(() => {
+    if (open) {
+      document.body.style.overflow = 'hidden';
+      document.body.style.touchAction = 'none';
+    } else {
+      document.body.style.overflow = '';
+      document.body.style.touchAction = '';
+    }
+    return () => {
+      document.body.style.overflow = '';
+      document.body.style.touchAction = '';
+    };
+  }, [open]);
+
+  // Close sidebar drawer on route navigation
+  useEffect(() => {
+    setOpen(false);
+  }, [location.pathname]);
+
+  // Close sidebar on Escape key
+  useEffect(() => {
+    function handleKeyDown(event) {
+      if (event.key === 'Escape' && open) {
+        setOpen(false);
+      }
+    }
+    if (open) {
+      window.addEventListener('keydown', handleKeyDown);
+    }
+    return () => {
+      window.removeEventListener('keydown', handleKeyDown);
+    };
+  }, [open]);
+
   async function logout() { try { await api('/auth/logout', { method: 'POST' }); } catch {} setToken(null); onLogout(); navigate('/'); }
 
   const userNav = navigation.filter(item => item.roles.includes(user.role));
@@ -111,23 +147,26 @@ export function DashboardLayout({ user, onLogout }) {
       )}
 
       {/* Main Content Area */}
-      <div className="min-w-0 flex-1 flex flex-col">
-        <header className="flex min-h-20 items-center border-b border-[#292D34] bg-[#111111]/95 backdrop-blur-md px-5 md:px-10">
-          <button
-            aria-label="Open navigation"
-            className="mr-4 min-h-11 text-[#A3A3A3] hover:text-[#F5F5F5] md:hidden"
-            onClick={() => setOpen(true)}
-          >
-            <Menu />
-          </button>
-          <span className="font-display font-semibold text-[#F5F5F5] md:hidden">ForgeQuote</span>
-          <div className="ml-auto text-right text-sm text-[#A3A3A3]">
-            <span className="font-semibold text-[#F5F5F5]">{user.name}</span>
-            <span className="ml-2 block text-xs text-[#737373] sm:inline">({roles[user.role] || 'Unknown role'})</span>
+      <div className="flex-1 flex flex-col min-w-0 w-full max-w-full overflow-x-hidden">
+        <header className="flex min-h-16 sm:min-h-20 items-center justify-between border-b border-[#292D34] bg-[#111111]/95 backdrop-blur-md px-4 sm:px-6 md:px-10 min-w-0 w-full">
+          <div className="flex items-center gap-3 min-w-0">
+            <button
+              aria-label="Open navigation"
+              aria-expanded={open}
+              className="min-h-11 text-[#A3A3A3] hover:text-[#F5F5F5] focus-visible:text-forge md:hidden"
+              onClick={() => setOpen(true)}
+            >
+              <Menu size={20} />
+            </button>
+            <span className="font-display font-semibold text-[#F5F5F5] md:hidden truncate">ForgeQuote</span>
+          </div>
+          <div className="ml-auto text-right text-xs sm:text-sm text-[#A3A3A3] min-w-0 pl-2">
+            <span className="font-semibold text-[#F5F5F5] truncate block sm:inline">{user.name}</span>
+            <span className="ml-1 sm:ml-2 text-xs text-[#737373] inline-block">({roles[user.role] || 'Unknown role'})</span>
           </div>
         </header>
         
-        <div className="flex-1 bg-[#080808]">
+        <div className="flex-1 min-w-0 w-full max-w-full bg-[#080808]">
           <Outlet context={{ user }} />
         </div>
       </div>

@@ -15,7 +15,7 @@ export function LandingFooter() {
               </div>
               <div>
                 <span className="font-display text-lg sm:text-xl font-bold tracking-tight text-[#F5F5F5] block">
-                  FORGE CODE
+                  FORGEQUOTE
                 </span>
                 <span className="text-[11px] sm:text-xs text-[#737373] font-medium tracking-wider uppercase block">
                   ForgeQuote™ Manufacturing System
@@ -96,7 +96,7 @@ export function LandingFooter() {
         {/* Bottom Bar: Natural wrapping to prevent overflow on mobile */}
         <div className="mt-6 sm:mt-8 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 sm:gap-4 text-xs text-[#737373]">
           <div>
-            © {new Date().getFullYear()} Forge Code Technologies. All rights reserved.
+            © {new Date().getFullYear()} ForgeQuote Technologies. All rights reserved.
           </div>
 
           <div className="flex flex-wrap items-center gap-x-3 gap-y-1 sm:gap-4 text-[11px] sm:text-xs">

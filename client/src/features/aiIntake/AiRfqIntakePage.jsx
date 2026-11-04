@@ -276,7 +276,7 @@ export function AiRfqIntakePage() {
   }
 
   return (
-    <main className="mx-auto max-w-7xl p-5 md:p-8 lg:p-10 text-[#F5F5F5]">
+    <main className="mx-auto w-full max-w-7xl px-3.5 py-4 sm:p-6 md:p-8 lg:p-10 text-[#F5F5F5] min-w-0">
       <div className="mb-8">
         <Link
           className="inline-flex items-center gap-1.5 text-sm font-semibold text-forge hover:text-[#E94B13] transition-colors"
@@ -310,7 +310,7 @@ export function AiRfqIntakePage() {
       )}
 
       {!extraction ? (
-        <form className="panel max-w-3xl p-6 md:p-8" onSubmit={handleExtract}>
+        <form className="panel max-w-3xl p-4 sm:p-6 md:p-8 min-w-0 w-full" onSubmit={handleExtract}>
           <div className="mb-6">
             <h2 className="font-display text-lg font-bold text-[#F5F5F5]">Source RFQ Material</h2>
             <p className="mt-1 text-sm text-[#A3A3A3]">
@@ -377,8 +377,8 @@ export function AiRfqIntakePage() {
           </div>
         </form>
       ) : (
-        <form onSubmit={handleConfirm} noValidate>
-          <section className="panel mb-6 p-6 md:p-8">
+        <form onSubmit={handleConfirm} noValidate className="min-w-0 w-full">
+          <section className="panel mb-6 p-4 sm:p-6 md:p-8 min-w-0 w-full">
             <div className="flex flex-col justify-between gap-4 sm:flex-row sm:items-start border-b border-[#292D34] pb-5">
               <div>
                 <div className="flex items-center gap-2">

@@ -62,15 +62,15 @@ export function AiReviewPanel({
   }
 
   return (
-    <section className="panel" aria-label="AI review assistance">
+    <section className="panel min-w-0 w-full" aria-label="AI review assistance">
       {/* Header */}
-      <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
-        <div>
-          <div className="flex items-center gap-2">
+      <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between min-w-0 w-full">
+        <div className="min-w-0 flex-1">
+          <div className="flex flex-wrap items-center gap-2 min-w-0">
             <Sparkles size={18} className="text-forge shrink-0" />
-            <h2 className="font-display text-lg font-semibold text-[#F5F5F5]">AI review assistance</h2>
+            <h2 className="font-display text-base sm:text-lg font-semibold text-[#F5F5F5]">AI review assistance</h2>
             {result?.status && (
-              <span className={`inline-flex items-center gap-1 rounded-full px-2.5 py-0.5 text-xs font-medium ${
+              <span className={`inline-flex items-center gap-1 rounded-full px-2.5 py-0.5 text-xs font-medium shrink-0 ${
                 result.status === 'completed'
                   ? 'bg-emerald-500/15 text-emerald-400 border border-emerald-500/30'
                   : result.status === 'insufficient_evidence'
@@ -83,12 +83,12 @@ export function AiReviewPanel({
               </span>
             )}
           </div>
-          <p className="mt-1 text-xs text-[#737373]">
+          <p className="mt-1 text-xs text-[#737373] break-words">
             Advisory validation and domain checks for this revision. Human decisions remain authoritative.
           </p>
         </div>
         <button
-          className="button border border-[#292D34] bg-[#181818] text-[#F5F5F5] hover:border-forge hover:text-forge disabled:opacity-50 transition-colors shrink-0"
+          className="button border border-[#292D34] bg-[#181818] text-[#F5F5F5] hover:border-forge hover:text-forge disabled:opacity-50 transition-colors shrink-0 text-xs sm:text-sm py-2 px-3 sm:px-4 self-start"
           type="button"
           disabled={loading || !hasContextSource}
           onClick={review}
@@ -141,20 +141,22 @@ export function AiReviewPanel({
       )}
 
       {result && (
-        <div className="mt-4 space-y-4">
+        <div className="mt-4 space-y-4 min-w-0 w-full">
           {/* Executive Summary with Markdown Rendering */}
-          <div className="rounded-lg bg-[#111111] border border-[#292D34] p-3.5 text-sm">
+          <div className="rounded-lg bg-[#111111] border border-[#292D34] p-3 sm:p-3.5 text-sm min-w-0 w-full overflow-hidden">
             <div className="flex items-center justify-between pb-1.5 border-b border-[#292D34] mb-2">
               <strong className="text-xs font-bold uppercase tracking-wider text-[#F5F5F5]">Executive Summary</strong>
               <span className="text-[11px] text-[#737373]">Automated Assessment</span>
             </div>
-            <MarkdownRenderer content={result.summary} />
+            <div className="min-w-0 break-words leading-relaxed">
+              <MarkdownRenderer content={result.summary} />
+            </div>
           </div>
 
           {result.status === 'insufficient_evidence' && (
-            <div className="flex items-start gap-2.5 rounded-lg bg-amber-500/10 border border-amber-500/30 p-3 text-xs text-amber-400">
+            <div className="flex items-start gap-2.5 rounded-lg bg-amber-500/10 border border-amber-500/30 p-3 text-xs text-amber-400 min-w-0 w-full">
               <AlertTriangle size={16} className="mt-0.5 shrink-0 text-amber-400" />
-              <div>
+              <div className="min-w-0 flex-1 break-words">
                 <strong className="block font-semibold">Insufficient Context for Comprehensive Review</strong>
                 <span className="mt-0.5 block leading-relaxed text-[#A3A3A3]">
                   Some input values or baseline rate versions are missing. Review the limitations below before final sign-off.
@@ -165,9 +167,9 @@ export function AiReviewPanel({
 
           {/* Limitations List */}
           {result.limitations && result.limitations.length > 0 && (
-            <div className="rounded-lg border border-[#292D34] bg-[#111111] p-3 text-xs">
+            <div className="rounded-lg border border-[#292D34] bg-[#111111] p-3 text-xs min-w-0 w-full overflow-hidden">
               <strong className="block text-[#F5F5F5] font-semibold mb-1.5">Review Limitations & Assumptions</strong>
-              <ul className="list-disc pl-4 space-y-1 text-[#737373]">
+              <ul className="list-disc pl-4 space-y-1 text-[#737373] break-words">
                 {result.limitations.map((lim, idx) => (
                   <li key={idx} className="leading-relaxed">
                     <MarkdownRenderer content={lim} />
@@ -179,7 +181,7 @@ export function AiReviewPanel({
 
           {/* Findings List */}
           {result.findings && result.findings.length > 0 && (
-            <div className="space-y-2.5">
+            <div className="space-y-2.5 min-w-0 w-full">
               <div className="flex items-center justify-between">
                 <span className="text-xs font-bold uppercase tracking-wider text-[#737373]">
                   Findings ({result.findings.length})
@@ -192,7 +194,7 @@ export function AiReviewPanel({
                 const isWarning = item.severity === 'warning';
                 return (
                   <div
-                    className={`rounded-lg border p-3.5 text-xs transition-colors ${
+                    className={`rounded-lg border p-3 sm:p-3.5 text-xs transition-colors min-w-0 w-full overflow-hidden ${
                       isCritical
                         ? 'border-[#EF4444]/40 bg-[#EF4444]/10'
                         : isWarning
@@ -202,8 +204,8 @@ export function AiReviewPanel({
                     key={`${item.code || item.title || index}-${index}`}
                   >
                     {/* Header tags */}
-                    <div className="flex flex-wrap items-center gap-1.5 mb-2">
-                      <span className={`inline-flex items-center gap-1 rounded px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider ${
+                    <div className="flex flex-wrap items-center gap-1.5 mb-2 min-w-0">
+                      <span className={`inline-flex items-center gap-1 rounded px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider shrink-0 ${
                         isCritical
                           ? 'bg-[#EF4444]/20 text-[#EF4444]'
                           : isWarning
@@ -217,12 +219,12 @@ export function AiReviewPanel({
                       </span>
 
                       {item.code && (
-                        <span className="font-mono text-[10px] text-[#737373] bg-[#181818] border border-[#292D34] px-1.5 py-0.5 rounded">
+                        <span className="font-mono text-[10px] text-[#737373] bg-[#181818] border border-[#292D34] px-1.5 py-0.5 rounded shrink-0">
                           {item.code}
                         </span>
                       )}
 
-                      <span className={`rounded px-1.5 py-0.5 text-[10px] ${
+                      <span className={`rounded px-1.5 py-0.5 text-[10px] shrink-0 ${
                         item.source === 'deterministic'
                           ? 'bg-[#181818] text-[#A3A3A3] border border-[#292D34]'
                           : 'bg-purple-500/15 text-purple-300 border border-purple-500/30'
@@ -231,27 +233,27 @@ export function AiReviewPanel({
                       </span>
 
                       {item.affectedRecord && (
-                        <span className="ml-auto rounded bg-[#181818] border border-[#292D34] px-1.5 py-0.5 text-[10px] text-forge font-mono">
+                        <span className="ml-auto rounded bg-[#181818] border border-[#292D34] px-1.5 py-0.5 text-[10px] text-forge font-mono shrink-0">
                           {item.affectedRecord}
                         </span>
                       )}
                     </div>
 
                     {/* Title */}
-                    <strong className="block text-[#F5F5F5] text-xs font-semibold">
+                    <strong className="block text-[#F5F5F5] text-xs font-semibold break-words">
                       {item.title || item.message}
                     </strong>
 
                     {/* Message / Explanation with Markdown */}
                     {item.title && item.title !== (item.message || item.explanation) && (
-                      <div className="mt-1.5 text-[#A3A3A3]">
+                      <div className="mt-1.5 text-[#A3A3A3] break-words">
                         <MarkdownRenderer content={item.message || item.explanation} />
                       </div>
                     )}
 
                     {/* Evidence Quote / Basis */}
                     {(item.evidence || item.basis) && (
-                      <div className="mt-2 rounded bg-[#181818] p-2 text-[11px] text-[#A3A3A3] border border-[#292D34]">
+                      <div className="mt-2 rounded bg-[#181818] p-2 text-[11px] text-[#A3A3A3] border border-[#292D34] min-w-0 w-full overflow-x-auto break-all">
                         <span className="block font-semibold text-[#737373] text-[10px] uppercase tracking-wider mb-0.5">
                           Evidence / Basis:
                         </span>
@@ -261,9 +263,9 @@ export function AiReviewPanel({
 
                     {/* Actionable Recommendation */}
                     {item.recommendation && (
-                      <div className="mt-2 text-xs text-forge font-medium flex items-start gap-1.5 bg-[#FF5A1F]/10 p-2 rounded border border-[#66301C]">
+                      <div className="mt-2 text-xs text-forge font-medium flex items-start gap-1.5 bg-[#FF5A1F]/10 p-2 rounded border border-[#66301C] min-w-0 w-full overflow-hidden">
                         <span className="shrink-0 font-bold">→</span>
-                        <div className="min-w-0">
+                        <div className="min-w-0 flex-1 break-words">
                           <strong className="font-semibold text-forge">Recommendation: </strong>
                           <MarkdownRenderer content={item.recommendation} />
                         </div>
@@ -277,9 +279,9 @@ export function AiReviewPanel({
 
           {/* Actionable Recommendations List */}
           {result.recommendations && result.recommendations.length > 0 && (
-            <div className="rounded-lg border border-[#292D34] bg-[#111111] p-3 text-xs">
+            <div className="rounded-lg border border-[#292D34] bg-[#111111] p-3 text-xs min-w-0 w-full overflow-hidden">
               <strong className="block text-[#F5F5F5] font-semibold mb-2">Recommended Verification Steps</strong>
-              <ul className="list-disc pl-4 space-y-1.5 text-[#A3A3A3]">
+              <ul className="list-disc pl-4 space-y-1.5 text-[#A3A3A3] break-words">
                 {result.recommendations.map((rec, idx) => (
                   <li key={idx} className="leading-relaxed">
                     <MarkdownRenderer content={rec} />
@@ -290,9 +292,9 @@ export function AiReviewPanel({
           )}
 
           {/* Human Authority Advisory Banner */}
-          <div className="flex items-center gap-2 rounded bg-[#181818] border border-[#292D34] px-3 py-2 text-[11px] text-[#737373]">
+          <div className="flex items-center gap-2 rounded bg-[#181818] border border-[#292D34] px-3 py-2 text-[11px] text-[#737373] min-w-0 w-full">
             <ShieldAlert size={14} className="text-forge shrink-0" />
-            <span>AI guidance is strictly advisory. Pricing release requires human departmental authorization.</span>
+            <span className="break-words">AI guidance is strictly advisory. Pricing release requires human departmental authorization.</span>
           </div>
         </div>
       )}

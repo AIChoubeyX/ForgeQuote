@@ -3,7 +3,7 @@ import { StatusBadge } from './StatusBadge.jsx';
 export function RfqTable({ rows, onSelect, onCosting }) {
   return (
     <div className="table-scroll">
-      <table className="w-full text-left text-sm">
+      <table className="w-full text-left text-sm min-w-[600px]">
         <thead className="text-xs uppercase tracking-wide text-[#737373] border-b border-[#292D34]">
           <tr>
             <th scope="col" className="px-3 py-3">RFQ</th>

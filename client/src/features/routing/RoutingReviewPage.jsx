@@ -61,10 +61,10 @@ export function RoutingReviewPage() {
     }
   }
 
-  if (!rows) return <main className="mx-auto max-w-6xl p-5 md:p-10 text-[#F5F5F5]"><LoadingState label="Loading routing queue…" /></main>;
+  if (!rows) return <main className="mx-auto w-full max-w-6xl px-3.5 py-4 sm:p-6 md:p-10 text-[#F5F5F5] min-w-0"><LoadingState label="Loading routing queue…" /></main>;
 
   return (
-    <main className="mx-auto max-w-6xl p-5 md:p-10 text-[#F5F5F5]">
+    <main className="mx-auto w-full max-w-6xl px-3.5 py-4 sm:p-6 md:p-10 text-[#F5F5F5] min-w-0">
       <div className="mb-8">
         <Link className="text-sm font-semibold text-forge hover:text-[#E94B13] transition-colors" to="/app">← Dashboard</Link>
         <p className="mb-2 mt-6 text-xs font-bold uppercase tracking-[.14em] text-forge">Plant review</p>
@@ -80,10 +80,10 @@ export function RoutingReviewPage() {
       {!rows.length ? (
         <EmptyState title={statusFilter === 'overdue' ? 'No overdue routes' : 'No routes are pending review'} message="New estimator submissions will appear here." />
       ) : (
-        <div className="grid gap-6 lg:grid-cols-[minmax(0,1fr)_minmax(0,1.2fr)]">
-          <section className="panel min-w-0">
+        <div className="grid gap-6 lg:grid-cols-[minmax(0,1fr)_minmax(0,1.2fr)] min-w-0 w-full">
+          <section className="panel min-w-0 w-full">
             <div className="table-scroll">
-              <table className="w-full text-left text-sm">
+              <table className="w-full text-left text-sm min-w-[500px]">
                 <thead>
                   <tr className="border-b border-[#292D34] text-xs uppercase text-[#737373]">
                     <th className="p-3">RFQ</th>
@@ -119,7 +119,7 @@ export function RoutingReviewPage() {
           </section>
 
           {selected && (
-            <section className="panel min-w-0 space-y-6">
+            <section className="panel min-w-0 w-full space-y-6">
               <AiReviewPanel
                 feature="routing"
                 reviewType="routing_review"

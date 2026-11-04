@@ -26,10 +26,14 @@ html {
   background-color: #080808;
 }
 
+html, body {
+  max-width: 100%;
+  overflow-x: hidden;
+}
+
 body {
   margin: 0;
   min-width: 320px;
-  overflow-x: hidden;
   background-color: #080808;
   color: #F5F5F5;
   -webkit-tap-highlight-color: transparent;
@@ -38,6 +42,7 @@ body {
 #root {
   min-height: 100vh;
   width: 100%;
+  max-width: 100%;
   overflow-x: hidden;
 }
 
@@ -69,13 +74,22 @@ button, input, select, textarea {
     @apply border border-[#292D34] bg-[#181818] text-[#F5F5F5] hover:border-[#66301C] hover:text-forge active:bg-[#202020] transition-colors duration-150;
   }
   .field {
-    @apply mt-1 w-full rounded-md border border-[#292D34] bg-[#111111] px-3 py-2.5 text-sm text-[#F5F5F5] outline-none placeholder:text-[#737373] focus:border-forge focus:ring-1 focus:ring-forge transition-colors;
+    @apply mt-1 w-full rounded-md border border-[#292D34] bg-[#111111] px-3 py-2.5 text-sm text-[#F5F5F5] outline-none placeholder:text-[#737373] focus:border-forge focus:ring-1 focus:ring-forge transition-colors min-w-0 max-w-full;
+    box-sizing: border-box;
   }
   .panel {
-    @apply rounded-lg border border-[#292D34] bg-[#181818] p-6 shadow-sm;
+    @apply rounded-lg border border-[#292D34] bg-[#181818] p-4 sm:p-6 shadow-sm min-w-0 max-w-full;
+    box-sizing: border-box;
+    overflow-wrap: break-word;
+    word-break: break-word;
   }
   .table-scroll {
-    @apply overflow-x-auto;
+    display: block;
+    width: 100%;
+    max-width: 100%;
+    min-width: 0;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
   }
   .eyebrow {
     @apply text-[11px] font-bold uppercase tracking-[.16em] text-forge;
@@ -87,7 +101,6 @@ button, input, select, textarea {
 
 @media (max-width: 767px) {
   .panel { padding: 1rem; }
-  .table-scroll table { min-width: 600px; }
 }
 
 @media (prefers-reduced-motion: reduce) {

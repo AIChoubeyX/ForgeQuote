@@ -85,7 +85,7 @@ export function CostingPage({ rfqId, canEdit = true }) {
 
   if (!data && !error) {
     return (
-      <main className="mx-auto max-w-7xl p-5 md:p-8 lg:p-10">
+      <main className="mx-auto w-full max-w-7xl px-3.5 py-4 sm:p-6 md:p-8 lg:p-10 min-w-0">
         <LoadingState label="Loading costing workspace…" />
       </main>
     );
@@ -93,7 +93,7 @@ export function CostingPage({ rfqId, canEdit = true }) {
 
   if (error && !data) {
     return (
-      <main className="mx-auto max-w-7xl p-5 md:p-8 lg:p-10">
+      <main className="mx-auto w-full max-w-7xl px-3.5 py-4 sm:p-6 md:p-8 lg:p-10 min-w-0">
         <ErrorState message={error} />
       </main>
     );
@@ -105,7 +105,7 @@ export function CostingPage({ rfqId, canEdit = true }) {
   const isReturned = status === 'changes_requested';
 
   return (
-    <main className="mx-auto max-w-7xl p-5 md:p-8 lg:p-10 text-[#F5F5F5]">
+    <main className="mx-auto w-full max-w-7xl px-3.5 py-4 sm:p-6 md:p-8 lg:p-10 text-[#F5F5F5] min-w-0">
       {/* Top Navigation & Breadcrumb */}
       <div className="mb-6">
         <Link
@@ -115,13 +115,13 @@ export function CostingPage({ rfqId, canEdit = true }) {
           <ArrowLeft size={14} /> Back to RFQ register
         </Link>
 
-        <div className="mt-4 flex flex-col justify-between gap-4 sm:flex-row sm:items-end">
-          <div className="min-w-0">
+        <div className="mt-4 flex flex-col justify-between gap-4 sm:flex-row sm:items-end min-w-0">
+          <div className="min-w-0 flex-1">
             <p className="eyebrow mb-1">Cost Estimation Workspace</p>
-            <h1 className="font-display text-2xl sm:text-3xl font-bold tracking-tight text-[#F5F5F5] truncate">
+            <h1 className="font-display text-xl sm:text-2xl md:text-3xl font-bold tracking-tight text-[#F5F5F5] break-words">
               {data.part.rfq_number} · {data.part.name}
             </h1>
-            <p className="mt-1 text-xs sm:text-sm text-[#A3A3A3] leading-relaxed">
+            <p className="mt-1 text-xs sm:text-sm text-[#A3A3A3] leading-relaxed break-words">
               Customer: <strong className="text-[#F5F5F5]">{data.part.customer_name}</strong> · Material:{' '}
               <strong className="text-[#F5F5F5]">{data.part.material}</strong> · Gross:{' '}
               <strong className="text-[#F5F5F5]">{data.part.gross_weight} kg</strong> · Annual Volume:{' '}
@@ -203,11 +203,11 @@ export function CostingPage({ rfqId, canEdit = true }) {
       )}
 
       {/* Two-Column Responsive Layout */}
-      <div className="grid gap-6 lg:grid-cols-[1.25fr_1fr] lg:items-start">
+      <div className="grid gap-6 lg:grid-cols-[1.25fr_1fr] lg:items-start min-w-0 w-full">
         
         {/* PRIMARY WORKSPACE: Inputs & Operations */}
-        <div className="space-y-6">
-          <section className="panel">
+        <div className="space-y-6 min-w-0 w-full">
+          <section className="panel min-w-0 w-full">
             <div className="flex items-center justify-between pb-3 border-b border-[#292D34] mb-5">
               <div>
                 <h2 className="font-display text-base sm:text-lg font-semibold text-[#F5F5F5]">
@@ -219,7 +219,7 @@ export function CostingPage({ rfqId, canEdit = true }) {
               </div>
             </div>
 
-            <div className="grid gap-4 sm:grid-cols-2">
+            <div className="grid gap-3 sm:gap-4 sm:grid-cols-2 min-w-0 w-full">
               {[
                 ['Costing date', 'costingDate'],
                 ['Material rate code', 'materialRateCode'],
@@ -390,7 +390,7 @@ export function CostingPage({ rfqId, canEdit = true }) {
         </div>
 
         {/* SUPPORTING COLUMN: AI Review, Cost Breakdown & Scenarios */}
-        <aside className="space-y-6">
+        <aside className="space-y-6 min-w-0 w-full">
           {/* AI Review Assistance Panel */}
           <AiReviewPanel
             feature="costing"
@@ -402,7 +402,7 @@ export function CostingPage({ rfqId, canEdit = true }) {
           />
 
           {/* Cost Breakdown Panel */}
-          <section className="panel">
+          <section className="panel min-w-0 w-full">
             <div className="flex items-center justify-between pb-3 border-b border-[#292D34] mb-4">
               <h2 className="font-display text-base font-semibold text-[#F5F5F5]">
                 Cost Breakdown
@@ -460,7 +460,7 @@ export function CostingPage({ rfqId, canEdit = true }) {
                     role="region"
                     aria-label="Annual costing scenarios. Scroll horizontally for more columns."
                   >
-                    <table className="w-full text-left text-xs">
+                    <table className="w-full text-left text-xs min-w-[280px]">
                       <thead className="border-b border-[#292D34] text-[#737373] bg-[#111111]">
                         <tr>
                           <th className="py-2 px-2.5 font-semibold">Volume</th>
@@ -496,7 +496,7 @@ export function CostingPage({ rfqId, canEdit = true }) {
 
           {/* Plant Head Review Comment if present */}
           {data.revision?.review_comment && (
-            <section className="panel">
+            <section className="panel min-w-0 w-full">
               <h3 className="mb-2 font-display text-xs font-bold uppercase tracking-wider text-[#737373]">
                 Plant Head Review Feedback
               </h3>

@@ -48,7 +48,7 @@ export function RfqsPage({ canCreate = false }) {
   };
 
   return (
-    <main className="mx-auto max-w-7xl p-5 md:p-8 lg:p-10 text-[#F5F5F5]">
+    <main className="mx-auto w-full max-w-7xl px-3.5 py-4 sm:p-6 md:p-8 lg:p-10 text-[#F5F5F5] min-w-0">
       <div className="mb-8 flex flex-col justify-between gap-5 md:flex-row md:items-end">
         <div>
           <p className="eyebrow mb-2">Manufacturing Operations</p>
@@ -118,8 +118,8 @@ export function RfqsPage({ canCreate = false }) {
       )}
 
       {/* Search and Filters Bar */}
-      <div className="mb-6 flex flex-col gap-3 sm:flex-row sm:items-center">
-        <div className="relative flex-1 max-w-md">
+      <div className="mb-6 flex flex-col gap-3 sm:flex-row sm:items-center min-w-0 w-full">
+        <div className="relative flex-1 max-w-md min-w-0">
           <Search
             size={16}
             className="pointer-events-none absolute left-3.5 top-1/2 -translate-y-1/2 text-[#737373]"
@@ -148,7 +148,7 @@ export function RfqsPage({ canCreate = false }) {
       </div>
 
       {/* Main RFQ Table Panel */}
-      <section className="panel p-0 overflow-hidden">
+      <section className="panel p-0 overflow-hidden min-w-0 w-full">
         {!data ? (
           <div className="p-8">
             <LoadingState label="Loading RFQs…" />

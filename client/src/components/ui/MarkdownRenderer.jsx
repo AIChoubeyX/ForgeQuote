@@ -65,7 +65,7 @@ export function MarkdownRenderer({ content, className = '' }) {
       elements.push(
         <pre
           key={`code-${i}`}
-          className="my-2.5 overflow-x-auto rounded-lg border border-[#292D34] bg-[#111111] p-3 font-mono text-xs text-[#F5F5F5]"
+          className="my-2.5 max-w-full overflow-x-auto rounded-lg border border-[#292D34] bg-[#111111] p-3 font-mono text-xs text-[#F5F5F5] whitespace-pre-wrap break-all"
         >
           <code>{codeLines.join('\n')}</code>
         </pre>
@@ -95,8 +95,8 @@ export function MarkdownRenderer({ content, className = '' }) {
         );
 
         elements.push(
-          <div key={`table-${i}`} className="my-2.5 overflow-x-auto rounded-lg border border-[#292D34]">
-            <table className="w-full text-left text-xs">
+          <div key={`table-${i}`} className="my-2.5 max-w-full w-full overflow-x-auto rounded-lg border border-[#292D34]">
+            <table className="w-full text-left text-xs min-w-[280px]">
               <thead className="border-b border-[#292D34] bg-[#111111] text-[#737373]">
                 <tr>
                   {headerCols.map((col, idx) => (
@@ -214,13 +214,13 @@ export function MarkdownRenderer({ content, className = '' }) {
 
     // Regular Paragraph
     elements.push(
-      <p key={`p-${i}`} className="my-1.5 text-xs leading-relaxed text-[#A3A3A3]">
+      <p key={`p-${i}`} className="my-1.5 text-xs leading-relaxed text-[#A3A3A3] break-words">
         {renderInline(line)}
       </p>
     );
     i++;
   }
 
-  return <div className={`space-y-1 ${className}`}>{elements}</div>;
+  return <div className={`space-y-1 min-w-0 max-w-full break-words ${className}`}>{elements}</div>;
 }
 

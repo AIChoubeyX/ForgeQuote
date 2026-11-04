@@ -99,22 +99,22 @@ export function DashboardPage() {
         </Link>
       </div>
 
-      <div className="mb-8 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+      <div className="mb-8 grid grid-cols-1 gap-3 sm:gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 min-w-0 w-full">
         {config.metrics.map(([label, value, Icon, to]) => (
           <Link
             aria-label={`${label}: ${value ?? 0}`}
-            className="panel flex flex-col justify-between p-5 transition-colors duration-150 hover:border-forge focus-visible:border-forge"
+            className="panel flex flex-col justify-between p-4 sm:p-5 transition-colors duration-150 hover:border-forge focus-visible:border-forge min-w-0"
             to={to || '/app'}
             key={label}
           >
-            <div>
+            <div className="min-w-0">
               <div className="flex items-center justify-between mb-4">
-                <span className="text-xs font-semibold uppercase tracking-wider text-[#A3A3A3]">{label}</span>
-                <span className="grid h-8 w-8 place-items-center rounded-lg bg-[#FF5A1F]/10 border border-[#66301C]/50 text-forge">
+                <span className="text-xs font-semibold uppercase tracking-wider text-[#A3A3A3] truncate">{label}</span>
+                <span className="grid h-8 w-8 place-items-center rounded-lg bg-[#FF5A1F]/10 border border-[#66301C]/50 text-forge shrink-0">
                   <Icon size={16} />
                 </span>
               </div>
-              <strong className="block font-display text-3xl font-bold tracking-tight text-[#F5F5F5]">
+              <strong className="block font-display text-2xl sm:text-3xl font-bold tracking-tight text-[#F5F5F5]">
                 {value ?? 0}
               </strong>
             </div>
@@ -130,7 +130,7 @@ export function DashboardPage() {
       )}
 
       {data.role === 'estimator' && (
-        <section className="panel p-6">
+        <section className="panel p-4 sm:p-6 min-w-0 w-full overflow-hidden">
           <div className="mb-5 flex items-start justify-between gap-4">
             <div>
               <h2 className="font-display text-lg font-semibold text-[#F5F5F5]">Recent assigned RFQs</h2>
@@ -148,5 +148,5 @@ export function DashboardPage() {
 }
 
 function Page({ children }) {
-  return <main className="mx-auto max-w-7xl p-5 md:p-8 lg:p-10 text-[#F5F5F5]">{children}</main>;
+  return <main className="mx-auto w-full max-w-7xl px-3.5 py-4 sm:p-6 md:p-8 lg:p-10 text-[#F5F5F5] min-w-0">{children}</main>;
 }
