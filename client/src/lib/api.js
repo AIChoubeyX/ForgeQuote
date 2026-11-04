@@ -1,4 +1,5 @@
-const API = import.meta.env.VITE_API_URL || 'http://localhost:4000/api';
+const rawApi = (import.meta.env.VITE_API_URL || 'http://localhost:4000/api').trim();
+const API = rawApi.endsWith('/api') ? rawApi : `${rawApi.replace(/\/+$/, '')}/api`;
 
 export async function api(path, options = {}) {
   const isFormData = options.body instanceof FormData;

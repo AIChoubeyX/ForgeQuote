@@ -61,9 +61,9 @@ server.on('error', (err) => {
 });
 
 function start() {
-  server.listen(PORT, () => {
+  server.listen(PORT, '0.0.0.0', () => {
     retryCount = 0;
-    console.log(`ForgeQuote API listening on http://localhost:${PORT}`);
+    console.log(`ForgeQuote API listening on http://0.0.0.0:${PORT}`);
   });
 }
 
