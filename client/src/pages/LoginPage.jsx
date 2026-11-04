@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { ArrowRight } from 'lucide-react';
 import { Link, useNavigate } from 'react-router-dom';
 import { Logo } from '../components/ui/Logo.jsx';
-import { api } from '../lib/api.js';
+import { api, setToken } from '../lib/api.js';
 
 export function LoginPage({ onLogin }) {
   const [form, setForm] = useState({ email: '', password: '' });
@@ -16,6 +16,7 @@ export function LoginPage({ onLogin }) {
     setError('');
     try {
       const result = await api('/auth/login', { method: 'POST', body: JSON.stringify(form) });
+      if (result?.token) setToken(result.token);
       onLogin(result.user);
       navigate('/app');
     } catch (err) {

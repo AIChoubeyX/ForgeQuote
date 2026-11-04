@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { BarChart3, ClipboardList, LogOut, Menu, X, Settings, GitPullRequest, BadgeCheck, ShieldCheck, FileText } from 'lucide-react';
 import { NavLink, Outlet, useLocation, useNavigate } from 'react-router-dom';
 import { Logo } from '../components/ui/Logo.jsx';
-import { api } from '../lib/api.js';
+import { api, setToken } from '../lib/api.js';
 
 const roles = { estimator: 'Estimator', sales_head: 'Sales Head', plant_head: 'Plant Head', admin: 'Administrator' };
 export const navigation = [
@@ -21,7 +21,7 @@ export function DashboardLayout({ user, onLogout }) {
   const [open, setOpen] = useState(false);
   const navigate = useNavigate();
   const location = useLocation();
-  async function logout() { await api('/auth/logout', { method: 'POST' }); onLogout(); navigate('/'); }
+  async function logout() { try { await api('/auth/logout', { method: 'POST' }); } catch {} setToken(null); onLogout(); navigate('/'); }
 
   const userNav = navigation.filter(item => item.roles.includes(user.role));
 

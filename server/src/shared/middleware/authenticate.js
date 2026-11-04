@@ -5,7 +5,9 @@ import { query } from '../../config/database.js';
 
 export async function authenticate(req, _res, next) {
   try {
-    const token = req.cookies.forgequote_token;
+    const authHeader = req.headers.authorization;
+    const bearerToken = authHeader && authHeader.startsWith('Bearer ') ? authHeader.slice(7) : null;
+    const token = req.cookies?.forgequote_token || bearerToken;
     if (!token) throw new AppError(401, 'Authentication required');
     const claims = jwt.verify(token, env.jwtSecret);
     const result = await query('SELECT id,name,email,role FROM users WHERE id=$1', [claims.sub]);
