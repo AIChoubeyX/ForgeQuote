@@ -115,8 +115,53 @@ describe('Workflow-Based AI Access Control & Token Optimization Suite', () => {
     );
   });
 
-  afterEach(() => {
+  afterEach(async () => {
     vi.restoreAllMocks();
+    try {
+      if (testRfqId) {
+        await query('DELETE FROM ai_reviews WHERE rfq_id = $1', [testRfqId]);
+        await query(`
+          DELETE FROM quotation_documents WHERE quotation_id IN (
+            SELECT q.id FROM quotations q
+            JOIN commercial_reviews cm ON cm.id = q.commercial_review_id
+            JOIN costing_revisions cr ON cr.id = cm.costing_revision_id
+            JOIN rfq_parts p ON p.id = cr.rfq_part_id
+            WHERE p.rfq_id = $1
+          )
+        `, [testRfqId]);
+        await query(`
+          DELETE FROM quotations WHERE commercial_review_id IN (
+            SELECT cm.id FROM commercial_reviews cm
+            JOIN costing_revisions cr ON cr.id = cm.costing_revision_id
+            JOIN rfq_parts p ON p.id = cr.rfq_part_id
+            WHERE p.rfq_id = $1
+          )
+        `, [testRfqId]);
+        await query(`
+          DELETE FROM commercial_reviews WHERE costing_revision_id IN (
+            SELECT cr.id FROM costing_revisions cr
+            JOIN rfq_parts p ON p.id = cr.rfq_part_id
+            WHERE p.rfq_id = $1
+          )
+        `, [testRfqId]);
+        await query(`
+          DELETE FROM costing_operations WHERE costing_revision_id IN (
+            SELECT cr.id FROM costing_revisions cr
+            JOIN rfq_parts p ON p.id = cr.rfq_part_id
+            WHERE p.rfq_id = $1
+          )
+        `, [testRfqId]);
+        await query(`
+          DELETE FROM costing_revisions WHERE rfq_part_id IN (
+            SELECT p.id FROM rfq_parts p WHERE p.rfq_id = $1
+          )
+        `, [testRfqId]);
+        await query('DELETE FROM rfq_parts WHERE rfq_id = $1', [testRfqId]);
+        await query('DELETE FROM rfqs WHERE id = $1', [testRfqId]);
+      }
+    } catch {
+      // Ignore cleanup error
+    }
   });
 
   // 1. Estimator can run AI review when draft

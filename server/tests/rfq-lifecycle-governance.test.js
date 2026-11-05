@@ -59,6 +59,9 @@ describe('Authoritative RFQ Lifecycle, Status Governance & Estimator Permissions
 
   afterAll(async () => {
     try {
+      if (testRfqId) {
+        await query('DELETE FROM ai_reviews WHERE rfq_id = $1', [testRfqId]);
+      }
       if (quotationId) {
         await query('DELETE FROM quotation_documents WHERE quotation_id = $1', [quotationId]);
         await query('DELETE FROM quotations WHERE id = $1', [quotationId]);

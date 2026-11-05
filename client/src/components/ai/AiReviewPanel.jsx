@@ -179,42 +179,39 @@ export function AiReviewPanel({
           </p>
         </div>
 
-        {/* Action button */}
-        <button
-          className={`button transition-all duration-200 shrink-0 text-xs py-2 px-3 sm:px-4 self-start rounded-lg font-medium inline-flex items-center gap-2 ${
-            isLocked
-              ? 'bg-[#18181B] text-[#71717A] border border-[#27272A] opacity-60 cursor-not-allowed'
-              : result
-              ? 'bg-[#1F1F23] text-[#E4E4E7] border border-[#2E2E33] hover:border-forge hover:text-forge'
-              : 'button-primary shadow-sm'
-          }`}
-          type="button"
-          disabled={loading || !hasContextSource || isLocked}
-          onClick={review}
-          title={isLocked ? lockMessage || 'AI review is locked for this workflow stage' : ''}
-        >
-          {loading ? (
-            <>
-              <RefreshCw size={13} className="animate-spin text-forge" />
-              <span>Analyzing…</span>
-            </>
-          ) : isLocked ? (
-            <>
-              <ShieldAlert size={13} className="text-[#71717A]" />
-              <span>Review Locked</span>
-            </>
-          ) : result ? (
-            <>
-              <RefreshCw size={13} className="text-forge" />
-              <span>Refresh Review</span>
-            </>
-          ) : (
-            <>
-              <Sparkles size={13} />
-              <span>Review with AI</span>
-            </>
-          )}
-        </button>
+        {/* Header Action Button (only shown when locked, loading, or refreshing existing results; avoids duplicate button with hero card) */}
+        {(result || isLocked || loading) && (
+          <button
+            className={`button transition-all duration-200 shrink-0 text-xs py-2 px-3 sm:px-4 self-start rounded-lg font-medium inline-flex items-center gap-2 ${
+              isLocked
+                ? 'bg-[#18181B] text-[#71717A] border border-[#27272A] opacity-60 cursor-not-allowed'
+                : result
+                ? 'bg-[#1F1F23] text-[#E4E4E7] border border-[#2E2E33] hover:border-forge hover:text-forge'
+                : 'button-primary shadow-sm'
+            }`}
+            type="button"
+            disabled={loading || !hasContextSource || isLocked}
+            onClick={review}
+            title={isLocked ? lockMessage || 'AI review is locked for this workflow stage' : ''}
+          >
+            {loading ? (
+              <>
+                <RefreshCw size={13} className="animate-spin text-forge" />
+                <span>Analyzing…</span>
+              </>
+            ) : isLocked ? (
+              <>
+                <ShieldAlert size={13} className="text-[#71717A]" />
+                <span>Review Locked</span>
+              </>
+            ) : (
+              <>
+                <RefreshCw size={13} className="text-forge" />
+                <span>Refresh Review</span>
+              </>
+            )}
+          </button>
+        )}
       </div>
 
       {/* Lock Notice Banner */}

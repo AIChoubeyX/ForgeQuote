@@ -7,7 +7,9 @@ export const queue = async status => {
     JOIN rfqs r ON r.id=p.rfq_id JOIN customers c ON c.id=r.customer_id JOIN users u ON u.id=cr.created_by
     LEFT JOIN users reviewer ON reviewer.id=cr.reviewed_by
     WHERE ($1::text IS NULL OR ($1='overdue' AND cr.status='pending_review' AND cr.created_at < now() - interval '7 days')
-      OR ($1<>'overdue' AND cr.status=$1)) ORDER BY cr.created_at DESC`, [status || null]);
+      OR ($1<>'overdue' AND cr.status=$1))
+      AND r.rfq_number NOT LIKE 'AI-GOV-%' AND r.rfq_number NOT LIKE 'TEST-%'
+    ORDER BY cr.created_at DESC`, [status || null]);
   return result.rows;
 };
 export const find = async id => {

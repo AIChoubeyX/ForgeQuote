@@ -9,6 +9,7 @@ export async function queue(status = 'pending', highValue = false) {
     JOIN customers c ON c.id=r.customer_id LEFT JOIN users u ON u.id=cr.reviewer_id
     WHERE ($1::text IS NULL OR cr.status=$1)
       AND ($2::boolean IS FALSE OR (cr.status='pending' AND (crv.calculations->'components'->>'sellingPrice')::numeric >= $3::numeric))
+      AND r.rfq_number NOT LIKE 'AI-GOV-%' AND r.rfq_number NOT LIKE 'TEST-%'
     ORDER BY cr.created_at DESC`, [status || null, highValue, process.env.QUOTATION_HIGH_VALUE_THRESHOLD || '100000']);
   return result.rows;
 }

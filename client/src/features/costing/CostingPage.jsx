@@ -29,7 +29,32 @@ export function CostingPage({ rfqId, canEdit = true }) {
     api(`/costing/rfqs/${rfqId}`)
       .then(result => {
         setData(result.data);
-        if (result.data.revision?.inputs) setForm(result.data.revision.inputs);
+        if (result.data?.revision?.inputs) {
+          const revInputs = result.data.revision.inputs;
+          const rawOps = Array.isArray(revInputs.operations) && revInputs.operations.length > 0
+            ? revInputs.operations
+            : Array.isArray(result.data.revision.operations) && result.data.revision.operations.length > 0
+            ? result.data.revision.operations.map(op => ({
+                sequence: op.sequence || 1,
+                operationName: op.operation_name || op.operationName || '',
+                machineCode: op.machine_code || op.machineCode || 'MACHINE-REAR-SPINDLE',
+                cycleTimeMinutes: String(op.cycle_time_minutes ?? op.cycleTimeMinutes ?? '10')
+              }))
+            : [initialOperation];
+
+          setForm({
+            ...initial,
+            ...revInputs,
+            materialWeight: revInputs.materialWeight || result.data.part?.gross_weight || '',
+            operations: rawOps
+          });
+        } else if (result.data?.part) {
+          setForm(curr => ({
+            ...curr,
+            materialWeight: curr.materialWeight || result.data.part.gross_weight || '',
+            operations: curr.operations || [initialOperation]
+          }));
+        }
       })
       .catch(err => setError(err.message));
 
@@ -44,9 +69,28 @@ export function CostingPage({ rfqId, canEdit = true }) {
   function updateOperation(index, key, value) {
     setForm(current => ({
       ...current,
-      operations: current.operations.map((item, itemIndex) =>
+      operations: (current.operations || [initialOperation]).map((item, itemIndex) =>
         itemIndex === index ? { ...item, [key]: value } : item
       )
+    }));
+  }
+
+  function addOperation() {
+    setForm(current => ({
+      ...current,
+      operations: [
+        ...(current.operations || []),
+        { sequence: (current.operations?.length || 0) + 1, operationName: '', machineCode: 'MACHINE-REAR-SPINDLE', cycleTimeMinutes: '10' }
+      ]
+    }));
+  }
+
+  function removeOperation(index) {
+    setForm(current => ({
+      ...current,
+      operations: (current.operations || [])
+        .filter((_, i) => i !== index)
+        .map((op, i) => ({ ...op, sequence: i + 1 }))
     }));
   }
 
@@ -286,7 +330,7 @@ export function CostingPage({ rfqId, canEdit = true }) {
 
               {/* Operations List */}
               <div className="space-y-2">
-                {form.operations.map((operation, index) => (
+                {(form.operations || []).map((operation, index) => (
                   <div
                     className="rounded-lg border border-[#292D34] bg-[#111111] p-3 text-xs md:grid md:grid-cols-[60px_1.5fr_1.5fr_110px_40px] md:items-center md:gap-2"
                     key={index}
@@ -428,7 +472,7 @@ export function CostingPage({ rfqId, canEdit = true }) {
             {calculations ? (
               <>
                 <div className="space-y-2 text-xs">
-                  {Object.entries(calculations.components).map(([key, value]) => {
+                  {Object.entries(calculations?.components || {}).map(([key, value]) => {
                     const isSellingPrice = key === 'sellingPrice';
                     const isMargin = key.toLowerCase().includes('margin');
                     const isScrap = key.toLowerCase().includes('scrap');
@@ -482,7 +526,7 @@ export function CostingPage({ rfqId, canEdit = true }) {
                         </tr>
                       </thead>
                       <tbody className="divide-y divide-[#292D34]/50">
-                        {calculations.scenarios.map(row => (
+                        {(calculations?.scenarios || []).map(row => (
                           <tr className="hover:bg-[#202020] transition-colors" key={row.annualVolume}>
                             <td className="py-2 px-2.5 font-mono text-[#A3A3A3]">
                               {Number(row.annualVolume).toLocaleString()} pcs

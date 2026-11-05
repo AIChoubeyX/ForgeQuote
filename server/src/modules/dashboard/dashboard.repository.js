@@ -74,7 +74,7 @@ export async function metrics(user) {
       (SELECT count(*)::int FROM quotations WHERE status='issued') AS issued_quotations,
       (SELECT count(*)::int FROM quotations WHERE status='approved') AS approved_quotations,
       (SELECT count(*)::int FROM quotations) AS total_quotations,
-      (SELECT count(*)::int FROM rfqs WHERE status NOT IN ('closed','quoted','cancelled')) AS open_rfqs`);
+      (SELECT count(*)::int FROM rfqs WHERE status NOT IN ('closed','quoted','cancelled') AND rfq_number NOT LIKE 'AI-GOV-%' AND rfq_number NOT LIKE 'TEST-%') AS open_rfqs`);
 
     const records = await query(`SELECT 
       r.id AS rfq_id,
@@ -122,6 +122,7 @@ export async function metrics(user) {
       WHERE commercial_review_id = cm.id
       ORDER BY created_at DESC LIMIT 1
     ) q ON true
+    WHERE r.rfq_number NOT LIKE 'AI-GOV-%' AND r.rfq_number NOT LIKE 'TEST-%'
     ORDER BY r.created_at DESC`);
 
     const enrichedRecords = records.rows.map(row => ({
@@ -140,14 +141,21 @@ export async function metrics(user) {
       count(*) FILTER (WHERE cr.status='pending' AND (crv.calculations->'components'->>'sellingPrice')::numeric >= $1::numeric)::int AS high_value
       FROM commercial_reviews cr
       JOIN costing_revisions crv ON crv.id=cr.costing_revision_id
-      LEFT JOIN quotations q ON q.commercial_review_id=cr.id`, [process.env.QUOTATION_HIGH_VALUE_THRESHOLD || '100000']);
+      JOIN rfq_parts p ON p.id=crv.rfq_part_id
+      JOIN rfqs r ON r.id=p.rfq_id
+      LEFT JOIN quotations q ON q.commercial_review_id=cr.id
+      WHERE r.rfq_number NOT LIKE 'AI-GOV-%' AND r.rfq_number NOT LIKE 'TEST-%'`, [process.env.QUOTATION_HIGH_VALUE_THRESHOLD || '100000']);
     return { role: user.role, ...result.rows[0], approved_sent: result.rows[0].issued_quotations, recent: [], state: 'ready' };
   }
   if (user.role === 'plant_head') {
-    const result = await query(`SELECT count(*) FILTER (WHERE status='pending_review')::int AS pending_routing,
-      count(*) FILTER (WHERE status='pending_review' AND created_at < now() - interval '7 days')::int AS overdue_routing,
-      count(*) FILTER (WHERE status='approved')::int AS approved_routing,
-      count(*) FILTER (WHERE status='changes_requested')::int AS routing_issues FROM costing_revisions`);
+    const result = await query(`SELECT count(*) FILTER (WHERE cr.status='pending_review')::int AS pending_routing,
+      count(*) FILTER (WHERE cr.status='pending_review' AND cr.created_at < now() - interval '7 days')::int AS overdue_routing,
+      count(*) FILTER (WHERE cr.status='approved')::int AS approved_routing,
+      count(*) FILTER (WHERE cr.status='changes_requested')::int AS routing_issues 
+      FROM costing_revisions cr
+      JOIN rfq_parts p ON p.id=cr.rfq_part_id
+      JOIN rfqs r ON r.id=p.rfq_id
+      WHERE r.rfq_number NOT LIKE 'AI-GOV-%' AND r.rfq_number NOT LIKE 'TEST-%'`);
     return { role: user.role, ...result.rows[0], recent: [], state: 'ready' };
   }
   const totals = await query(`SELECT count(*) FILTER (WHERE r.owner_id=$1 AND r.status NOT IN ('closed','quoted','cancelled'))::int AS open,
@@ -162,9 +170,10 @@ export async function metrics(user) {
     FROM rfqs r JOIN rfq_parts p ON p.rfq_id=r.id
     LEFT JOIN LATERAL (SELECT status FROM costing_revisions WHERE rfq_part_id=p.id ORDER BY revision DESC LIMIT 1) cr ON true
     LEFT JOIN LATERAL (SELECT c.status FROM commercial_reviews c JOIN costing_revisions x ON x.id=c.costing_revision_id WHERE x.rfq_part_id=p.id ORDER BY c.created_at DESC LIMIT 1) cm ON true
-    LEFT JOIN LATERAL (SELECT q.status FROM quotations q JOIN commercial_reviews c ON c.id=q.commercial_review_id JOIN costing_revisions x ON x.id=c.costing_revision_id WHERE x.rfq_part_id=p.id ORDER BY q.created_at DESC LIMIT 1) q ON true`, [user.id]);
+    LEFT JOIN LATERAL (SELECT q.status FROM quotations q JOIN commercial_reviews c ON c.id=q.commercial_review_id JOIN costing_revisions x ON x.id=c.costing_revision_id WHERE x.rfq_part_id=p.id ORDER BY q.created_at DESC LIMIT 1) q ON true
+    WHERE r.owner_id=$1 AND r.rfq_number NOT LIKE 'AI-GOV-%' AND r.rfq_number NOT LIKE 'TEST-%'`, [user.id]);
   const recent = await query(`SELECT r.id,r.rfq_number,c.name AS customer_name,p.name AS part_name,r.status,r.due_date
     FROM rfqs r JOIN customers c ON c.id=r.customer_id JOIN rfq_parts p ON p.rfq_id=r.id
-    WHERE r.owner_id=$1 ORDER BY r.created_at DESC LIMIT 5`, [user.id]);
+    WHERE r.owner_id=$1 AND r.rfq_number NOT LIKE 'AI-GOV-%' AND r.rfq_number NOT LIKE 'TEST-%' ORDER BY r.created_at DESC LIMIT 5`, [user.id]);
   return { role: user.role, ...totals.rows[0], recent: recent.rows, state: 'ready' };
 }

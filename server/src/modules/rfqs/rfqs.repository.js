@@ -51,7 +51,8 @@ export async function list({ search = '', status, workflow, page = 1, pageSize =
   const where = `WHERE ($1='%%' OR r.rfq_number ILIKE $1 OR c.name ILIKE $1 OR p.name ILIKE $1)
     AND ($2::text IS NULL OR r.status=$2)
     AND ($3::uuid IS NULL OR r.owner_id=$3)
-    AND ${workflowFilter}`;
+    AND ${workflowFilter}
+    AND r.rfq_number NOT LIKE 'AI-GOV-%' AND r.rfq_number NOT LIKE 'TEST-%'`;
 
   const selectCols = `r.id, r.rfq_number, r.received_date, r.due_date, r.status, r.created_at, r.updated_at,
     c.name AS customer_name, u.name AS estimator_name, u.id AS owner_id,
