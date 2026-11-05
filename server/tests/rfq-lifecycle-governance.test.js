@@ -1,9 +1,10 @@
-import { describe, expect, it, beforeAll, afterAll } from 'vitest';
+import { describe, expect, it, beforeAll, afterAll, vi } from 'vitest';
 import request from 'supertest';
 import jwt from 'jsonwebtoken';
 import { app } from '../src/app.js';
 import { query } from '../src/config/database.js';
 import { env } from '../src/config/env.js';
+import * as groqClient from '../src/modules/aiReview/aiReview.groqClient.js';
 
 describe('Authoritative RFQ Lifecycle, Status Governance & Estimator Permissions Suite', () => {
   let estimatorUser;
@@ -27,6 +28,24 @@ describe('Authoritative RFQ Lifecycle, Status Governance & Estimator Permissions
   let quotationId;
 
   beforeAll(async () => {
+    vi.spyOn(groqClient, 'callGroqReview').mockResolvedValue({
+      summary: 'Mock routing review generated for lifecycle pre-check verification.',
+      findings: [
+        {
+          code: 'LIFECYCLE_PRECHECK_OK',
+          severity: 'info',
+          title: 'Routing Pre-Check Complete',
+          message: 'Operation sequence and cycle times conform to standard plant feasibility.',
+          affectedRecord: 'manufacturing_route',
+          evidence: 'test-evidence',
+          recommendation: 'Proceed with plant review.'
+        }
+      ],
+      recommendations: ['Verify tooling availability.'],
+      limitations: ['Mock review for lifecycle governance verification.'],
+      modelMetadata: { model: 'mock-ci-model' }
+    });
+
     const usersRes = await query('SELECT id, email, role FROM users');
     estimatorUser = usersRes.rows.find(u => u.role === 'estimator');
     plantHeadUser = usersRes.rows.find(u => u.role === 'plant_head');
