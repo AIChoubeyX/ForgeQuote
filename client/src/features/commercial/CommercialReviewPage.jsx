@@ -133,6 +133,12 @@ export function CommercialReviewPage() {
                 commercialReviewId={selected.id}
                 costingRevisionId={selected.costing_revision_id}
                 context={selected}
+                isLocked={selected?.status !== 'pending'}
+                lockMessage={
+                  selected?.status === 'approved' || selected?.status === 'changes_requested'
+                    ? 'AI review is complete for this workflow stage.'
+                    : 'AI review is disabled because this RFQ has moved to the next workflow stage.'
+                }
               />
 
               <div>

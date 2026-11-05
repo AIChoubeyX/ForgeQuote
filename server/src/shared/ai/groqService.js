@@ -9,7 +9,7 @@ export const aiConfig = {
     return process.env.GROQ_PRIMARY_MODEL || process.env.GROQ_MODEL || 'llama-3.3-70b-versatile';
   },
   get fallbackModels() {
-    const raw = process.env.GROQ_FALLBACK_MODELS || 'llama-3.1-8b-instant,mixtral-8x7b-32768';
+    const raw = process.env.GROQ_FALLBACK_MODELS || 'llama-3.3-70b-versatile,llama-3.1-8b-instant';
     return raw
       .split(',')
       .map(m => m.trim())

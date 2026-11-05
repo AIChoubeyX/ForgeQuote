@@ -126,6 +126,12 @@ export function RoutingReviewPage() {
                 rfqId={selected.rfq_id}
                 costingRevisionId={selected.id}
                 context={selected}
+                isLocked={selected?.status !== 'pending_review'}
+                lockMessage={
+                  selected?.status === 'approved' || selected?.status === 'changes_requested'
+                    ? 'AI review is complete for this workflow stage.'
+                    : 'AI review is disabled because this RFQ has moved to the next workflow stage.'
+                }
               />
               <div>
                 <h2 className="font-display text-lg font-semibold text-[#F5F5F5]">{selected.rfq_number} · {selected.name}</h2>

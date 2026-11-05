@@ -24,7 +24,8 @@ const authLimiter = rateLimit({
   limit: 30,
   message: { error: { message: 'Too many authentication attempts; please try again later' } },
   standardHeaders: true,
-  legacyHeaders: false
+  legacyHeaders: false,
+  validate: { xForwardedForHeader: false, default: false }
 });
 
 const aiLimiter = rateLimit({
@@ -32,7 +33,8 @@ const aiLimiter = rateLimit({
   limit: 120,
   message: { error: { message: 'AI request limit reached; manual workflows remain active' } },
   standardHeaders: true,
-  legacyHeaders: false
+  legacyHeaders: false,
+  validate: { xForwardedForHeader: false, default: false }
 });
 
 app.use('/api/auth/login', authLimiter);

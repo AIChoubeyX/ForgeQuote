@@ -245,7 +245,8 @@ export async function submit(id, user) {
       await aiService.executeReview({
         reviewType: 'routing_review',
         costingRevisionId: id,
-        rfqId: rfqIdForAi
+        rfqId: rfqIdForAi,
+        isSubmissionPrecheck: true
       }, user);
     } catch (aiErr) {
       console.warn(`[AI Review Pre-Check Advisory Notice] RFQ ${rfqNumberForAi} revision ${revisionNumForAi}: ${aiErr.message}`);

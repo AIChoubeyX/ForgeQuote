@@ -10,7 +10,9 @@ export function AiReviewPanel({
   commercialReviewId,
   rfqId,
   context,
-  contextEndpoint
+  contextEndpoint,
+  isLocked = false,
+  lockMessage = ''
 }) {
   const [result, setResult] = useState(null);
   const [loading, setLoading] = useState(false);
@@ -21,13 +23,60 @@ export function AiReviewPanel({
   const rowVersion = context?.row_version || context?.rowVersion || context?.revision;
   const hasContextSource = Boolean(targetId || context || contextEndpoint);
 
-  // Invalidate previous results when the target record or revision changes
+  // Invalidate previous results when the target record or revision changes, and fetch persisted review
   useEffect(() => {
+    let isMounted = true;
+    async function loadExistingReview() {
+      if (!targetId) return;
+      try {
+        const queryParams = new URLSearchParams();
+        if (costingRevisionId) queryParams.set('costingRevisionId', costingRevisionId);
+        else if (commercialReviewId) queryParams.set('commercialReviewId', commercialReviewId);
+        else if (rfqId) queryParams.set('rfqId', rfqId);
+        else if (targetId) {
+          queryParams.set(
+            targetType === 'routing' || targetType === 'routing_review'
+              ? 'costingRevisionId'
+              : targetType === 'commercial' || targetType === 'commercial_review'
+              ? 'commercialReviewId'
+              : 'rfqId',
+            targetId
+          );
+        }
+
+        const res = await api(`/ai-reviews/history?${queryParams.toString()}`);
+        if (isMounted && res.data && res.data.length > 0) {
+          const match = res.data.find(
+            r => r.review_type === targetType || r.review_type === `${targetType}_review`
+          ) || res.data[0];
+          if (match) {
+            setResult({
+              status: match.status,
+              summary: match.summary,
+              findings: typeof match.findings === 'string' ? JSON.parse(match.findings) : match.findings,
+              recommendations: typeof match.recommendations === 'string' ? JSON.parse(match.recommendations) : match.recommendations,
+              limitations: typeof match.limitations === 'string' ? JSON.parse(match.limitations) : match.limitations,
+              metadata: typeof match.model_metadata === 'string' ? JSON.parse(match.model_metadata) : (match.model_metadata || {}),
+              isHistorical: true
+            });
+          }
+        }
+      } catch {
+        // Silently ignore history fetch errors; user can still interact
+      }
+    }
+
     setResult(null);
     setError('');
+    loadExistingReview();
+
+    return () => {
+      isMounted = false;
+    };
   }, [targetId, rowVersion, targetType]);
 
   async function review() {
+    if (loading || isLocked) return;
     setLoading(true);
     setError('');
     try {
@@ -43,8 +92,8 @@ export function AiReviewPanel({
 
       const payload = {
         reviewType: targetType,
-        costingRevisionId: costingRevisionId || (targetType === 'routing' ? targetId : undefined),
-        commercialReviewId: commercialReviewId || (targetType === 'commercial' ? targetId : undefined),
+        costingRevisionId: costingRevisionId || (targetType === 'routing' || targetType === 'routing_review' ? targetId : undefined),
+        commercialReviewId: commercialReviewId || (targetType === 'commercial' || targetType === 'commercial_review' ? targetId : undefined),
         rfqId: rfqId || context?.rfq_id,
         context: sourceContext || (typeof context === 'object' ? context : undefined)
       };
@@ -82,21 +131,36 @@ export function AiReviewPanel({
                 {result.status.replace('_', ' ')}
               </span>
             )}
+            {result?.isHistorical && (
+              <span className="inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[10px] font-medium bg-[#181818] text-[#A3A3A3] border border-[#292D34]">
+                Saved Snapshot
+              </span>
+            )}
           </div>
           <p className="mt-1 text-xs text-[#737373] break-words">
             Advisory validation and domain checks for this revision. Human decisions remain authoritative.
           </p>
         </div>
         <button
-          className="button border border-[#292D34] bg-[#181818] text-[#F5F5F5] hover:border-forge hover:text-forge disabled:opacity-50 transition-colors shrink-0 text-xs sm:text-sm py-2 px-3 sm:px-4 self-start"
+          className={`button border border-[#292D34] transition-colors shrink-0 text-xs sm:text-sm py-2 px-3 sm:px-4 self-start ${
+            isLocked
+              ? 'bg-[#141414] text-[#737373] opacity-60 cursor-not-allowed hover:border-[#292D34] hover:text-[#737373]'
+              : 'bg-[#181818] text-[#F5F5F5] hover:border-forge hover:text-forge disabled:opacity-50'
+          }`}
           type="button"
-          disabled={loading || !hasContextSource}
+          disabled={loading || !hasContextSource || isLocked}
           onClick={review}
+          title={isLocked ? lockMessage || 'AI review is locked for this workflow stage' : ''}
         >
           {loading ? (
             <span className="flex items-center gap-2">
               <RefreshCw size={14} className="animate-spin text-forge" />
               Analyzing…
+            </span>
+          ) : isLocked ? (
+            <span className="flex items-center gap-2">
+              <Sparkles size={14} className="text-[#737373]" />
+              Review locked
             </span>
           ) : (
             <span className="flex items-center gap-2">
@@ -107,7 +171,14 @@ export function AiReviewPanel({
         </button>
       </div>
 
-      {!hasContextSource && (
+      {isLocked && (
+        <div className="mt-4 flex items-start gap-2.5 rounded-lg bg-[#141414] border border-[#292D34] p-3 text-xs text-[#A3A3A3]">
+          <ShieldAlert size={15} className="mt-0.5 shrink-0 text-amber-400" />
+          <span>{lockMessage || 'AI review is disabled because this RFQ has moved to the next workflow stage.'}</span>
+        </div>
+      )}
+
+      {!hasContextSource && !isLocked && (
         <div className="mt-4 flex items-start gap-2.5 rounded-lg bg-[#111111] border border-[#292D34] p-3 text-xs text-[#A3A3A3]">
           <Info size={15} className="mt-0.5 shrink-0 text-forge" />
           <span>Save a costing draft or select an active record to trigger an AI review.</span>

@@ -74,6 +74,62 @@ export async function executeReview(input, user) {
     throw new AppError(400, `Unsupported review type: ${reviewType}`);
   }
 
+  // 1.5 Authoritative Workflow-Based AI Access Control & Stage Validation
+  const rfqLifecycleStatus = context.rfq?.status;
+
+  if (reviewType === 'costing_review') {
+    // Estimator costing review
+    if (user.role !== 'estimator' && user.role !== 'admin') {
+      throw new AppError(403, 'AI costing suggestions can only be requested by estimators');
+    }
+
+    const revStatus = context.revision?.status;
+    if (revStatus === 'pending_review' || revStatus === 'approved') {
+      throw new AppError(409, 'AI suggestions are locked for this submitted costing revision.');
+    }
+    if (revStatus === 'changes_requested') {
+      throw new AppError(409, 'AI suggestions are locked for this returned costing revision. Create a new revision to request AI suggestions.');
+    }
+
+    if (rfqLifecycleStatus && !['draft', 'in_progress', 'returned_for_revision'].includes(rfqLifecycleStatus)) {
+      throw new AppError(409, 'AI review is disabled because this RFQ has moved to the next workflow stage.');
+    }
+  } else if (reviewType === 'routing_review') {
+    // Plant Head routing review
+    if (user.role === 'estimator' && !input.isSubmissionPrecheck) {
+      throw new AppError(403, 'Estimators cannot independently trigger routing reviews');
+    }
+
+    const revStatus = context.revision?.status;
+    if (revStatus === 'approved' || revStatus === 'changes_requested') {
+      throw new AppError(409, 'AI review is complete for this workflow stage.');
+    }
+
+    if (
+      rfqLifecycleStatus &&
+      ['pending_sales_approval', 'ready_for_quote', 'quoted', 'closed', 'cancelled'].includes(rfqLifecycleStatus)
+    ) {
+      throw new AppError(409, 'AI review is disabled because this RFQ has moved to the next workflow stage.');
+    }
+  } else if (reviewType === 'commercial_review') {
+    // Sales Head commercial review
+    if (user.role !== 'sales_head' && user.role !== 'admin') {
+      throw new AppError(403, 'Commercial AI reviews can only be requested by the sales head');
+    }
+
+    const commStatus = context.commercialReview?.status;
+    if (commStatus === 'approved' || commStatus === 'changes_requested') {
+      throw new AppError(409, 'AI review is complete for this workflow stage.');
+    }
+
+    if (
+      rfqLifecycleStatus &&
+      ['ready_for_quote', 'quoted', 'closed', 'cancelled'].includes(rfqLifecycleStatus)
+    ) {
+      throw new AppError(409, 'AI review is disabled because this RFQ has moved to the next workflow stage.');
+    }
+  }
+
   // Check cache (scoped to reviewType, role, target entity and row version)
   const cacheKey = `${reviewType}:${user.role}:${costingRevisionId || commercialReviewId || rfqId}:${targetVersion}`;
   const cached = getCached(cacheKey);
@@ -122,9 +178,9 @@ export async function executeReview(input, user) {
         correlationId: input.correlationId
       });
     } catch (groqError) {
-      // If Groq fails (e.g. rate limit or provider down), we do NOT invent a review;
-      // return deterministic findings with a clear limitation note if possible, or throw
-      if (groqError instanceof AppError && deterministicFindings.length > 0) {
+      // If Groq fails (e.g. rate limit, provider down, or unparseable response),
+      // we do NOT fail the review; return deterministic findings with a clear limitation note
+      if (deterministicFindings.length > 0) {
         finalReview = {
           reviewType,
           status: 'completed',

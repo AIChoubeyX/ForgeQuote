@@ -399,6 +399,16 @@ export function CostingPage({ rfqId, canEdit = true }) {
             costingRevisionId={data.revision?.id}
             context={data.revision}
             contextEndpoint={data.revision ? `/costing/${data.revision.id}/ai-context` : null}
+            isLocked={isLocked}
+            lockMessage={
+              status === 'pending_review' || status === 'approved'
+                ? 'AI suggestions are locked for this submitted costing revision.'
+                : !canEdit
+                ? 'AI costing suggestions can only be generated while editing an active costing draft.'
+                : isReturned
+                ? 'AI suggestions are locked for this returned costing revision. Create a new revision to request AI suggestions.'
+                : 'AI review is disabled because this RFQ has moved to the next workflow stage.'
+            }
           />
 
           {/* Cost Breakdown Panel */}

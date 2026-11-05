@@ -39,16 +39,21 @@ export const reviewRequestSchema = z.object({
   path: ['reviewType']
 });
 
+const stringOrJsonSchema = z
+  .union([z.string(), z.array(z.unknown()), z.record(z.unknown())])
+  .transform(val => (typeof val === 'string' ? val : JSON.stringify(val)))
+  .optional();
+
 export const aiModelFindingSchema = z.object({
   code: z.string().optional(),
   severity: z.string().optional(),
   title: z.string().optional(),
   message: z.string().optional(),
   explanation: z.string().optional(),
-  affectedRecord: z.string().optional(),
-  affectedField: z.string().optional(),
-  evidence: z.string().optional(),
-  basis: z.string().optional(),
+  affectedRecord: stringOrJsonSchema,
+  affectedField: stringOrJsonSchema,
+  evidence: stringOrJsonSchema,
+  basis: stringOrJsonSchema,
   recommendation: z.string().optional()
 });
 

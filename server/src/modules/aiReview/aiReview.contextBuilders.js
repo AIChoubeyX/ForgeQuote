@@ -15,7 +15,7 @@ export async function buildCostingReviewContext({ costingRevisionId, rfqId, user
     const revResult = await query(
       `SELECT cr.*, p.id AS part_id, p.name AS part_name, p.description AS part_description,
               p.material, p.gross_weight, p.annual_volume,
-              r.id AS rfq_id, r.rfq_number, r.owner_id, r.received_date, r.due_date,
+              r.id AS rfq_id, r.rfq_number, r.status AS rfq_status, r.owner_id, r.received_date, r.due_date,
               c.id AS customer_id, c.name AS customer_name
        FROM costing_revisions cr
        JOIN rfq_parts p ON p.id = cr.rfq_part_id
@@ -40,7 +40,7 @@ export async function buildCostingReviewContext({ costingRevisionId, rfqId, user
     const partResult = await query(
       `SELECT p.id AS part_id, p.name AS part_name, p.description AS part_description,
               p.material, p.gross_weight, p.annual_volume,
-              r.id AS rfq_id, r.rfq_number, r.owner_id, r.received_date, r.due_date,
+              r.id AS rfq_id, r.rfq_number, r.status AS rfq_status, r.owner_id, r.received_date, r.due_date,
               c.id AS customer_id, c.name AS customer_name
        FROM rfq_parts p
        JOIN rfqs r ON r.id = p.rfq_id
@@ -75,6 +75,7 @@ export async function buildCostingReviewContext({ costingRevisionId, rfqId, user
   }
 
   const ownerId = revisionRow ? revisionRow.owner_id : (await query('SELECT owner_id FROM rfqs WHERE id=$1', [rfqId])).rows[0]?.owner_id;
+  const rfqStatus = revisionRow ? revisionRow.rfq_status : (await query('SELECT status FROM rfqs WHERE id=$1', [rfqId])).rows[0]?.status;
   if (user.role === 'estimator' && ownerId && ownerId !== user.id) {
     throw new AppError(403, 'You do not have permission to view this costing record');
   }
@@ -123,7 +124,8 @@ export async function buildCostingReviewContext({ costingRevisionId, rfqId, user
       id: revisionRow ? revisionRow.rfq_id : rfqId,
       rfqNumber: revisionRow?.rfq_number,
       customerName: revisionRow?.customer_name,
-      ownerId
+      ownerId,
+      status: rfqStatus || revisionRow?.rfq_status
     },
     part: partRow ? {
       id: partRow.id,
@@ -182,7 +184,7 @@ export async function buildRoutingReviewContext({ costingRevisionId, user }) {
   const result = await query(
     `SELECT cr.*, p.id AS part_id, p.name AS part_name, p.description AS part_description,
             p.material, p.gross_weight, p.annual_volume,
-            r.id AS rfq_id, r.rfq_number, r.received_date, r.due_date,
+            r.id AS rfq_id, r.rfq_number, r.status AS rfq_status, r.received_date, r.due_date,
             c.id AS customer_id, c.name AS customer_name,
             u.id AS estimator_id, u.name AS estimator_name
      FROM costing_revisions cr
@@ -218,7 +220,8 @@ export async function buildRoutingReviewContext({ costingRevisionId, user }) {
     rfq: {
       id: row.rfq_id,
       rfqNumber: row.rfq_number,
-      customerName: row.customer_name
+      customerName: row.customer_name,
+      status: row.rfq_status
     },
     part: {
       id: row.part_id,
@@ -265,7 +268,7 @@ export async function buildCommercialReviewContext({ commercialReviewId, costing
               cmr.reviewed_at AS commercial_reviewed_at,
               cr.*, p.id AS part_id, p.name AS part_name, p.description AS part_description,
               p.material, p.gross_weight, p.annual_volume,
-              r.id AS rfq_id, r.rfq_number, r.received_date, r.due_date,
+              r.id AS rfq_id, r.rfq_number, r.status AS rfq_status, r.received_date, r.due_date,
               c.id AS customer_id, c.name AS customer_name,
               q.id AS quotation_id, q.quotation_number
        FROM commercial_reviews cmr
@@ -285,7 +288,7 @@ export async function buildCommercialReviewContext({ commercialReviewId, costing
               cmr.reviewed_at AS commercial_reviewed_at,
               cr.*, p.id AS part_id, p.name AS part_name, p.description AS part_description,
               p.material, p.gross_weight, p.annual_volume,
-              r.id AS rfq_id, r.rfq_number, r.received_date, r.due_date,
+              r.id AS rfq_id, r.rfq_number, r.status AS rfq_status, r.received_date, r.due_date,
               c.id AS customer_id, c.name AS customer_name,
               q.id AS quotation_id, q.quotation_number
        FROM costing_revisions cr
@@ -324,7 +327,8 @@ export async function buildCommercialReviewContext({ commercialReviewId, costing
     rfq: {
       id: commRow.rfq_id,
       rfqNumber: commRow.rfq_number,
-      customerName: commRow.customer_name
+      customerName: commRow.customer_name,
+      status: commRow.rfq_status
     },
     part: {
       id: commRow.part_id,
