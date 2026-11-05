@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { Link, useSearchParams } from 'react-router-dom';
-import { Sparkles, FileText, CheckCircle2 } from 'lucide-react';
+import { Sparkles, FileText, CheckCircle2, ShieldCheck, AlertCircle, ArrowRight } from 'lucide-react';
 import { api } from '../../lib/api.js';
 import { ErrorState, LoadingState } from '../../components/feedback/States.jsx';
 import { AiReviewPanel } from '../../components/ai/AiReviewPanel.jsx';
@@ -33,12 +33,18 @@ export function CommercialReviewPage() {
 
   async function decide(decision) {
     try {
+      const decisionComment = comment.trim();
       const result = await api(`/commercial-reviews/${selected.id}/decision`, {
         method: 'POST',
-        body: JSON.stringify({ decision, comment, rowVersion: selected.row_version })
+        body: JSON.stringify({ decision, comment: decisionComment, rowVersion: selected.row_version })
       });
       setQuotationId(result.data.quotation?.id);
-      setSelected(null);
+      setSelected(current => current ? {
+        ...current,
+        status: decision,
+        comment: decisionComment,
+        reviewed_at: new Date().toISOString()
+      } : null);
       setComment('');
       load();
     } catch (err) {
@@ -224,34 +230,99 @@ export function CommercialReviewPage() {
                 </div>
               </div>
 
-              <div>
-                <label className="block text-sm font-semibold mb-1 text-[#F5F5F5]">
-                  Commercial Decision Explanation <span className="text-forge">*</span>
-                </label>
-                <textarea
-                  className="field min-h-24 w-full text-xs sm:text-sm"
-                  placeholder="Detail commercial margin validation, pricing release justification, or requested corrections"
-                  value={comment}
-                  onChange={event => setComment(event.target.value)}
-                />
-              </div>
+              {/* Decision Section: Action Form if Pending; Authoritative Status Banner if Already Decided */}
+              {selected.status === 'approved' ? (
+                <div className="rounded-xl border border-emerald-500/30 bg-emerald-500/10 p-4 text-xs sm:text-sm text-emerald-400">
+                  <div className="flex items-start gap-3">
+                    <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-emerald-500/20 text-emerald-400 shrink-0 mt-0.5 border border-emerald-500/30">
+                      <ShieldCheck size={20} />
+                    </div>
+                    <div className="min-w-0 flex-1">
+                      <div className="flex flex-wrap items-center gap-2 mb-1">
+                        <strong className="text-sm font-semibold text-emerald-300">Quotation Approved · Stage Complete</strong>
+                        <span className="rounded-full bg-emerald-500/20 px-2.5 py-0.5 text-[10px] font-bold uppercase tracking-wider text-emerald-300 border border-emerald-500/30 inline-flex items-center gap-1">
+                          <CheckCircle2 size={11} /> Ready for Customer Issuance
+                        </span>
+                      </div>
+                      <p className="text-xs text-[#D1D5DB] leading-relaxed">
+                        Commercial pricing and margins have been signed off. An authoritative quotation has been created and is ready to be released to the customer.
+                      </p>
+                      {selected.comment && (
+                        <div className="mt-3 rounded-lg bg-[#111114] border border-[#292D34] p-3 text-xs">
+                          <span className="block font-semibold text-[#8E8E93] text-[10px] uppercase tracking-wider mb-1">
+                            Recorded Commercial Note:
+                          </span>
+                          <p className="text-[#F5F5F5] italic font-mono text-[11px] leading-relaxed">"{selected.comment}"</p>
+                        </div>
+                      )}
+                      {selected.reviewed_at && (
+                        <p className="mt-2.5 text-[10px] text-[#8E8E93]">
+                          Approved on {new Date(selected.reviewed_at).toLocaleString('en-IN')}
+                          {selected.reviewer_name ? ` by ${selected.reviewer_name}` : ''}
+                        </p>
+                      )}
+                    </div>
+                  </div>
+                </div>
+              ) : selected.status === 'changes_requested' ? (
+                <div className="rounded-xl border border-rose-500/30 bg-rose-500/10 p-4 text-xs sm:text-sm text-rose-400">
+                  <div className="flex items-start gap-3">
+                    <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-rose-500/20 text-rose-400 shrink-0 mt-0.5 border border-rose-500/30">
+                      <AlertCircle size={20} />
+                    </div>
+                    <div className="min-w-0 flex-1">
+                      <div className="flex flex-wrap items-center gap-2 mb-1">
+                        <strong className="text-sm font-semibold text-rose-300">Commercial Changes Requested</strong>
+                        <span className="rounded-full bg-rose-500/20 px-2.5 py-0.5 text-[10px] font-bold uppercase tracking-wider text-rose-300 border border-rose-500/30 inline-flex items-center gap-1">
+                          <ArrowRight size={11} /> Returned for Correction
+                        </span>
+                      </div>
+                      <p className="text-xs text-[#D1D5DB] leading-relaxed">
+                        Corrections were requested for commercial margins or pricing basis.
+                      </p>
+                      {selected.comment && (
+                        <div className="mt-3 rounded-lg bg-[#111114] border border-[#292D34] p-3 text-xs">
+                          <span className="block font-semibold text-[#8E8E93] text-[10px] uppercase tracking-wider mb-1">
+                            Correction Instructions:
+                          </span>
+                          <p className="text-[#F5F5F5] italic font-mono text-[11px] leading-relaxed">"{selected.comment}"</p>
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                </div>
+              ) : (
+                <>
+                  <div>
+                    <label className="block text-sm font-semibold mb-1 text-[#F5F5F5]">
+                      Commercial Decision Explanation <span className="text-forge">*</span>
+                    </label>
+                    <textarea
+                      className="field min-h-24 w-full text-xs sm:text-sm"
+                      placeholder="Detail commercial margin validation, pricing release justification, or requested corrections"
+                      value={comment}
+                      onChange={event => setComment(event.target.value)}
+                    />
+                  </div>
 
-              <div className="flex flex-col sm:flex-row gap-3 pt-2">
-                <button
-                  className="button button-primary py-2.5 px-4 text-xs font-semibold flex-1 justify-center"
-                  disabled={!comment.trim()}
-                  onClick={() => decide('approved')}
-                >
-                  Approve Quotation
-                </button>
-                <button
-                  className="button border border-[#292D34] bg-[#18181B] text-[#A3A3A3] hover:text-[#EF4444] hover:border-[#EF4444] py-2.5 px-4 text-xs font-semibold flex-1 justify-center transition-colors"
-                  disabled={!comment.trim()}
-                  onClick={() => decide('changes_requested')}
-                >
-                  Return for Correction
-                </button>
-              </div>
+                  <div className="flex flex-col sm:flex-row gap-3 pt-2">
+                    <button
+                      className="button button-primary py-2.5 px-4 text-xs font-semibold flex-1 justify-center"
+                      disabled={!comment.trim()}
+                      onClick={() => decide('approved')}
+                    >
+                      Approve Quotation
+                    </button>
+                    <button
+                      className="button border border-[#292D34] bg-[#18181B] text-[#A3A3A3] hover:text-[#EF4444] hover:border-[#EF4444] py-2.5 px-4 text-xs font-semibold flex-1 justify-center transition-colors"
+                      disabled={!comment.trim()}
+                      onClick={() => decide('changes_requested')}
+                    >
+                      Return for Correction
+                    </button>
+                  </div>
+                </>
+              )}
             </section>
           ) : (
             <section className="panel min-w-0 w-full flex flex-col items-center justify-center p-8 sm:p-12 text-center border-dashed border-[#292D34] min-h-[380px] bg-[#121214]/60 rounded-xl">

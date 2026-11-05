@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { Link, useSearchParams } from 'react-router-dom';
-import { Sparkles } from 'lucide-react';
+import { Sparkles, CheckCircle2, AlertCircle, ShieldCheck, ArrowRight } from 'lucide-react';
 import { api } from '../../lib/api.js';
 import { EmptyState, ErrorState, LoadingState } from '../../components/feedback/States.jsx';
 import { AiReviewPanel } from '../../components/ai/AiReviewPanel.jsx';
@@ -47,13 +47,20 @@ export function RoutingReviewPage() {
     setError('');
     setMessage('');
     setLoading(true);
+    const decisionComment = comment.trim();
     try {
       await api(`/routing-reviews/${selected.id}/decision`, {
         method: 'POST',
-        body: JSON.stringify({ decision, comment: comment.trim(), rowVersion: selected.row_version })
+        body: JSON.stringify({ decision, comment: decisionComment, rowVersion: selected.row_version })
       });
-      setMessage(decision === 'approved' ? 'Route approved and sent to commercial review.' : 'Route returned to the estimator for correction.');
-      setSelected(null);
+      setMessage(decision === 'approved' ? 'Route approved and moved to Sales Head for commercial review.' : 'Route returned to the estimator for correction.');
+      setSelected(current => current ? {
+        ...current,
+        status: decision,
+        rfq_status: decision === 'approved' ? 'pending_sales_approval' : 'returned_for_revision',
+        review_comment: decisionComment,
+        reviewed_at: new Date().toISOString()
+      } : null);
       setComment('');
       await load();
     } catch (err) {
@@ -212,36 +219,101 @@ export function RoutingReviewPage() {
                 </div>
               </div>
 
-              <div>
-                <label className="block text-sm font-semibold mb-1 text-[#F5F5F5]">
-                  Plant Decision Explanation <span className="text-forge">*</span>
-                </label>
-                <textarea
-                  className="field min-h-24 w-full text-xs sm:text-sm"
-                  placeholder="Detail plant feasibility audit, tooling checks, or required sequence revisions"
-                  value={comment}
-                  onChange={event => setComment(event.target.value)}
-                />
-              </div>
+              {/* Decision Section: Action Form if Pending; Authoritative Status Banner if Already Decided */}
+              {selected.status === 'approved' || selected.rfq_status === 'pending_sales_approval' || selected.rfq_status === 'ready_for_quote' || selected.rfq_status === 'quoted' ? (
+                <div className="rounded-xl border border-emerald-500/30 bg-emerald-500/10 p-4 text-xs sm:text-sm text-emerald-400">
+                  <div className="flex items-start gap-3">
+                    <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-emerald-500/20 text-emerald-400 shrink-0 mt-0.5 border border-emerald-500/30">
+                      <ShieldCheck size={20} />
+                    </div>
+                    <div className="min-w-0 flex-1">
+                      <div className="flex flex-wrap items-center gap-2 mb-1">
+                        <strong className="text-sm font-semibold text-emerald-300">Route Approved · Stage Complete</strong>
+                        <span className="rounded-full bg-emerald-500/20 px-2.5 py-0.5 text-[10px] font-bold uppercase tracking-wider text-emerald-300 border border-emerald-500/30 inline-flex items-center gap-1">
+                          <CheckCircle2 size={11} /> Moved to Sales Head
+                        </span>
+                      </div>
+                      <p className="text-xs text-[#D1D5DB] leading-relaxed">
+                        This manufacturing route has been formally approved by the Plant Head and forwarded to the Sales Head for commercial review & quotation release. The route is locked against further plant modifications.
+                      </p>
+                      {selected.review_comment && (
+                        <div className="mt-3 rounded-lg bg-[#111114] border border-[#292D34] p-3 text-xs">
+                          <span className="block font-semibold text-[#8E8E93] text-[10px] uppercase tracking-wider mb-1">
+                            Recorded Plant Decision Note:
+                          </span>
+                          <p className="text-[#F5F5F5] italic font-mono text-[11px] leading-relaxed">"{selected.review_comment}"</p>
+                        </div>
+                      )}
+                      {selected.reviewed_at && (
+                        <p className="mt-2.5 text-[10px] text-[#8E8E93]">
+                          Approved on {new Date(selected.reviewed_at).toLocaleString('en-IN')}
+                          {selected.reviewer_name ? ` by ${selected.reviewer_name}` : ''}
+                        </p>
+                      )}
+                    </div>
+                  </div>
+                </div>
+              ) : selected.status === 'changes_requested' || selected.rfq_status === 'returned_for_revision' ? (
+                <div className="rounded-xl border border-rose-500/30 bg-rose-500/10 p-4 text-xs sm:text-sm text-rose-400">
+                  <div className="flex items-start gap-3">
+                    <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-rose-500/20 text-rose-400 shrink-0 mt-0.5 border border-rose-500/30">
+                      <AlertCircle size={20} />
+                    </div>
+                    <div className="min-w-0 flex-1">
+                      <div className="flex flex-wrap items-center gap-2 mb-1">
+                        <strong className="text-sm font-semibold text-rose-300">Route Returned for Revision</strong>
+                        <span className="rounded-full bg-rose-500/20 px-2.5 py-0.5 text-[10px] font-bold uppercase tracking-wider text-rose-300 border border-rose-500/30 inline-flex items-center gap-1">
+                          <ArrowRight size={11} /> Back with Estimator
+                        </span>
+                      </div>
+                      <p className="text-xs text-[#D1D5DB] leading-relaxed">
+                        Revisions were requested for this manufacturing route. The estimator has been notified to modify operations and submit an updated revision.
+                      </p>
+                      {selected.review_comment && (
+                        <div className="mt-3 rounded-lg bg-[#111114] border border-[#292D34] p-3 text-xs">
+                          <span className="block font-semibold text-[#8E8E93] text-[10px] uppercase tracking-wider mb-1">
+                            Correction Instructions:
+                          </span>
+                          <p className="text-[#F5F5F5] italic font-mono text-[11px] leading-relaxed">"{selected.review_comment}"</p>
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                </div>
+              ) : (
+                <>
+                  <div>
+                    <label className="block text-sm font-semibold mb-1 text-[#F5F5F5]">
+                      Plant Decision Explanation <span className="text-forge">*</span>
+                    </label>
+                    <textarea
+                      className="field min-h-24 w-full text-xs sm:text-sm"
+                      placeholder="Detail plant feasibility audit, tooling checks, or required sequence revisions"
+                      value={comment}
+                      onChange={event => setComment(event.target.value)}
+                    />
+                  </div>
 
-              <div className="flex flex-col sm:flex-row gap-3 pt-2">
-                <button
-                  className="button button-primary py-2.5 px-4 text-xs font-semibold flex-1 justify-center"
-                  type="button"
-                  disabled={loading || !comment.trim()}
-                  onClick={() => decide('approved')}
-                >
-                  {loading ? 'Saving…' : 'Approve Route'}
-                </button>
-                <button
-                  className="button border border-[#292D34] bg-[#18181B] text-[#A3A3A3] hover:text-[#EF4444] hover:border-[#EF4444] py-2.5 px-4 text-xs font-semibold flex-1 justify-center transition-colors"
-                  type="button"
-                  disabled={loading || !comment.trim()}
-                  onClick={() => decide('changes_requested')}
-                >
-                  {loading ? 'Saving…' : 'Return for Revision'}
-                </button>
-              </div>
+                  <div className="flex flex-col sm:flex-row gap-3 pt-2">
+                    <button
+                      className="button button-primary py-2.5 px-4 text-xs font-semibold flex-1 justify-center"
+                      type="button"
+                      disabled={loading || !comment.trim()}
+                      onClick={() => decide('approved')}
+                    >
+                      {loading ? 'Saving…' : 'Approve Route'}
+                    </button>
+                    <button
+                      className="button border border-[#292D34] bg-[#18181B] text-[#A3A3A3] hover:text-[#EF4444] hover:border-[#EF4444] py-2.5 px-4 text-xs font-semibold flex-1 justify-center transition-colors"
+                      type="button"
+                      disabled={loading || !comment.trim()}
+                      onClick={() => decide('changes_requested')}
+                    >
+                      {loading ? 'Saving…' : 'Return for Revision'}
+                    </button>
+                  </div>
+                </>
+              )}
             </section>
           ) : (
             <section className="panel min-w-0 w-full flex flex-col items-center justify-center p-8 sm:p-12 text-center border-dashed border-[#292D34] min-h-[380px] bg-[#121214]/60 rounded-xl">

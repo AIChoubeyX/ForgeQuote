@@ -12,10 +12,14 @@ export const queue = async status => {
     ORDER BY cr.created_at DESC`, [status || null]);
   return result.rows;
 };
+
 export const find = async id => {
-  const result = await query(`SELECT cr.*,p.name,p.material,p.gross_weight,p.annual_volume,r.rfq_number,c.name AS customer_name
+  const result = await query(`SELECT cr.*,p.name,p.material,p.gross_weight,p.annual_volume,r.rfq_number,r.status AS rfq_status,
+    c.name AS customer_name,reviewer.name AS reviewer_name
     FROM costing_revisions cr JOIN rfq_parts p ON p.id=cr.rfq_part_id JOIN rfqs r ON r.id=p.rfq_id
-    JOIN customers c ON c.id=r.customer_id WHERE cr.id=$1`, [id]);
+    JOIN customers c ON c.id=r.customer_id
+    LEFT JOIN users reviewer ON reviewer.id=cr.reviewed_by
+    WHERE cr.id=$1`, [id]);
   if (!result.rows[0]) return null;
   const operations = await query('SELECT * FROM costing_operations WHERE costing_revision_id=$1 ORDER BY sequence', [id]);
   return { ...result.rows[0], operations: operations.rows };
