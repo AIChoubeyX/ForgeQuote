@@ -1,7 +1,7 @@
 import { query } from '../../config/database.js';
 
 function deriveStage(row) {
-  if (row.quotation_status === 'issued') {
+  if (row.quotation_status === 'issued' || row.rfq_status === 'quoted') {
     return {
       key: 'issued',
       label: 'Quotation Issued',
@@ -10,64 +10,55 @@ function deriveStage(row) {
       isApproved: true
     };
   }
-  if (row.quotation_status === 'approved') {
+  if (row.quotation_status === 'approved' || row.rfq_status === 'ready_for_quote') {
     return {
-      key: 'approved',
-      label: 'Approved (Unissued)',
-      badgeColor: 'amber',
+      key: 'ready_for_quote',
+      label: 'Ready for Quote',
+      badgeColor: 'emerald',
       isIssued: false,
       isApproved: true
     };
   }
-  if (row.commercial_status === 'pending') {
+  if (row.rfq_status === 'pending_sales_approval' || row.commercial_status === 'pending') {
     return {
-      key: 'commercial',
-      label: 'Pending Sales Review',
+      key: 'pending_sales_approval',
+      label: 'Pending Sales Approval',
       badgeColor: 'purple',
       isIssued: false,
       isApproved: false
     };
   }
-  if (row.commercial_status === 'changes_requested') {
+  if (row.rfq_status === 'returned_for_revision' || row.commercial_status === 'changes_requested' || row.routing_status === 'changes_requested') {
     return {
-      key: 'returned',
-      label: 'Sales Revision Requested',
-      badgeColor: 'red',
+      key: 'returned_for_revision',
+      label: 'Returned for Revision',
+      badgeColor: 'rose',
       isIssued: false,
       isApproved: false
     };
   }
-  if (row.routing_status === 'pending_review') {
+  if (row.rfq_status === 'pending_plant_review' || row.routing_status === 'pending_review') {
     return {
-      key: 'plant_review',
+      key: 'pending_plant_review',
       label: 'Pending Plant Review',
       badgeColor: 'sky',
       isIssued: false,
       isApproved: false
     };
   }
-  if (row.routing_status === 'changes_requested') {
+  if (row.rfq_status === 'in_progress' || row.revision_id) {
     return {
-      key: 'returned',
-      label: 'Plant Route Returned',
-      badgeColor: 'amber',
-      isIssued: false,
-      isApproved: false
-    };
-  }
-  if (row.revision_id) {
-    return {
-      key: 'costing',
-      label: `Costing in Progress (v${row.revision || 1})`,
-      badgeColor: 'zinc',
+      key: 'in_progress',
+      label: `In Progress (v${row.revision || 1})`,
+      badgeColor: 'orange',
       isIssued: false,
       isApproved: false
     };
   }
   return {
     key: 'draft',
-    label: 'RFQ Registered (Draft)',
-    badgeColor: 'zinc',
+    label: 'Draft',
+    badgeColor: 'amber',
     isIssued: false,
     isApproved: false
   };
@@ -83,7 +74,7 @@ export async function metrics(user) {
       (SELECT count(*)::int FROM quotations WHERE status='issued') AS issued_quotations,
       (SELECT count(*)::int FROM quotations WHERE status='approved') AS approved_quotations,
       (SELECT count(*)::int FROM quotations) AS total_quotations,
-      (SELECT count(*)::int FROM rfqs WHERE status NOT IN ('closed','quoted')) AS open_rfqs`);
+      (SELECT count(*)::int FROM rfqs WHERE status NOT IN ('closed','quoted','cancelled')) AS open_rfqs`);
 
     const records = await query(`SELECT 
       r.id AS rfq_id,
@@ -159,15 +150,15 @@ export async function metrics(user) {
       count(*) FILTER (WHERE status='changes_requested')::int AS routing_issues FROM costing_revisions`);
     return { role: user.role, ...result.rows[0], recent: [], state: 'ready' };
   }
-  const totals = await query(`SELECT count(*) FILTER (WHERE r.owner_id=$1 AND r.status NOT IN ('closed','quoted'))::int AS open,
-    count(*) FILTER (WHERE r.owner_id=$1 AND r.due_date < current_date AND r.status NOT IN ('closed','quoted'))::int AS overdue,
-    count(*) FILTER (WHERE r.owner_id=$1 AND r.due_date >= current_date AND r.due_date <= current_date + 7 AND r.status NOT IN ('closed','quoted'))::int AS due_soon,
-    count(*) FILTER (WHERE r.owner_id=$1 AND (cr.status IS NULL OR cr.status='draft'))::int AS awaiting_costing,
-    count(*) FILTER (WHERE r.owner_id=$1 AND cr.status='pending_review')::int AS awaiting_routing,
-    count(*) FILTER (WHERE r.owner_id=$1 AND cr.status='changes_requested')::int AS returned_correction,
-    count(*) FILTER (WHERE r.owner_id=$1 AND cm.status='pending')::int AS awaiting_commercial,
-    count(*) FILTER (WHERE r.owner_id=$1 AND q.status='approved')::int AS approved_quotations,
-    count(*) FILTER (WHERE r.owner_id=$1 AND q.status='issued')::int AS issued_quotations
+  const totals = await query(`SELECT count(*) FILTER (WHERE r.owner_id=$1 AND r.status NOT IN ('closed','quoted','cancelled'))::int AS open,
+    count(*) FILTER (WHERE r.owner_id=$1 AND r.due_date < current_date AND r.status NOT IN ('closed','quoted','cancelled'))::int AS overdue,
+    count(*) FILTER (WHERE r.owner_id=$1 AND r.due_date >= current_date AND r.due_date <= current_date + 7 AND r.status NOT IN ('closed','quoted','cancelled'))::int AS due_soon,
+    count(*) FILTER (WHERE r.owner_id=$1 AND (r.status IN ('draft', 'in_progress') OR cr.status IS NULL OR cr.status='draft'))::int AS awaiting_costing,
+    count(*) FILTER (WHERE r.owner_id=$1 AND (r.status = 'pending_plant_review' OR cr.status='pending_review'))::int AS awaiting_routing,
+    count(*) FILTER (WHERE r.owner_id=$1 AND (r.status = 'returned_for_revision' OR cr.status='changes_requested' OR cm.status='changes_requested'))::int AS returned_correction,
+    count(*) FILTER (WHERE r.owner_id=$1 AND (r.status = 'pending_sales_approval' OR cm.status='pending'))::int AS awaiting_commercial,
+    count(*) FILTER (WHERE r.owner_id=$1 AND (r.status = 'ready_for_quote' OR q.status='approved'))::int AS approved_quotations,
+    count(*) FILTER (WHERE r.owner_id=$1 AND (r.status = 'quoted' OR q.status='issued'))::int AS issued_quotations
     FROM rfqs r JOIN rfq_parts p ON p.rfq_id=r.id
     LEFT JOIN LATERAL (SELECT status FROM costing_revisions WHERE rfq_part_id=p.id ORDER BY revision DESC LIMIT 1) cr ON true
     LEFT JOIN LATERAL (SELECT c.status FROM commercial_reviews c JOIN costing_revisions x ON x.id=c.costing_revision_id WHERE x.rfq_part_id=p.id ORDER BY c.created_at DESC LIMIT 1) cm ON true

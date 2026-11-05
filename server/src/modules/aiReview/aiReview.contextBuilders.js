@@ -170,7 +170,8 @@ export async function buildCostingReviewContext({ costingRevisionId, rfqId, user
 }
 
 export async function buildRoutingReviewContext({ costingRevisionId, user }) {
-  if (!can(user, 'routing:review')) {
+  const isAuthorized = can(user, 'routing:review') || (user?.role === 'estimator' && can(user, 'ai:review'));
+  if (!isAuthorized) {
     throw new AppError(403, 'You do not have permission to view routing reviews');
   }
 
@@ -198,6 +199,9 @@ export async function buildRoutingReviewContext({ costingRevisionId, user }) {
   }
 
   const row = result.rows[0];
+  if (user?.role === 'estimator' && row.estimator_id !== user.id) {
+    throw new AppError(403, 'You do not have permission to view this routing review');
+  }
 
   const opResult = await query(
     `SELECT co.*, rm.name AS machine_name, rm.unit AS master_unit

@@ -381,7 +381,7 @@ export function CostingPage({ rfqId, canEdit = true }) {
                     type="button"
                     onClick={submit}
                   >
-                    Submit route for review
+                    Finalize Costing & Submit for Plant Review
                   </button>
                 )}
               </div>

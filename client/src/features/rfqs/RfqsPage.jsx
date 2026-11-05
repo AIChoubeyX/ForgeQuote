@@ -1,12 +1,12 @@
 import { useEffect, useState } from 'react';
-import { ClipboardList, Plus, Search, X } from 'lucide-react';
+import { Plus, Search, X } from 'lucide-react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { RfqTable } from '../../components/data-display/RfqTable.jsx';
 import { EmptyState, ErrorState, LoadingState } from '../../components/feedback/States.jsx';
 import { api } from '../../lib/api.js';
 import { RfqForm } from './RfqForm.jsx';
 
-export function RfqsPage({ canCreate = false }) {
+export function RfqsPage({ user, canCreate = false }) {
   const [params, setParams] = useSearchParams();
   const workflow = params.get('workflow') || '';
   const [data, setData] = useState(null);
@@ -39,12 +39,19 @@ export function RfqsPage({ canCreate = false }) {
   }
 
   const workflowLabels = {
-    open: 'Open RFQs requiring initial review and estimation',
-    costing: 'Costings currently in progress by estimating team',
-    plant_review: 'Pending manufacturing feasibility & routing approval from Plant Head',
-    returned: 'Returned for engineering or commercial correction',
-    commercial: 'Pending final commercial review & quotation sign-off from Sales Head',
-    issued: 'Authoritative issued quotations sent to customer'
+    open: 'Open RFQs active across estimation, routing, commercial approval, or quotation issuance',
+    draft: 'Draft RFQs registered and awaiting initial costing inputs',
+    costing: 'Costings currently in preparation by estimating engineering',
+    in_progress: 'Costings currently in preparation by estimating engineering',
+    plant_review: 'Pending manufacturing feasibility & route verification by Plant Head',
+    pending_plant_review: 'Pending manufacturing feasibility & route verification by Plant Head',
+    returned: 'Returned for engineering revision or commercial corrections',
+    returned_for_revision: 'Returned for engineering revision or commercial corrections',
+    commercial: 'Plant-approved costing awaiting final commercial sign-off by Sales Head',
+    pending_sales_approval: 'Plant-approved costing awaiting final commercial sign-off by Sales Head',
+    ready_for_quote: 'Fully approved quotations locked and ready for formal customer issuance',
+    issued: 'Authoritative customer quotations formally issued',
+    quoted: 'Authoritative customer quotations formally issued'
   };
 
   return (
@@ -54,7 +61,7 @@ export function RfqsPage({ canCreate = false }) {
           <p className="eyebrow mb-2">Manufacturing Operations</p>
           <h1 className="page-title">RFQ register</h1>
           <p className="mt-2 text-sm text-[#A3A3A3]">
-            {workflowLabels[workflow] || 'Search, track, and cost every customer quotation request.'}
+            {workflowLabels[workflow] || 'Search, track, cost, and govern customer quotation requests.'}
           </p>
         </div>
         {canCreate && (
@@ -132,7 +139,7 @@ export function RfqsPage({ canCreate = false }) {
           />
         </div>
         <select
-          className="field m-0 h-11 sm:w-48 bg-[#111111]"
+          className="field m-0 h-11 sm:w-60 bg-[#111111]"
           value={status}
           onChange={event => {
             setStatus(event.target.value);
@@ -142,7 +149,10 @@ export function RfqsPage({ canCreate = false }) {
           <option value="" className="bg-[#111111] text-[#F5F5F5]">All statuses</option>
           <option value="draft" className="bg-[#111111] text-[#F5F5F5]">Draft</option>
           <option value="in_progress" className="bg-[#111111] text-[#F5F5F5]">In progress</option>
-          <option value="ready_for_quote" className="bg-[#111111] text-[#F5F5F5]">Ready to quote</option>
+          <option value="pending_plant_review" className="bg-[#111111] text-[#F5F5F5]">Pending plant review</option>
+          <option value="returned_for_revision" className="bg-[#111111] text-[#F5F5F5]">Returned for revision</option>
+          <option value="pending_sales_approval" className="bg-[#111111] text-[#F5F5F5]">Pending sales approval</option>
+          <option value="ready_for_quote" className="bg-[#111111] text-[#F5F5F5]">Ready for quote</option>
           <option value="quoted" className="bg-[#111111] text-[#F5F5F5]">Quoted</option>
         </select>
       </div>
@@ -160,6 +170,7 @@ export function RfqsPage({ canCreate = false }) {
         ) : data.data.length ? (
           <RfqTable
             rows={data.data}
+            user={user}
             onSelect={canCreate ? edit : undefined}
             onCosting={canCreate ? id => navigate(`/app/rfqs/${id}/costing`) : undefined}
           />

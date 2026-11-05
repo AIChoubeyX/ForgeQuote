@@ -216,9 +216,9 @@ describe('End-to-End ForgeQuote Workflow Verification', () => {
     expect(plantDecisionRes.status).toBe(200);
     expect(plantDecisionRes.body.data.status).toBe('approved');
 
-    // Check that RFQ transitioned to ready_for_quote and commercial review record created
+    // Check that RFQ transitioned to pending_sales_approval and commercial review record created
     const rfqStatusCheck = await query('SELECT status FROM rfqs WHERE id = $1', [createdRfqId]);
-    expect(rfqStatusCheck.rows[0].status).toBe('ready_for_quote');
+    expect(rfqStatusCheck.rows[0].status).toBe('pending_sales_approval');
 
     const commReviewDb = await query('SELECT id, status, row_version FROM commercial_reviews WHERE costing_revision_id = $1', [createdRevisionId]);
     expect(commReviewDb.rows.length).toBe(1);
@@ -272,6 +272,9 @@ describe('End-to-End ForgeQuote Workflow Verification', () => {
     expect(salesDecisionRes.body.data.review?.status).toBe('approved');
     createdQuotationId = salesDecisionRes.body.data.quotation?.id;
     expect(createdQuotationId).toBeDefined();
+
+    const rfqCommercialCheck = await query('SELECT status FROM rfqs WHERE id = $1', [createdRfqId]);
+    expect(rfqCommercialCheck.rows[0].status).toBe('ready_for_quote');
 
     // Step 9: Quotation PDF Generation & Download
     const pdfRes = await request(app)

@@ -37,7 +37,7 @@ try {
   if (count.rows[0].count === 0) {
     const samples = [
       ['RFQ-2026-001', customerIds[0], ids['estimator@forgequote.test'], '2026-10-28', '2026-11-12', 'in_progress', 'Repeat bracket assembly'],
-      ['RFQ-2026-002', customerIds[1], ids['estimator@forgequote.test'], '2026-10-30', '2026-11-08', 'ready_for_quote', 'New pump housing enquiry'],
+      ['RFQ-2026-002', customerIds[1], ids['estimator@forgequote.test'], '2026-10-30', '2026-11-08', 'draft', 'New pump housing enquiry'],
       ['RFQ-2026-003', customerIds[2], ids['estimator@forgequote.test'], '2026-10-31', '2026-11-18', 'draft', 'Cast impeller feasibility']
     ];
     for (const sample of samples) {
