@@ -133,7 +133,7 @@ export async function executeReview(input, user) {
   // Check cache (scoped to reviewType, role, target entity and row version)
   const cacheKey = `${reviewType}:${user.role}:${costingRevisionId || commercialReviewId || rfqId}:${targetVersion}`;
   const cached = getCached(cacheKey);
-  if (cached) {
+  if (cached && !input.forceLive) {
     return cached;
   }
 

@@ -1,7 +1,18 @@
 import { useState, useEffect } from 'react';
-import { AlertCircle, AlertTriangle, CheckCircle2, Info, RefreshCw, Sparkles, ShieldAlert } from 'lucide-react';
+import {
+  AlertCircle,
+  AlertTriangle,
+  CheckCircle2,
+  Cpu,
+  Info,
+  Lightbulb,
+  RefreshCw,
+  ShieldAlert,
+  Sparkles
+} from 'lucide-react';
 import { api } from '../../lib/api.js';
 import { MarkdownRenderer } from '../ui/MarkdownRenderer.jsx';
+import { formatCategory, formatFieldName, cleanEvidenceNumbers, formatEvidence } from '../../lib/formatters.js';
 
 export function AiReviewPanel({
   feature = 'costing',
@@ -23,11 +34,13 @@ export function AiReviewPanel({
   const rowVersion = context?.row_version || context?.rowVersion || context?.revision;
   const hasContextSource = Boolean(targetId || context || contextEndpoint);
 
-  // Invalidate previous results when the target record or revision changes, and fetch persisted review
+  // In locked mode, load the saved historical snapshot from the audit log
+  // In active mode, DO NOT auto-populate with stale history; require explicit user click for real live analysis
   useEffect(() => {
     let isMounted = true;
-    async function loadExistingReview() {
-      if (!targetId) return;
+
+    async function loadHistoricalSnapshot() {
+      if (!isLocked || !targetId) return;
       try {
         const queryParams = new URLSearchParams();
         if (costingRevisionId) queryParams.set('costingRevisionId', costingRevisionId);
@@ -46,9 +59,15 @@ export function AiReviewPanel({
 
         const res = await api(`/ai-reviews/history?${queryParams.toString()}`);
         if (isMounted && res.data && res.data.length > 0) {
-          const match = res.data.find(
-            r => r.review_type === targetType || r.review_type === `${targetType}_review`
-          ) || res.data[0];
+          // Filter out any mock entries that may exist
+          const validReviews = res.data.filter(
+            r => !r.summary?.toLowerCase().includes('mocked groq')
+          );
+          const match =
+            validReviews.find(
+              r => r.review_type === targetType || r.review_type === `${targetType}_review`
+            ) || validReviews[0];
+
           if (match) {
             setResult({
               status: match.status,
@@ -62,18 +81,21 @@ export function AiReviewPanel({
           }
         }
       } catch {
-        // Silently ignore history fetch errors; user can still interact
+        // Silently ignore history fetch errors in read-only mode
       }
     }
 
     setResult(null);
     setError('');
-    loadExistingReview();
+
+    if (isLocked) {
+      loadHistoricalSnapshot();
+    }
 
     return () => {
       isMounted = false;
     };
-  }, [targetId, rowVersion, targetType]);
+  }, [targetId, rowVersion, targetType, isLocked]);
 
   async function review() {
     if (loading || isLocked) return;
@@ -86,7 +108,7 @@ export function AiReviewPanel({
           const res = await api(contextEndpoint);
           sourceContext = res.data;
         } catch {
-          // contextEndpoint might fail if record not saved yet
+          // Context endpoint optional fallback
         }
       }
 
@@ -95,7 +117,8 @@ export function AiReviewPanel({
         costingRevisionId: costingRevisionId || (targetType === 'routing' || targetType === 'routing_review' ? targetId : undefined),
         commercialReviewId: commercialReviewId || (targetType === 'commercial' || targetType === 'commercial_review' ? targetId : undefined),
         rfqId: rfqId || context?.rfq_id,
-        context: sourceContext || (typeof context === 'object' ? context : undefined)
+        context: sourceContext || (typeof context === 'object' ? context : undefined),
+        forceLive: true
       };
 
       const response = await api('/ai-reviews', {
@@ -110,42 +133,60 @@ export function AiReviewPanel({
     }
   }
 
+  const isRouting = targetType === 'routing' || targetType === 'routing_review';
+  const isCommercial = targetType === 'commercial' || targetType === 'commercial_review';
+
   return (
-    <section className="panel min-w-0 w-full" aria-label="AI review assistance">
+    <section className="panel min-w-0 w-full border border-[#26262B] bg-[#121214] p-4 sm:p-5 rounded-xl shadow-sm" aria-label="AI review assistance">
       {/* Header */}
-      <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between min-w-0 w-full">
+      <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between min-w-0 w-full border-b border-[#26262B] pb-4">
         <div className="min-w-0 flex-1">
           <div className="flex flex-wrap items-center gap-2 min-w-0">
-            <Sparkles size={18} className="text-forge shrink-0" />
-            <h2 className="font-display text-base sm:text-lg font-semibold text-[#F5F5F5]">AI review assistance</h2>
+            <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-forge/10 border border-forge/20 text-forge shrink-0">
+              <Sparkles size={15} />
+            </div>
+            <h2 className="font-display text-base font-semibold text-[#F5F5F5]">
+              AI Review Assistance
+            </h2>
+
             {result?.status && (
               <span className={`inline-flex items-center gap-1 rounded-full px-2.5 py-0.5 text-xs font-medium shrink-0 ${
                 result.status === 'completed'
-                  ? 'bg-emerald-500/15 text-emerald-400 border border-emerald-500/30'
+                  ? 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/25'
                   : result.status === 'insufficient_evidence'
-                  ? 'bg-amber-500/15 text-amber-400 border border-amber-500/30'
-                  : 'bg-[#111111] text-[#A3A3A3] border border-[#292D34]'
+                  ? 'bg-amber-500/10 text-amber-400 border border-amber-500/25'
+                  : 'bg-[#18181B] text-[#A1A1AA] border border-[#27272A]'
               }`}>
                 {result.status === 'completed' && <CheckCircle2 size={12} />}
                 {result.status === 'insufficient_evidence' && <AlertTriangle size={12} />}
-                {result.status.replace('_', ' ')}
+                {result.status === 'completed' ? 'Analysis Complete' : result.status.replace('_', ' ')}
               </span>
             )}
+
             {result?.isHistorical && (
-              <span className="inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[10px] font-medium bg-[#181818] text-[#A3A3A3] border border-[#292D34]">
-                Saved Snapshot
+              <span className="inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[10px] font-medium bg-[#1F1F23] text-[#A1A1AA] border border-[#2E2E33]">
+                Archived Snapshot
               </span>
             )}
+
+            <span className="hidden sm:inline-flex items-center gap-1 text-[11px] font-mono text-[#71717A] ml-auto">
+              <Cpu size={12} /> Groq AI Engine
+            </span>
           </div>
-          <p className="mt-1 text-xs text-[#737373] break-words">
-            Advisory validation and domain checks for this revision. Human decisions remain authoritative.
+
+          <p className="mt-1 text-xs text-[#71717A] leading-relaxed">
+            Automated engineering validation & commercial checks. Human engineering decisions remain authoritative.
           </p>
         </div>
+
+        {/* Action button */}
         <button
-          className={`button border border-[#292D34] transition-colors shrink-0 text-xs sm:text-sm py-2 px-3 sm:px-4 self-start ${
+          className={`button transition-all duration-200 shrink-0 text-xs py-2 px-3 sm:px-4 self-start rounded-lg font-medium inline-flex items-center gap-2 ${
             isLocked
-              ? 'bg-[#141414] text-[#737373] opacity-60 cursor-not-allowed hover:border-[#292D34] hover:text-[#737373]'
-              : 'bg-[#181818] text-[#F5F5F5] hover:border-forge hover:text-forge disabled:opacity-50'
+              ? 'bg-[#18181B] text-[#71717A] border border-[#27272A] opacity-60 cursor-not-allowed'
+              : result
+              ? 'bg-[#1F1F23] text-[#E4E4E7] border border-[#2E2E33] hover:border-forge hover:text-forge'
+              : 'button-primary shadow-sm'
           }`}
           type="button"
           disabled={loading || !hasContextSource || isLocked}
@@ -153,47 +194,58 @@ export function AiReviewPanel({
           title={isLocked ? lockMessage || 'AI review is locked for this workflow stage' : ''}
         >
           {loading ? (
-            <span className="flex items-center gap-2">
-              <RefreshCw size={14} className="animate-spin text-forge" />
-              Analyzing…
-            </span>
+            <>
+              <RefreshCw size={13} className="animate-spin text-forge" />
+              <span>Analyzing…</span>
+            </>
           ) : isLocked ? (
-            <span className="flex items-center gap-2">
-              <Sparkles size={14} className="text-[#737373]" />
-              Review locked
-            </span>
+            <>
+              <ShieldAlert size={13} className="text-[#71717A]" />
+              <span>Review Locked</span>
+            </>
+          ) : result ? (
+            <>
+              <RefreshCw size={13} className="text-forge" />
+              <span>Refresh Review</span>
+            </>
           ) : (
-            <span className="flex items-center gap-2">
-              <Sparkles size={14} className="text-forge" />
-              {result ? 'Refresh review' : 'Review with AI'}
-            </span>
+            <>
+              <Sparkles size={13} />
+              <span>Review with AI</span>
+            </>
           )}
         </button>
       </div>
 
+      {/* Lock Notice Banner */}
       {isLocked && (
-        <div className="mt-4 flex items-start gap-2.5 rounded-lg bg-[#141414] border border-[#292D34] p-3 text-xs text-[#A3A3A3]">
+        <div className="mt-4 flex items-start gap-2.5 rounded-lg bg-[#18181B] border border-[#27272A] p-3 text-xs text-[#A1A1AA]">
           <ShieldAlert size={15} className="mt-0.5 shrink-0 text-amber-400" />
-          <span>{lockMessage || 'AI review is disabled because this RFQ has moved to the next workflow stage.'}</span>
+          <div className="min-w-0 flex-1">
+            <span className="font-medium text-[#E4E4E7]">Stage Completed: </span>
+            <span>{lockMessage || 'AI review is disabled because this RFQ has moved to the next workflow stage.'}</span>
+          </div>
         </div>
       )}
 
+      {/* Missing Context Notice */}
       {!hasContextSource && !isLocked && (
-        <div className="mt-4 flex items-start gap-2.5 rounded-lg bg-[#111111] border border-[#292D34] p-3 text-xs text-[#A3A3A3]">
+        <div className="mt-4 flex items-start gap-2.5 rounded-lg bg-[#18181B] border border-[#27272A] p-3 text-xs text-[#A1A1AA]">
           <Info size={15} className="mt-0.5 shrink-0 text-forge" />
-          <span>Save a costing draft or select an active record to trigger an AI review.</span>
+          <span>Save a costing draft or select an active item to run the AI review.</span>
         </div>
       )}
 
+      {/* Error Banner */}
       {error && (
-        <div className="mt-4 rounded-lg border border-[#EF4444]/30 bg-[#EF4444]/10 p-3 text-xs text-[#EF4444]">
+        <div className="mt-4 rounded-lg border border-rose-500/30 bg-rose-500/10 p-3 text-xs text-rose-400">
           <div className="flex items-start justify-between gap-2">
             <div className="flex items-start gap-2">
-              <AlertCircle size={15} className="mt-0.5 shrink-0 text-[#EF4444]" />
+              <AlertCircle size={15} className="mt-0.5 shrink-0 text-rose-400" />
               <span>{error}</span>
             </div>
             <button
-              className="font-semibold underline hover:text-white"
+              className="font-semibold underline hover:text-white shrink-0 ml-2"
               type="button"
               onClick={review}
             >
@@ -203,142 +255,181 @@ export function AiReviewPanel({
         </div>
       )}
 
+      {/* Loading Shimmer State */}
       {loading && !result && (
-        <div className="mt-4 space-y-2.5 animate-pulse">
-          <div className="h-4 w-3/4 rounded bg-[#202020]" />
-          <div className="h-4 w-1/2 rounded bg-[#202020]" />
-          <div className="h-20 w-full rounded bg-[#111111] border border-[#292D34]" />
+        <div className="mt-5 space-y-3.5">
+          <div className="flex items-center gap-2 text-xs text-forge font-medium">
+            <RefreshCw size={13} className="animate-spin" />
+            <span>Analyzing manufacturing context with Groq AI…</span>
+          </div>
+          <div className="rounded-lg border border-[#26262B] bg-[#16161A] p-4 space-y-3 animate-pulse">
+            <div className="h-4 w-1/3 rounded bg-[#26262B]" />
+            <div className="h-3 w-5/6 rounded bg-[#202024]" />
+            <div className="h-3 w-4/6 rounded bg-[#202024]" />
+            <div className="h-16 w-full rounded bg-[#18181C]" />
+          </div>
         </div>
       )}
 
+      {/* Inviting State: Active Stage, No Analysis Triggered Yet */}
+      {!result && !loading && !isLocked && (
+        <div className="mt-4 rounded-xl border border-[#26262B] bg-gradient-to-br from-[#16161A] to-[#121214] p-5 text-center">
+          <div className="mx-auto flex h-10 w-10 items-center justify-center rounded-xl bg-forge/10 border border-forge/20 text-forge mb-3">
+            <Sparkles size={20} />
+          </div>
+          <h3 className="font-display text-sm font-semibold text-[#F5F5F5]">
+            {isRouting
+              ? 'Manufacturing Route & Machine Feasibility Review'
+              : isCommercial
+              ? 'Commercial Margin & Revenue Exposure Review'
+              : 'Authoritative Costing & Rate Conformance Review'}
+          </h3>
+          <p className="mt-1 text-xs text-[#71717A] max-w-md mx-auto leading-relaxed">
+            {isRouting
+              ? 'Audit machine operation sequence, cycle times, and hourly rate assignments against manufacturing standards before plant approval.'
+              : isCommercial
+              ? 'Evaluate target gross margins, high-value commercial exposure, and annual volume scaling with Groq AI before quote release.'
+              : 'Verify raw material cost, scrap deduction allowance, machine overhead allocation, and final selling price.'}
+          </p>
+          <button
+            className="mt-4 button button-primary text-xs py-2 px-4 shadow-sm inline-flex items-center gap-2"
+            type="button"
+            onClick={review}
+            disabled={loading || !hasContextSource}
+          >
+            <Sparkles size={14} />
+            <span>Analyze with AI</span>
+          </button>
+        </div>
+      )}
+
+      {/* Results View */}
       {result && (
-        <div className="mt-4 space-y-4 min-w-0 w-full">
-          {/* Executive Summary with Markdown Rendering */}
-          <div className="rounded-lg bg-[#111111] border border-[#292D34] p-3 sm:p-3.5 text-sm min-w-0 w-full overflow-hidden">
-            <div className="flex items-center justify-between pb-1.5 border-b border-[#292D34] mb-2">
-              <strong className="text-xs font-bold uppercase tracking-wider text-[#F5F5F5]">Executive Summary</strong>
-              <span className="text-[11px] text-[#737373]">Automated Assessment</span>
+        <div className="mt-5 space-y-4 min-w-0 w-full">
+          {/* Executive Summary Card */}
+          <div className="rounded-xl border border-[#27272A] border-l-4 border-l-forge bg-[#16161A] p-4 sm:p-5 text-xs sm:text-sm min-w-0 w-full shadow-sm">
+            <div className="flex items-center justify-between pb-2 border-b border-[#26262B] mb-3">
+              <span className="text-xs font-bold uppercase tracking-wider text-[#F5F5F5] flex items-center gap-1.5">
+                <Sparkles size={13} className="text-forge" />
+                Executive Summary
+              </span>
+              <span className="text-[11px] font-mono text-[#71717A]">
+                {result.metadata?.model || 'Groq AI'}
+              </span>
             </div>
-            <div className="min-w-0 break-words leading-relaxed">
-              <MarkdownRenderer content={result.summary} />
+            <div className="text-[#D4D4D8] leading-relaxed break-words">
+              <MarkdownRenderer content={cleanEvidenceNumbers(result.summary)} />
             </div>
           </div>
 
+          {/* Insufficient Context Warning */}
           {result.status === 'insufficient_evidence' && (
-            <div className="flex items-start gap-2.5 rounded-lg bg-amber-500/10 border border-amber-500/30 p-3 text-xs text-amber-400 min-w-0 w-full">
+            <div className="flex items-start gap-2.5 rounded-lg bg-amber-500/10 border border-amber-500/25 p-3 text-xs text-amber-400 min-w-0 w-full">
               <AlertTriangle size={16} className="mt-0.5 shrink-0 text-amber-400" />
               <div className="min-w-0 flex-1 break-words">
-                <strong className="block font-semibold">Insufficient Context for Comprehensive Review</strong>
-                <span className="mt-0.5 block leading-relaxed text-[#A3A3A3]">
-                  Some input values or baseline rate versions are missing. Review the limitations below before final sign-off.
+                <strong className="block font-semibold">Insufficient Data for Complete Review</strong>
+                <span className="mt-0.5 block leading-relaxed text-[#A1A1AA]">
+                  Some input values or baseline rate versions are missing. Review findings below before final release.
                 </span>
               </div>
-            </div>
-          )}
-
-          {/* Limitations List */}
-          {result.limitations && result.limitations.length > 0 && (
-            <div className="rounded-lg border border-[#292D34] bg-[#111111] p-3 text-xs min-w-0 w-full overflow-hidden">
-              <strong className="block text-[#F5F5F5] font-semibold mb-1.5">Review Limitations & Assumptions</strong>
-              <ul className="list-disc pl-4 space-y-1 text-[#737373] break-words">
-                {result.limitations.map((lim, idx) => (
-                  <li key={idx} className="leading-relaxed">
-                    <MarkdownRenderer content={lim} />
-                  </li>
-                ))}
-              </ul>
             </div>
           )}
 
           {/* Findings List */}
           {result.findings && result.findings.length > 0 && (
-            <div className="space-y-2.5 min-w-0 w-full">
-              <div className="flex items-center justify-between">
-                <span className="text-xs font-bold uppercase tracking-wider text-[#737373]">
-                  Findings ({result.findings.length})
+            <div className="space-y-3 min-w-0 w-full">
+              <div className="flex items-center justify-between pt-1">
+                <span className="text-xs font-bold uppercase tracking-wider text-[#A1A1AA]">
+                  Observations & Validations ({result.findings.length})
                 </span>
-                <span className="text-[10px] text-[#737373]">Ranked by severity</span>
+                <span className="text-[10px] text-[#71717A]">Ranked by severity</span>
               </div>
 
               {result.findings.map((item, index) => {
                 const isCritical = item.severity === 'critical';
                 const isWarning = item.severity === 'warning';
+                const categoryLabel = formatCategory(item.code);
+                const fieldLabel = formatFieldName(item.affectedRecord || item.affectedField);
+
                 return (
                   <div
-                    className={`rounded-lg border p-3 sm:p-3.5 text-xs transition-colors min-w-0 w-full overflow-hidden ${
+                    className={`rounded-xl border p-4 text-xs transition-all min-w-0 w-full ${
                       isCritical
-                        ? 'border-[#EF4444]/40 bg-[#EF4444]/10'
+                        ? 'border-rose-500/30 bg-rose-500/5'
                         : isWarning
-                        ? 'border-amber-500/40 bg-amber-500/10'
-                        : 'border-[#292D34] bg-[#111111]'
+                        ? 'border-amber-500/30 bg-amber-500/5'
+                        : 'border-[#26262B] bg-[#16161A]'
                     }`}
                     key={`${item.code || item.title || index}-${index}`}
                   >
-                    {/* Header tags */}
-                    <div className="flex flex-wrap items-center gap-1.5 mb-2 min-w-0">
-                      <span className={`inline-flex items-center gap-1 rounded px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider shrink-0 ${
+                    {/* Header Badges */}
+                    <div className="flex flex-wrap items-center gap-2 mb-2.5 min-w-0">
+                      <span className={`inline-flex items-center gap-1 rounded-md px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider shrink-0 ${
                         isCritical
-                          ? 'bg-[#EF4444]/20 text-[#EF4444]'
+                          ? 'bg-rose-500/20 text-rose-400 border border-rose-500/30'
                           : isWarning
-                          ? 'bg-amber-500/20 text-amber-400'
-                          : 'bg-[#FF5A1F]/20 text-forge'
+                          ? 'bg-amber-500/20 text-amber-400 border border-amber-500/30'
+                          : 'bg-forge/15 text-forge border border-forge/30'
                       }`}>
                         {isCritical && <AlertCircle size={11} />}
                         {isWarning && <AlertTriangle size={11} />}
-                        {!isCritical && !isWarning && <Info size={11} />}
+                        {!isCritical && !isWarning && <CheckCircle2 size={11} />}
                         {item.severity}
                       </span>
 
-                      {item.code && (
-                        <span className="font-mono text-[10px] text-[#737373] bg-[#181818] border border-[#292D34] px-1.5 py-0.5 rounded shrink-0">
-                          {item.code}
+                      {categoryLabel && (
+                        <span className="text-[11px] font-medium text-[#D4D4D8] bg-[#1F1F23] border border-[#2E2E33] px-2 py-0.5 rounded-md shrink-0">
+                          {categoryLabel}
                         </span>
                       )}
 
-                      <span className={`rounded px-1.5 py-0.5 text-[10px] shrink-0 ${
+                      <span className={`rounded-md px-2 py-0.5 text-[10px] shrink-0 ${
                         item.source === 'deterministic'
-                          ? 'bg-[#181818] text-[#A3A3A3] border border-[#292D34]'
-                          : 'bg-purple-500/15 text-purple-300 border border-purple-500/30'
+                          ? 'bg-[#18181B] text-[#71717A] border border-[#27272A]'
+                          : 'bg-purple-500/10 text-purple-300 border border-purple-500/25'
                       }`}>
-                        {item.source === 'deterministic' ? 'Verified Formula Check' : 'AI Advisory'}
+                        {item.source === 'deterministic' ? 'Formula Check' : 'AI Analysis'}
                       </span>
 
-                      {item.affectedRecord && (
-                        <span className="ml-auto rounded bg-[#181818] border border-[#292D34] px-1.5 py-0.5 text-[10px] text-forge font-mono shrink-0">
-                          {item.affectedRecord}
+                      {fieldLabel && (
+                        <span className="ml-auto rounded-md bg-[#1F1F23] border border-[#2E2E33] px-2 py-0.5 text-[11px] text-forge font-medium shrink-0">
+                          Field: {fieldLabel}
                         </span>
                       )}
                     </div>
 
                     {/* Title */}
-                    <strong className="block text-[#F5F5F5] text-xs font-semibold break-words">
+                    <strong className="block text-[#F5F5F5] text-sm font-semibold break-words mb-1">
                       {item.title || item.message}
                     </strong>
 
-                    {/* Message / Explanation with Markdown */}
+                    {/* Explanation */}
                     {item.title && item.title !== (item.message || item.explanation) && (
-                      <div className="mt-1.5 text-[#A3A3A3] break-words">
-                        <MarkdownRenderer content={item.message || item.explanation} />
+                      <div className="text-[#A1A1AA] leading-relaxed break-words">
+                        <MarkdownRenderer content={cleanEvidenceNumbers(item.message || item.explanation)} />
                       </div>
                     )}
 
                     {/* Evidence Quote / Basis */}
                     {(item.evidence || item.basis) && (
-                      <div className="mt-2 rounded bg-[#181818] p-2 text-[11px] text-[#A3A3A3] border border-[#292D34] min-w-0 w-full overflow-x-auto break-all">
-                        <span className="block font-semibold text-[#737373] text-[10px] uppercase tracking-wider mb-0.5">
-                          Evidence / Basis:
+                      <div className="mt-2.5 rounded-lg bg-[#121214] p-2.5 text-[11px] text-[#A1A1AA] border border-[#26262B] min-w-0 w-full">
+                        <span className="block font-semibold text-[#71717A] text-[10px] uppercase tracking-wider mb-1">
+                          Calculated Basis & Evidence:
                         </span>
-                        <MarkdownRenderer content={item.evidence || item.basis} />
+                        <div className="font-mono text-[#D4D4D8] break-words">
+                          {formatEvidence(item.evidence || item.basis)}
+                        </div>
                       </div>
                     )}
 
                     {/* Actionable Recommendation */}
-                    {item.recommendation && (
-                      <div className="mt-2 text-xs text-forge font-medium flex items-start gap-1.5 bg-[#FF5A1F]/10 p-2 rounded border border-[#66301C] min-w-0 w-full overflow-hidden">
-                        <span className="shrink-0 font-bold">→</span>
-                        <div className="min-w-0 flex-1 break-words">
-                          <strong className="font-semibold text-forge">Recommendation: </strong>
-                          <MarkdownRenderer content={item.recommendation} />
+                    {item.recommendation &&
+                      !['none', 'n/a', 'no action required', 'none.'].includes(item.recommendation.trim().toLowerCase()) && (
+                      <div className="mt-2.5 rounded-lg bg-forge/10 border border-forge/25 p-2.5 text-xs text-[#E4E4E7] flex items-start gap-2">
+                        <Lightbulb size={14} className="mt-0.5 shrink-0 text-forge" />
+                        <div className="min-w-0 flex-1 break-words leading-relaxed">
+                          <strong className="font-semibold text-forge">Recommended Action: </strong>
+                          <span className="text-[#F5F5F5]">{cleanEvidenceNumbers(item.recommendation)}</span>
                         </div>
                       </div>
                     )}
@@ -348,25 +439,21 @@ export function AiReviewPanel({
             </div>
           )}
 
-          {/* Actionable Recommendations List */}
-          {result.recommendations && result.recommendations.length > 0 && (
-            <div className="rounded-lg border border-[#292D34] bg-[#111111] p-3 text-xs min-w-0 w-full overflow-hidden">
-              <strong className="block text-[#F5F5F5] font-semibold mb-2">Recommended Verification Steps</strong>
-              <ul className="list-disc pl-4 space-y-1.5 text-[#A3A3A3] break-words">
-                {result.recommendations.map((rec, idx) => (
+          {/* Limitations List */}
+          {result.limitations && result.limitations.length > 0 && (
+            <div className="rounded-xl border border-[#26262B] bg-[#16161A] p-3.5 text-xs min-w-0 w-full">
+              <strong className="block text-[#A1A1AA] font-semibold mb-1 uppercase tracking-wider text-[10px]">
+                Review Assumptions & Audit Context
+              </strong>
+              <ul className="list-disc pl-4 space-y-1 text-[#71717A] break-words">
+                {result.limitations.map((lim, idx) => (
                   <li key={idx} className="leading-relaxed">
-                    <MarkdownRenderer content={rec} />
+                    <MarkdownRenderer content={lim} />
                   </li>
                 ))}
               </ul>
             </div>
           )}
-
-          {/* Human Authority Advisory Banner */}
-          <div className="flex items-center gap-2 rounded bg-[#181818] border border-[#292D34] px-3 py-2 text-[11px] text-[#737373] min-w-0 w-full">
-            <ShieldAlert size={14} className="text-forge shrink-0" />
-            <span className="break-words">AI guidance is strictly advisory. Pricing release requires human departmental authorization.</span>
-          </div>
         </div>
       )}
     </section>

@@ -84,7 +84,7 @@ export function LandingHeader() {
         </nav>
 
         {/* Mobile / Tablet Hamburger Toggle (< 1024px) */}
-        <button
+        {/* <button
           type="button"
           aria-label={mobileOpen ? 'Close navigation menu' : 'Open navigation menu'}
           aria-expanded={mobileOpen}
@@ -93,7 +93,7 @@ export function LandingHeader() {
           onClick={() => setMobileOpen(!mobileOpen)}
         >
           {mobileOpen ? <X size={22} /> : <Menu size={22} />}
-        </button>
+        </button> */}
       </div>
 
       {/* Mobile / Tablet Full Drawer & Backdrop */}

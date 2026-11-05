@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { ArrowLeft, ArrowRight, CheckCircle2, Clock, Plus, ShieldAlert, Trash2 } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { api } from '../../lib/api.js';
+import { formatCurrency } from '../../lib/formatters.js';
 import { ErrorState, LoadingState } from '../../components/feedback/States.jsx';
 import { AiReviewPanel } from '../../components/ai/AiReviewPanel.jsx';
 
@@ -419,7 +420,7 @@ export function CostingPage({ rfqId, canEdit = true }) {
               </h2>
               {calculations && (
                 <span className="text-xs font-mono font-bold text-forge">
-                  {calculations.components?.sellingPrice ? `₹${calculations.components.sellingPrice}` : 'Calculated'}
+                  {calculations.components?.sellingPrice ? formatCurrency(calculations.components.sellingPrice) : 'Calculated'}
                 </span>
               )}
             </div>
@@ -452,7 +453,9 @@ export function CostingPage({ rfqId, canEdit = true }) {
                               : 'text-[#F5F5F5]'
                           }`}
                         >
-                          {isScrap && Number(value) > 0 ? `-${value}` : value}
+                          {isScrap
+                            ? formatCurrency(-Math.abs(Number(value)))
+                            : formatCurrency(value)}
                         </strong>
                       </div>
                     );
@@ -485,10 +488,10 @@ export function CostingPage({ rfqId, canEdit = true }) {
                               {Number(row.annualVolume).toLocaleString()} pcs
                             </td>
                             <td className="py-2 px-2.5 font-mono text-[#F5F5F5]">
-                              {row.annualCost}
+                              {formatCurrency(row.annualCost)}
                             </td>
                             <td className="py-2 px-2.5 font-mono font-semibold text-forge text-right">
-                              {row.annualSellingValue}
+                              {formatCurrency(row.annualSellingValue)}
                             </td>
                           </tr>
                         ))}

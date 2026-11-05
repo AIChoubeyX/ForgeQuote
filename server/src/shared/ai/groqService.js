@@ -6,15 +6,15 @@ export const aiConfig = {
     return process.env.GROQ_API_KEY || '';
   },
   get primaryModel() {
-    return process.env.GROQ_PRIMARY_MODEL || process.env.GROQ_MODEL || 'llama-3.3-70b-versatile';
+    return process.env.GROQ_PRIMARY_MODEL || process.env.GROQ_MODEL || 'openai/gpt-oss-20b';
   },
   get fallbackModels() {
-    const raw = process.env.GROQ_FALLBACK_MODELS || 'llama-3.3-70b-versatile,llama-3.1-8b-instant';
+    const raw = process.env.GROQ_FALLBACK_MODELS || 'openai/gpt-oss-120b,qwen/qwen3.8-27b';
     return raw
       .split(',')
       .map(m => m.trim())
       .filter(Boolean)
-      .filter(m => m !== (process.env.GROQ_PRIMARY_MODEL || process.env.GROQ_MODEL || 'llama-3.3-70b-versatile'));
+      .filter(m => m !== (process.env.GROQ_PRIMARY_MODEL || process.env.GROQ_MODEL || 'openai/gpt-oss-20b'));
   },
   get timeoutMs() {
     return Math.max(5000, Number(process.env.GROQ_TIMEOUT_MS || 30000));
