@@ -151,27 +151,27 @@ export function AdminLifecycleTable({ initialRecords = [] }) {
       <div className="mb-6 flex flex-col justify-between gap-4 lg:flex-row lg:items-center min-w-0 w-full">
         <div className="min-w-0 flex-1">
           <div className="flex items-center gap-2">
-            <span className="grid h-7 w-7 place-items-center rounded bg-[#FF5A1F]/15 border border-[#66301C] text-forge shrink-0">
+            <span className="grid h-7 w-7 place-items-center rounded bg-forge/15 border border-line-strong text-forge shrink-0">
               <FileCheck2 size={16} />
             </span>
-            <h2 className="font-display text-lg sm:text-xl font-bold tracking-tight text-[#F5F5F5] break-words">
+            <h2 className="font-display text-lg sm:text-xl font-normal tracking-tight text-ink break-words">
               Enterprise RFQ & Quotation Lifecycle
             </h2>
           </div>
-          <p className="mt-1 text-xs sm:text-sm text-[#A3A3A3] break-words">
+          <p className="mt-1 text-xs sm:text-sm text-ink-soft break-words">
             Authoritative visibility across all customer inquiries, engineering stages, costing revisions, and issued commercial quotations.
           </p>
         </div>
         <div className="flex flex-wrap items-center gap-2">
           <Link
             to="/app/quotations"
-            className="inline-flex min-h-10 items-center gap-1.5 rounded-lg border border-[#292D34] bg-[#181818] px-3.5 py-2 text-xs font-semibold text-[#D4D4D4] hover:border-forge hover:text-[#F5F5F5] transition-colors"
+            className="inline-flex min-h-10 items-center gap-1.5 rounded-lg border border-line bg-surface px-3.5 py-2 text-xs font-medium text-ink-soft hover:border-forge hover:text-ink transition-colors"
           >
             Quotation history <ArrowRight size={13} />
           </Link>
           <Link
             to="/app/rfqs"
-            className="inline-flex min-h-10 items-center gap-1.5 rounded-lg border border-[#292D34] bg-[#181818] px-3.5 py-2 text-xs font-semibold text-[#D4D4D4] hover:border-forge hover:text-[#F5F5F5] transition-colors"
+            className="inline-flex min-h-10 items-center gap-1.5 rounded-lg border border-line bg-surface px-3.5 py-2 text-xs font-medium text-ink-soft hover:border-forge hover:text-ink transition-colors"
           >
             RFQ register <ArrowRight size={13} />
           </Link>
@@ -179,12 +179,12 @@ export function AdminLifecycleTable({ initialRecords = [] }) {
       </div>
 
       {actionError && (
-        <div className="mb-5 flex items-center justify-between gap-3 rounded-lg border border-red-500/30 bg-red-500/10 p-3.5 text-xs text-red-400">
+        <div className="mb-5 flex items-center justify-between gap-3 rounded-lg border border-red-500/30 bg-red-500/10 p-3.5 text-xs text-red-700">
           <div className="flex items-center gap-2">
             <AlertCircle size={16} className="shrink-0" />
             <span>{actionError}</span>
           </div>
-          <button onClick={() => setActionError('')} className="text-red-400 hover:text-red-300">
+          <button onClick={() => setActionError('')} className="text-red-700 hover:text-red-800">
             <X size={14} />
           </button>
         </div>
@@ -198,16 +198,16 @@ export function AdminLifecycleTable({ initialRecords = [] }) {
             <button
               key={tab.key}
               onClick={() => setActiveTab(tab.key)}
-              className={`inline-flex min-h-9 items-center gap-2 rounded-lg px-3 py-1.5 text-xs font-semibold transition-colors duration-150 focus:outline-none focus:ring-2 focus:ring-forge ${
+              className={`inline-flex min-h-9 items-center gap-2 rounded-lg px-3 py-1.5 text-xs font-medium transition-colors duration-150 focus:outline-none focus:ring-2 focus:ring-forge ${
                 activeTab === tab.key
-                  ? 'bg-forge text-white shadow-sm'
-                  : 'bg-[#181818] text-[#A3A3A3] border border-[#292D34] hover:bg-[#202020] hover:text-[#F5F5F5]'
+                  ? 'bg-forge text-paper shadow-sm'
+                  : 'bg-surface text-ink-soft border border-line hover:bg-sunken hover:text-ink'
               }`}
             >
               <span>{tab.label}</span>
               <span
-                className={`rounded-full px-1.5 py-0.2 text-[10px] font-bold ${
-                  activeTab === tab.key ? 'bg-black/30 text-white' : 'bg-[#292D34] text-[#A3A3A3]'
+                className={`px-1.5 py-0.2 text-[10px] font-medium ${
+                  activeTab === tab.key ? 'bg-forge/40 text-paper' : 'bg-line text-ink-soft'
                 }`}
               >
                 {tab.count}
@@ -218,18 +218,18 @@ export function AdminLifecycleTable({ initialRecords = [] }) {
 
         {/* Search input */}
         <div className="relative w-full sm:w-auto sm:min-w-[260px]">
-          <Search size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-[#737373]" />
+          <Search size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-ink-muted" />
           <input
             type="search"
             value={search}
             onChange={e => setSearch(e.target.value)}
             placeholder="Search RFQ, customer, part..."
-            className="w-full rounded-lg border border-[#292D34] bg-[#111111] py-2 pl-9 pr-8 text-xs text-[#F5F5F5] placeholder-[#737373] outline-none transition-colors focus:border-forge focus:ring-1 focus:ring-forge"
+            className="w-full rounded-lg border border-line bg-paper py-2 pl-9 pr-8 text-xs text-ink placeholder-ink-muted outline-none transition-colors focus:border-forge focus:ring-1 focus:ring-forge"
           />
           {search && (
             <button
               onClick={() => setSearch('')}
-              className="absolute right-2.5 top-1/2 -translate-y-1/2 text-[#737373] hover:text-[#F5F5F5]"
+              className="absolute right-2.5 top-1/2 -translate-y-1/2 text-ink-muted hover:text-ink"
             >
               <X size={13} />
             </button>
@@ -240,7 +240,7 @@ export function AdminLifecycleTable({ initialRecords = [] }) {
       {/* Table */}
       <div className="table-scroll">
         <table className="w-full text-left text-sm min-w-[760px]">
-          <thead className="border-b border-[#292D34] text-xs font-semibold uppercase tracking-wider text-[#737373]">
+          <thead className="border-b border-line text-xs font-medium text-ink-muted">
             <tr>
               <th scope="col" className="px-4 py-3">RFQ & Customer</th>
               <th scope="col" className="px-4 py-3">Part Specifications</th>
@@ -250,10 +250,10 @@ export function AdminLifecycleTable({ initialRecords = [] }) {
               <th scope="col" className="px-4 py-3 text-right">Actions</th>
             </tr>
           </thead>
-          <tbody className="divide-y divide-[#202020]">
+          <tbody className="divide-y divide-line">
             {filteredRows.length === 0 ? (
               <tr>
-                <td colSpan={6} className="py-12 text-center text-[#737373]">
+                <td colSpan={6} className="py-12 text-center text-ink-muted">
                   <p className="text-sm">No records match the current filter or search criteria.</p>
                   {(activeTab !== 'all' || search) && (
                     <button
@@ -261,7 +261,7 @@ export function AdminLifecycleTable({ initialRecords = [] }) {
                         setActiveTab('all');
                         setSearch('');
                       }}
-                      className="mt-3 text-xs font-semibold text-forge hover:text-[#E94B13]"
+                      className="mt-3 text-xs font-medium text-forge hover:text-forge-hover"
                     >
                       Clear filters
                     </button>
@@ -278,31 +278,31 @@ export function AdminLifecycleTable({ initialRecords = [] }) {
                 return (
                   <tr
                     key={row.rfq_id || row.rfq_number}
-                    className="hover:bg-[#181818]/60 transition-colors duration-150"
+                    className="hover:bg-surface/60 transition-colors duration-150"
                   >
                     {/* RFQ & Customer */}
                     <td className="px-4 py-4 align-top">
-                      <div className="font-semibold text-[#F5F5F5]">{row.rfq_number}</div>
-                      <div className="mt-0.5 text-xs text-[#A3A3A3]">{row.customer_name}</div>
-                      <div className="mt-1.5 flex items-center gap-1.5 text-[11px] text-[#737373]">
+                      <div className="font-medium text-ink">{row.rfq_number}</div>
+                      <div className="mt-0.5 text-xs text-ink-soft">{row.customer_name}</div>
+                      <div className="mt-1.5 flex items-center gap-1.5 text-[11px] text-ink-muted">
                         <span>Due: {formatDate(row.due_date)}</span>
                       </div>
                     </td>
 
                     {/* Part Specifications */}
                     <td className="px-4 py-4 align-top">
-                      <div className="font-medium text-[#F5F5F5]">{row.part_name || '—'}</div>
+                      <div className="font-medium text-ink">{row.part_name || '—'}</div>
                       <div className="mt-1 flex flex-wrap items-center gap-1.5">
                         {row.material && (
-                          <span className="inline-block rounded bg-[#202020] border border-[#292D34] px-1.5 py-0.5 text-[10px] font-medium text-[#D4D4D4]">
+                          <span className="inline-block rounded bg-sunken border border-line px-1.5 py-0.5 text-[10px] font-medium text-ink-soft">
                             {row.material}
                           </span>
                         )}
                         {row.gross_weight && (
-                          <span className="text-[11px] text-[#737373]">{row.gross_weight} kg</span>
+                          <span className="text-[11px] text-ink-muted">{row.gross_weight} kg</span>
                         )}
                         {row.annual_volume && (
-                          <span className="text-[11px] text-[#737373]">
+                          <span className="text-[11px] text-ink-muted">
                             · {Number(row.annual_volume).toLocaleString('en-IN')} pcs/yr
                           </span>
                         )}
@@ -312,23 +312,23 @@ export function AdminLifecycleTable({ initialRecords = [] }) {
                     {/* Assigned Estimator */}
                     <td className="px-4 py-4 align-top">
                       <div className="flex items-center gap-2">
-                        <span className="grid h-6 w-6 place-items-center rounded-full bg-[#FF5A1F]/15 border border-[#66301C]/60 text-[11px] font-bold text-forge">
+                        <span className="grid h-6 w-6 place-items-center rounded-full bg-forge/15 border border-line-strong/60 text-[11px] font-medium text-forge">
                           {(row.estimator_name || 'U')[0]}
                         </span>
-                        <span className="text-xs text-[#D4D4D4]">{row.estimator_name || 'Unassigned'}</span>
+                        <span className="text-xs text-ink-soft">{row.estimator_name || 'Unassigned'}</span>
                       </div>
                     </td>
 
                     {/* Working Stage */}
                     <td className="px-4 py-4 align-top">
                       <StageBadge stage={stage} quotationStatus={row.quotation_status} />
-                      <div className="mt-1 text-[11px] text-[#737373]">
+                      <div className="mt-1 text-[11px] text-ink-muted">
                         {isIssued ? (
-                          <span className="text-emerald-400">
+                          <span className="text-emerald-700">
                             Issued: {formatDate(row.issued_at)}
                           </span>
                         ) : isApproved ? (
-                          <span className="text-amber-400">
+                          <span className="text-amber-700">
                             Approved: {formatDate(row.approved_at)} · Ready to issue
                           </span>
                         ) : row.commercial_status === 'pending' ? (
@@ -346,13 +346,13 @@ export function AdminLifecycleTable({ initialRecords = [] }) {
                     {/* Quotation & Value */}
                     <td className="px-4 py-4 align-top">
                       {row.quotation_number ? (
-                        <div className="font-medium text-[#F5F5F5]">{row.quotation_number}</div>
+                        <div className="font-medium text-ink">{row.quotation_number}</div>
                       ) : (
-                        <div className="text-xs text-[#737373]">No quote generated</div>
+                        <div className="text-xs text-ink-muted">No quote generated</div>
                       )}
-                      <div className="mt-0.5 text-xs font-semibold text-forge">
+                      <div className="mt-0.5 text-xs font-medium text-forge">
                         {formatPrice(row.selling_price)}
-                        {row.selling_price && <span className="text-[10px] font-normal text-[#737373]"> / pc</span>}
+                        {row.selling_price && <span className="text-[10px] font-normal text-ink-muted"> / pc</span>}
                       </div>
                     </td>
 
@@ -363,7 +363,7 @@ export function AdminLifecycleTable({ initialRecords = [] }) {
                           <button
                             onClick={() => handleDownloadOrIssue(row)}
                             disabled={isDownloading}
-                            className="inline-flex min-h-8 items-center gap-1.5 rounded-md border border-[#292D34] bg-[#181818] px-2.5 py-1 text-xs font-semibold text-[#F5F5F5] hover:border-emerald-500/50 hover:text-emerald-400 transition-colors disabled:opacity-50"
+                            className="inline-flex min-h-8 items-center gap-1.5 rounded-md border border-line bg-surface px-2.5 py-1 text-xs font-medium text-ink hover:border-emerald-500/50 hover:text-emerald-700 transition-colors disabled:opacity-50"
                           >
                             {isDownloading ? (
                               <Loader2 size={13} className="animate-spin text-forge" />
@@ -378,10 +378,10 @@ export function AdminLifecycleTable({ initialRecords = [] }) {
                           <button
                             onClick={() => handleDownloadOrIssue(row)}
                             disabled={isDownloading}
-                            className="inline-flex min-h-8 items-center gap-1.5 rounded-md bg-forge px-2.5 py-1 text-xs font-semibold text-white shadow-sm hover:bg-[#E94B13] transition-colors disabled:opacity-50"
+                            className="inline-flex min-h-8 items-center gap-1.5 rounded-md bg-forge px-2.5 py-1 text-xs font-medium text-paper shadow-sm hover:bg-forge-hover transition-colors disabled:opacity-50"
                           >
                             {isDownloading ? (
-                              <Loader2 size={13} className="animate-spin text-white" />
+                              <Loader2 size={13} className="animate-spin text-paper" />
                             ) : (
                               <PackageCheck size={13} />
                             )}
@@ -391,7 +391,7 @@ export function AdminLifecycleTable({ initialRecords = [] }) {
 
                         <Link
                           to={`/app/rfqs/${row.rfq_id}/costing`}
-                          className="inline-flex items-center gap-1 text-xs font-semibold text-forge hover:text-[#E94B13] transition-colors"
+                          className="inline-flex items-center gap-1 text-xs font-medium text-forge hover:text-forge-hover transition-colors"
                         >
                           Open costing <ArrowRight size={11} />
                         </Link>
@@ -411,7 +411,7 @@ export function AdminLifecycleTable({ initialRecords = [] }) {
 function StageBadge({ stage, quotationStatus }) {
   if (quotationStatus === 'issued' || stage.key === 'issued') {
     return (
-      <span className="inline-flex items-center gap-1.5 rounded-full border border-emerald-500/30 bg-emerald-500/15 px-2.5 py-1 text-xs font-semibold text-emerald-400">
+      <span className="inline-flex items-center gap-1.5 border border-emerald-500/30 bg-emerald-500/15 px-2.5 py-1 text-xs font-medium text-emerald-700">
         <CheckCircle2 size={12} className="shrink-0" />
         Quotation Issued
       </span>
@@ -420,7 +420,7 @@ function StageBadge({ stage, quotationStatus }) {
 
   if (quotationStatus === 'approved' || stage.key === 'approved') {
     return (
-      <span className="inline-flex items-center gap-1.5 rounded-full border border-amber-500/30 bg-amber-500/15 px-2.5 py-1 text-xs font-semibold text-amber-400">
+      <span className="inline-flex items-center gap-1.5 border border-amber-500/30 bg-amber-500/15 px-2.5 py-1 text-xs font-medium text-amber-700">
         <Clock size={12} className="shrink-0" />
         Approved (Unissued)
       </span>
@@ -429,7 +429,7 @@ function StageBadge({ stage, quotationStatus }) {
 
   if (stage.key === 'commercial') {
     return (
-      <span className="inline-flex items-center gap-1.5 rounded-full border border-purple-500/30 bg-purple-500/15 px-2.5 py-1 text-xs font-semibold text-purple-400">
+      <span className="inline-flex items-center gap-1.5 border border-purple-500/30 bg-purple-500/15 px-2.5 py-1 text-xs font-medium text-purple-700">
         <BadgeCheck size={12} className="shrink-0" />
         Pending Sales Review
       </span>
@@ -438,7 +438,7 @@ function StageBadge({ stage, quotationStatus }) {
 
   if (stage.key === 'sales_changes' || (stage.key === 'returned' && stage.badgeColor === 'red')) {
     return (
-      <span className="inline-flex items-center gap-1.5 rounded-full border border-red-500/30 bg-red-500/15 px-2.5 py-1 text-xs font-semibold text-red-400">
+      <span className="inline-flex items-center gap-1.5 border border-red-500/30 bg-red-500/15 px-2.5 py-1 text-xs font-medium text-red-700">
         <AlertCircle size={12} className="shrink-0" />
         Sales Revision Requested
       </span>
@@ -447,7 +447,7 @@ function StageBadge({ stage, quotationStatus }) {
 
   if (stage.key === 'plant_review') {
     return (
-      <span className="inline-flex items-center gap-1.5 rounded-full border border-sky-500/30 bg-sky-500/15 px-2.5 py-1 text-xs font-semibold text-sky-400">
+      <span className="inline-flex items-center gap-1.5 border border-sky-500/30 bg-sky-500/15 px-2.5 py-1 text-xs font-medium text-sky-700">
         <GitPullRequest size={12} className="shrink-0" />
         Pending Plant Review
       </span>
@@ -456,7 +456,7 @@ function StageBadge({ stage, quotationStatus }) {
 
   if (stage.key === 'plant_returned' || (stage.key === 'returned' && stage.badgeColor === 'amber')) {
     return (
-      <span className="inline-flex items-center gap-1.5 rounded-full border border-amber-500/30 bg-amber-500/15 px-2.5 py-1 text-xs font-semibold text-amber-400">
+      <span className="inline-flex items-center gap-1.5 border border-amber-500/30 bg-amber-500/15 px-2.5 py-1 text-xs font-medium text-amber-700">
         <AlertCircle size={12} className="shrink-0" />
         Plant Route Returned
       </span>
@@ -465,7 +465,7 @@ function StageBadge({ stage, quotationStatus }) {
 
   if (stage.key === 'costing') {
     return (
-      <span className="inline-flex items-center gap-1.5 rounded-full border border-[#333333] bg-[#202020] px-2.5 py-1 text-xs font-semibold text-[#D4D4D4]">
+      <span className="inline-flex items-center gap-1.5 border border-line bg-sunken px-2.5 py-1 text-xs font-medium text-ink-soft">
         <FileEdit size={12} className="shrink-0 text-forge" />
         {stage.label || 'Costing in Progress'}
       </span>
@@ -473,8 +473,8 @@ function StageBadge({ stage, quotationStatus }) {
   }
 
   return (
-    <span className="inline-flex items-center gap-1.5 rounded-full border border-[#292D34] bg-[#181818] px-2.5 py-1 text-xs font-semibold text-[#A3A3A3]">
-      <span className="h-1.5 w-1.5 rounded-full bg-[#737373]" />
+    <span className="inline-flex items-center gap-1.5 border border-line bg-surface px-2.5 py-1 text-xs font-medium text-ink-soft">
+      <span className="h-1.5 w-1.5 rounded-full bg-ink-muted" />
       RFQ Registered (Draft)
     </span>
   );

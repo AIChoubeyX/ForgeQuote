@@ -16,7 +16,7 @@ function renderInline(text) {
       return (
         <code
           key={index}
-          className="rounded bg-[#202020] px-1.5 py-0.5 font-mono text-[11px] text-forge border border-[#292D34]"
+          className="rounded bg-sunken px-1.5 py-0.5 font-mono text-[11px] text-forge border border-line"
         >
           {part.slice(1, -1)}
         </code>
@@ -24,14 +24,14 @@ function renderInline(text) {
     }
     if (part.startsWith('**') && part.endsWith('**')) {
       return (
-        <strong key={index} className="font-semibold text-[#F5F5F5]">
+        <strong key={index} className="font-medium text-ink">
           {part.slice(2, -2)}
         </strong>
       );
     }
     if (part.startsWith('*') && part.endsWith('*')) {
       return (
-        <em key={index} className="italic text-[#A3A3A3]">
+        <em key={index} className="italic text-ink-soft">
           {part.slice(1, -1)}
         </em>
       );
@@ -65,7 +65,7 @@ export function MarkdownRenderer({ content, className = '' }) {
       elements.push(
         <pre
           key={`code-${i}`}
-          className="my-2.5 max-w-full overflow-x-auto rounded-lg border border-[#292D34] bg-[#111111] p-3 font-mono text-xs text-[#F5F5F5] whitespace-pre-wrap break-all"
+          className="my-2.5 max-w-full overflow-x-auto rounded-lg border border-line bg-paper p-3 font-mono text-xs text-ink whitespace-pre-wrap break-all"
         >
           <code>{codeLines.join('\n')}</code>
         </pre>
@@ -95,22 +95,22 @@ export function MarkdownRenderer({ content, className = '' }) {
         );
 
         elements.push(
-          <div key={`table-${i}`} className="my-2.5 max-w-full w-full overflow-x-auto rounded-lg border border-[#292D34]">
+          <div key={`table-${i}`} className="my-2.5 max-w-full w-full overflow-x-auto rounded-lg border border-line">
             <table className="w-full text-left text-xs min-w-[280px]">
-              <thead className="border-b border-[#292D34] bg-[#111111] text-[#737373]">
+              <thead className="border-b border-line bg-paper text-ink-muted">
                 <tr>
                   {headerCols.map((col, idx) => (
-                    <th key={idx} className="px-3 py-2 font-semibold">
+                    <th key={idx} className="px-3 py-2 font-medium">
                       {renderInline(col)}
                     </th>
                   ))}
                 </tr>
               </thead>
-              <tbody className="divide-y divide-[#292D34]/50 bg-[#181818]">
+              <tbody className="divide-y divide-line/50 bg-surface">
                 {bodyRows.map((row, rowIdx) => (
-                  <tr key={rowIdx} className="hover:bg-[#202020] transition-colors">
+                  <tr key={rowIdx} className="hover:bg-sunken transition-colors">
                     {row.map((cell, cellIdx) => (
-                      <td key={cellIdx} className="px-3 py-2 text-[#A3A3A3]">
+                      <td key={cellIdx} className="px-3 py-2 text-ink-soft">
                         {renderInline(cell)}
                       </td>
                     ))}
@@ -128,7 +128,7 @@ export function MarkdownRenderer({ content, className = '' }) {
     // Headings
     if (line.startsWith('### ')) {
       elements.push(
-        <h5 key={`h3-${i}`} className="mt-3 mb-1 font-display text-xs font-bold uppercase tracking-wider text-forge">
+        <h5 key={`h3-${i}`} className="mt-3 mb-1 font-display text-xs font-normal text-forge">
           {renderInline(line.slice(4))}
         </h5>
       );
@@ -137,7 +137,7 @@ export function MarkdownRenderer({ content, className = '' }) {
     }
     if (line.startsWith('## ')) {
       elements.push(
-        <h4 key={`h2-${i}`} className="mt-3 mb-1.5 font-display text-sm font-bold text-[#F5F5F5]">
+        <h4 key={`h2-${i}`} className="mt-3 mb-1.5 font-display text-sm font-normal text-ink">
           {renderInline(line.slice(3))}
         </h4>
       );
@@ -146,7 +146,7 @@ export function MarkdownRenderer({ content, className = '' }) {
     }
     if (line.startsWith('# ')) {
       elements.push(
-        <h3 key={`h1-${i}`} className="mt-3.5 mb-2 font-display text-base font-bold text-[#F5F5F5]">
+        <h3 key={`h1-${i}`} className="mt-3.5 mb-2 font-display text-base font-normal text-ink">
           {renderInline(line.slice(2))}
         </h3>
       );
@@ -162,7 +162,7 @@ export function MarkdownRenderer({ content, className = '' }) {
         i++;
       }
       elements.push(
-        <ul key={`ul-${i}`} className="my-2 list-disc pl-5 space-y-1 text-xs text-[#A3A3A3]">
+        <ul key={`ul-${i}`} className="my-2 list-disc pl-5 space-y-1 text-xs text-ink-soft">
           {listItems.map((item, idx) => (
             <li key={idx} className="leading-relaxed">
               {renderInline(item)}
@@ -181,7 +181,7 @@ export function MarkdownRenderer({ content, className = '' }) {
         i++;
       }
       elements.push(
-        <ol key={`ol-${i}`} className="my-2 list-decimal pl-5 space-y-1 text-xs text-[#A3A3A3]">
+        <ol key={`ol-${i}`} className="my-2 list-decimal pl-5 space-y-1 text-xs text-ink-soft">
           {listItems.map((item, idx) => (
             <li key={idx} className="leading-relaxed">
               {renderInline(item)}
@@ -197,7 +197,7 @@ export function MarkdownRenderer({ content, className = '' }) {
       elements.push(
         <blockquote
           key={`quote-${i}`}
-          className="my-2 rounded-r border-l-2 border-forge bg-[#111111] py-1.5 px-3 text-xs italic text-[#A3A3A3]"
+          className="my-2 rounded-r border-l-2 border-forge bg-paper py-1.5 px-3 text-xs italic text-ink-soft"
         >
           {renderInline(line.slice(2))}
         </blockquote>
@@ -214,7 +214,7 @@ export function MarkdownRenderer({ content, className = '' }) {
 
     // Regular Paragraph
     elements.push(
-      <p key={`p-${i}`} className="my-1.5 text-xs leading-relaxed text-[#A3A3A3] break-words">
+      <p key={`p-${i}`} className="my-1.5 text-xs leading-relaxed text-ink-soft break-words">
         {renderInline(line)}
       </p>
     );

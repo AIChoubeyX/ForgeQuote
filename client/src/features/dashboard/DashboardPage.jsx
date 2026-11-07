@@ -74,7 +74,7 @@ export function DashboardPage() {
         <div>
           <p className="eyebrow mb-2">{new Intl.DateTimeFormat(undefined, { dateStyle: 'long' }).format(new Date())}</p>
           <h1 className="page-title">{config.title}</h1>
-          <p className="mt-2 text-sm text-[#A3A3A3]">{config.description}</p>
+          <p className="mt-2 text-sm text-ink-soft">{config.description}</p>
         </div>
         <Link
           className="button button-primary"
@@ -109,16 +109,16 @@ export function DashboardPage() {
           >
             <div className="min-w-0">
               <div className="flex items-center justify-between mb-4">
-                <span className="text-xs font-semibold uppercase tracking-wider text-[#A3A3A3] truncate">{label}</span>
-                <span className="grid h-8 w-8 place-items-center rounded-lg bg-[#FF5A1F]/10 border border-[#66301C]/50 text-forge shrink-0">
+                <span className="text-xs font-medium text-ink-soft truncate">{label}</span>
+                <span className="grid h-8 w-8 place-items-center rounded-lg bg-forge/10 border border-line-strong/50 text-forge shrink-0">
                   <Icon size={16} />
                 </span>
               </div>
-              <strong className="block font-display text-2xl sm:text-3xl font-bold tracking-tight text-[#F5F5F5]">
+              <strong className="block font-display text-2xl sm:text-3xl font-normal tracking-tight text-ink">
                 {value ?? 0}
               </strong>
             </div>
-            <span className="mt-4 inline-flex items-center gap-1 text-xs font-semibold text-forge">
+            <span className="mt-4 inline-flex items-center gap-1 text-xs font-medium text-forge">
               View records <ArrowRight size={12} />
             </span>
           </Link>
@@ -133,10 +133,10 @@ export function DashboardPage() {
         <section className="panel p-4 sm:p-6 min-w-0 w-full overflow-hidden">
           <div className="mb-5 flex items-start justify-between gap-4">
             <div>
-              <h2 className="font-display text-lg font-semibold text-[#F5F5F5]">Recent assigned RFQs</h2>
-              <p className="mt-1 text-sm text-[#A3A3A3]">Latest RFQ files and costing revisions assigned to you.</p>
+              <h2 className="font-display text-lg font-normal text-ink">Recent assigned RFQs</h2>
+              <p className="mt-1 text-sm text-ink-soft">Latest RFQ files and costing revisions assigned to you.</p>
             </div>
-            <Link className="shrink-0 text-sm font-semibold text-forge hover:text-[#E94B13] transition-colors" to="/app/rfqs">
+            <Link className="shrink-0 text-sm font-medium text-forge hover:text-forge-hover transition-colors" to="/app/rfqs">
               View all →
             </Link>
           </div>
@@ -148,5 +148,5 @@ export function DashboardPage() {
 }
 
 function Page({ children }) {
-  return <main className="mx-auto w-full max-w-7xl px-3.5 py-4 sm:p-6 md:p-8 lg:p-10 text-[#F5F5F5] min-w-0">{children}</main>;
+  return <main className="mx-auto w-full max-w-7xl px-3.5 py-4 sm:p-6 md:p-8 lg:p-10 text-ink min-w-0">{children}</main>;
 }

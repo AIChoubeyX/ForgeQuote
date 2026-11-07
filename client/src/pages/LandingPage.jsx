@@ -6,23 +6,13 @@ import { LandingFooter } from '../components/landing/LandingFooter.jsx';
 
 export function LandingPage() {
   return (
-    <div className="min-h-screen bg-[#080808] text-[#F5F5F5] antialiased selection:bg-forge selection:text-white">
-      {/* Editorial Navigation Header */}
+    <div className="min-h-screen bg-paper text-ink antialiased">
       <LandingHeader />
-
-      {/* Main Content Area */}
       <main>
-        {/* Section 1: Hero Section with Black & Industrial Orange Theme */}
         <HeroSection />
-
-        {/* Section 2: Manufacturing Workflow Infographic */}
         <WorkflowSection />
-
-        {/* Section 3: Product Capabilities & Governance Reinforcement */}
         <ProductCapabilities />
       </main>
-
-      {/* Enterprise Footer */}
       <LandingFooter />
     </div>
   );

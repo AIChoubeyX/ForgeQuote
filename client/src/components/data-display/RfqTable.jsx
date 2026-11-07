@@ -12,7 +12,7 @@ export function RfqTable({ rows, user, onSelect, onCosting }) {
       if (status === 'draft') {
         return (
           <button
-            className="text-xs font-semibold text-forge hover:text-[#E94B13] transition-colors whitespace-nowrap"
+            className="text-xs font-medium text-forge hover:text-forge-hover transition-colors whitespace-nowrap"
             onClick={() => onCosting ? onCosting(row.id) : navigate(`/app/rfqs/${row.id}/costing`)}
           >
             Start costing →
@@ -22,7 +22,7 @@ export function RfqTable({ rows, user, onSelect, onCosting }) {
       if (status === 'in_progress') {
         return (
           <button
-            className="text-xs font-semibold text-orange-400 hover:text-orange-300 transition-colors whitespace-nowrap"
+            className="text-xs font-medium text-orange-700 hover:text-orange-800 transition-colors whitespace-nowrap"
             onClick={() => onCosting ? onCosting(row.id) : navigate(`/app/rfqs/${row.id}/costing`)}
           >
             Continue costing →
@@ -32,7 +32,7 @@ export function RfqTable({ rows, user, onSelect, onCosting }) {
       if (status === 'pending_plant_review') {
         return (
           <button
-            className="text-xs font-semibold text-sky-400 hover:text-sky-300 transition-colors whitespace-nowrap"
+            className="text-xs font-medium text-sky-700 hover:text-sky-800 transition-colors whitespace-nowrap"
             onClick={() => onCosting ? onCosting(row.id) : navigate(`/app/rfqs/${row.id}/costing`)}
           >
             View submission →
@@ -42,7 +42,7 @@ export function RfqTable({ rows, user, onSelect, onCosting }) {
       if (status === 'returned_for_revision') {
         return (
           <button
-            className="text-xs font-semibold text-rose-400 hover:text-rose-300 transition-colors whitespace-nowrap"
+            className="text-xs font-medium text-rose-700 hover:text-rose-800 transition-colors whitespace-nowrap"
             onClick={() => onCosting ? onCosting(row.id) : navigate(`/app/rfqs/${row.id}/costing`)}
           >
             Revise costing →
@@ -52,7 +52,7 @@ export function RfqTable({ rows, user, onSelect, onCosting }) {
       if (status === 'pending_sales_approval') {
         return (
           <button
-            className="text-xs font-semibold text-purple-400 hover:text-purple-300 transition-colors whitespace-nowrap"
+            className="text-xs font-medium text-purple-700 hover:text-purple-800 transition-colors whitespace-nowrap"
             onClick={() => onCosting ? onCosting(row.id) : navigate(`/app/rfqs/${row.id}/costing`)}
           >
             View status →
@@ -62,7 +62,7 @@ export function RfqTable({ rows, user, onSelect, onCosting }) {
       if (status === 'ready_for_quote') {
         return (
           <button
-            className="text-xs font-semibold text-emerald-400 hover:text-emerald-300 transition-colors whitespace-nowrap"
+            className="text-xs font-medium text-emerald-700 hover:text-emerald-800 transition-colors whitespace-nowrap"
             onClick={() => onCosting ? onCosting(row.id) : navigate(`/app/rfqs/${row.id}/costing`)}
           >
             View approved →
@@ -72,7 +72,7 @@ export function RfqTable({ rows, user, onSelect, onCosting }) {
       if (status === 'quoted') {
         return (
           <button
-            className="text-xs font-semibold text-[#A3A3A3] hover:text-[#F5F5F5] transition-colors whitespace-nowrap"
+            className="text-xs font-medium text-ink-soft hover:text-ink transition-colors whitespace-nowrap"
             onClick={() => navigate('/app/quotations')}
           >
             View quotation →
@@ -85,7 +85,7 @@ export function RfqTable({ rows, user, onSelect, onCosting }) {
       if (status === 'pending_plant_review') {
         return (
           <button
-            className="text-xs font-semibold text-forge hover:text-[#E94B13] transition-colors whitespace-nowrap"
+            className="text-xs font-medium text-forge hover:text-forge-hover transition-colors whitespace-nowrap"
             onClick={() => navigate('/app/routing-reviews')}
           >
             Review route →
@@ -94,7 +94,7 @@ export function RfqTable({ rows, user, onSelect, onCosting }) {
       }
       return (
         <button
-          className="text-xs font-semibold text-[#A3A3A3] hover:text-[#F5F5F5] transition-colors whitespace-nowrap"
+          className="text-xs font-medium text-ink-soft hover:text-ink transition-colors whitespace-nowrap"
           onClick={() => navigate(`/app/rfqs/${row.id}/costing`)}
         >
           View route →
@@ -106,7 +106,7 @@ export function RfqTable({ rows, user, onSelect, onCosting }) {
       if (status === 'pending_sales_approval') {
         return (
           <button
-            className="text-xs font-semibold text-purple-400 hover:text-purple-300 transition-colors whitespace-nowrap"
+            className="text-xs font-medium text-purple-700 hover:text-purple-800 transition-colors whitespace-nowrap"
             onClick={() => navigate('/app/commercial-reviews')}
           >
             Review commercials →
@@ -116,7 +116,7 @@ export function RfqTable({ rows, user, onSelect, onCosting }) {
       if (status === 'ready_for_quote') {
         return (
           <button
-            className="text-xs font-semibold text-emerald-400 hover:text-emerald-300 transition-colors whitespace-nowrap"
+            className="text-xs font-medium text-emerald-700 hover:text-emerald-800 transition-colors whitespace-nowrap"
             onClick={() => navigate('/app/quotations')}
           >
             Issue quotation →
@@ -126,7 +126,7 @@ export function RfqTable({ rows, user, onSelect, onCosting }) {
       if (status === 'quoted') {
         return (
           <button
-            className="text-xs font-semibold text-[#A3A3A3] hover:text-[#F5F5F5] transition-colors whitespace-nowrap"
+            className="text-xs font-medium text-ink-soft hover:text-ink transition-colors whitespace-nowrap"
             onClick={() => navigate('/app/quotations')}
           >
             View quotation →
@@ -135,7 +135,7 @@ export function RfqTable({ rows, user, onSelect, onCosting }) {
       }
       return (
         <button
-          className="text-xs font-semibold text-[#A3A3A3] hover:text-[#F5F5F5] transition-colors whitespace-nowrap"
+          className="text-xs font-medium text-ink-soft hover:text-ink transition-colors whitespace-nowrap"
           onClick={() => navigate(`/app/rfqs/${row.id}/costing`)}
         >
           View costing →
@@ -146,7 +146,7 @@ export function RfqTable({ rows, user, onSelect, onCosting }) {
     // Default admin / viewer
     return (
       <button
-        className="text-xs font-semibold text-[#A3A3A3] hover:text-forge transition-colors whitespace-nowrap"
+        className="text-xs font-medium text-ink-soft hover:text-forge transition-colors whitespace-nowrap"
         onClick={() => navigate(`/app/rfqs/${row.id}/costing`)}
       >
         View details →
@@ -166,26 +166,26 @@ export function RfqTable({ rows, user, onSelect, onCosting }) {
   return (
     <div className="table-scroll">
       <table className="w-full text-left text-sm min-w-[900px]">
-        <thead className="text-xs uppercase tracking-wide text-[#737373] border-b border-[#292D34] bg-[#111111]">
+        <thead className="text-xs text-ink-muted border-b border-line bg-paper">
           <tr>
-            <th scope="col" className="px-3.5 py-3 font-semibold">RFQ #</th>
-            <th scope="col" className="px-3.5 py-3 font-semibold">Customer</th>
-            <th scope="col" className="px-3.5 py-3 font-semibold">Part</th>
-            <th scope="col" className="px-3.5 py-3 font-semibold text-center">Costing Rev.</th>
-            <th scope="col" className="px-3.5 py-3 font-semibold">Workflow Status</th>
-            <th scope="col" className="px-3.5 py-3 font-semibold">Current Owner</th>
-            <th scope="col" className="px-3.5 py-3 font-semibold">Due Date</th>
-            <th scope="col" className="px-3.5 py-3 font-semibold">Last Updated</th>
-            <th scope="col" className="px-3.5 py-3 font-semibold">Available Action</th>
+            <th scope="col" className="px-3.5 py-3 font-medium">RFQ #</th>
+            <th scope="col" className="px-3.5 py-3 font-medium">Customer</th>
+            <th scope="col" className="px-3.5 py-3 font-medium">Part</th>
+            <th scope="col" className="px-3.5 py-3 font-medium text-center">Costing Rev.</th>
+            <th scope="col" className="px-3.5 py-3 font-medium">Workflow Status</th>
+            <th scope="col" className="px-3.5 py-3 font-medium">Current Owner</th>
+            <th scope="col" className="px-3.5 py-3 font-medium">Due Date</th>
+            <th scope="col" className="px-3.5 py-3 font-medium">Last Updated</th>
+            <th scope="col" className="px-3.5 py-3 font-medium">Available Action</th>
           </tr>
         </thead>
-        <tbody className="divide-y divide-[#292D34]/50">
+        <tbody className="divide-y divide-line/50">
           {rows.map(row => (
-            <tr key={row.id || row.rfq_number} className="hover:bg-[#202020] transition-colors">
-              <td className="px-3.5 py-3.5 font-semibold text-[#F5F5F5]">
+            <tr key={row.id || row.rfq_number} className="hover:bg-sunken transition-colors">
+              <td className="px-3.5 py-3.5 font-medium text-ink">
                 {onSelect ? (
                   <button
-                    className="text-left text-[#F5F5F5] hover:text-forge focus-visible:rounded-sm transition-colors"
+                    className="text-left text-ink hover:text-forge focus-visible:rounded-sm transition-colors"
                     onClick={() => onSelect(row.id)}
                     title="Edit RFQ header"
                   >
@@ -195,21 +195,21 @@ export function RfqTable({ rows, user, onSelect, onCosting }) {
                   row.rfq_number
                 )}
               </td>
-              <td className="px-3.5 py-3.5 text-[#A3A3A3]">{row.customer_name}</td>
-              <td className="px-3.5 py-3.5 text-[#F5F5F5]">{row.part_name}</td>
-              <td className="px-3.5 py-3.5 text-center font-mono text-xs text-[#A3A3A3]">
+              <td className="px-3.5 py-3.5 text-ink-soft">{row.customer_name}</td>
+              <td className="px-3.5 py-3.5 text-ink">{row.part_name}</td>
+              <td className="px-3.5 py-3.5 text-center font-mono text-xs text-ink-soft">
                 {row.costing_revision ? `v${row.costing_revision}` : '—'}
               </td>
               <td className="px-3.5 py-3.5">
                 <StatusBadge status={row.status} />
               </td>
-              <td className="px-3.5 py-3.5 text-xs text-[#A3A3A3]">
+              <td className="px-3.5 py-3.5 text-xs text-ink-soft">
                 {row.current_owner || row.estimator_name || 'Estimator'}
               </td>
-              <td className="px-3.5 py-3.5 text-xs text-[#737373]">
+              <td className="px-3.5 py-3.5 text-xs text-ink-muted">
                 {formatShortDate(row.due_date)}
               </td>
-              <td className="px-3.5 py-3.5 text-xs text-[#737373]">
+              <td className="px-3.5 py-3.5 text-xs text-ink-muted">
                 {formatShortDate(row.updated_at || row.created_at)}
               </td>
               <td className="px-3.5 py-3.5">

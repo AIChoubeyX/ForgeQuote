@@ -2,33 +2,56 @@
 export default {
   content: ['./index.html', './src/**/*.{js,jsx}'],
   theme: {
+    // Square corners everywhere; `rounded-full` stays for dots and spinners.
+    borderRadius: {
+      none: '0',
+      sm: '0',
+      DEFAULT: '0',
+      md: '0',
+      lg: '0',
+      xl: '0',
+      '2xl': '0',
+      '3xl': '0',
+      full: '9999px'
+    },
     extend: {
       screens: {
         xs: '420px'
       },
       colors: {
-        forge: '#FF5A1F',
-        'forge-hover': '#E94B13',
-        dark: {
-          bg: '#080808',
-          surface: '#111111',
-          elevated: '#181818',
-          alt: '#202020',
-          sidebar: '#080808',
-          card: '#181818',
-          input: '#111111',
-          border: '#292D34',
-          'border-orange': '#66301C'
+        forge: {
+          DEFAULT: '#0755B5',
+          hover: '#05468F',
+          active: '#043A78'
         },
-        txt: {
-          primary: '#F5F5F5',
-          secondary: '#A3A3A3',
-          muted: '#737373'
-        }
+        paper: '#F4F2E8',
+        surface: '#FAF9F3',
+        sunken: '#E9E7DA',
+        ink: {
+          DEFAULT: '#0755B5',
+          soft: '#1F5FB0',
+          muted: '#3F6FB0'
+        },
+        line: {
+          DEFAULT: '#AEC3DC',
+          strong: '#5F8AC4'
+        },
+        danger: '#B42318',
+        success: '#15803D'
       },
       fontFamily: {
-        sans: ['DM Sans', 'sans-serif'],
-        display: ['Space Grotesk', 'sans-serif']
+        sans: ['Inter', 'system-ui', 'sans-serif'],
+        display: ['Outfit', 'Inter', 'sans-serif'],
+        mono: ['Geist Mono', 'ui-monospace', 'monospace']
+      },
+      // Flat by design: hairlines carry the hierarchy, not elevation.
+      boxShadow: {
+        sm: 'none',
+        DEFAULT: 'none',
+        md: 'none',
+        lg: 'none',
+        xl: 'none',
+        '2xl': 'none'
       }
     }
   },

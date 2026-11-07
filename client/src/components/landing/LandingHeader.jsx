@@ -1,152 +1,202 @@
-import { useState, useEffect } from 'react';
-import { ArrowRight, Menu, X, ShieldCheck } from 'lucide-react';
-import { Link, useLocation } from 'react-router-dom';
+import { Fragment, useEffect, useRef, useState } from 'react';
+import { ChevronDown, Menu, X } from 'lucide-react';
+import { Link } from 'react-router-dom';
+import { Logo } from '../ui/Logo.jsx';
+import { PixelField } from '../brand/PixelField.jsx';
+import { CAPABILITIES, STAGES } from './content.js';
+
+const TONES = ['#0B5DC3', '#1E66BE', '#054A9E', '#2A70C6'];
+
+const MENUS = [
+  {
+    label: 'Workflow',
+    title: 'Workflow',
+    intro: 'Four gates from RFQ to issued quotation.',
+    items: STAGES.map((stage, i) => ({ title: stage.title, text: stage.summary, href: `#stage-${i + 1}`, icon: stage.icon }))
+  },
+  {
+    label: 'Capabilities',
+    title: 'Capabilities',
+    intro: 'Technical costing connected to commercial sign-off.',
+    items: CAPABILITIES.slice(0, 4).map(item => ({ title: item.tag, text: item.title, href: '#capabilities', icon: item.icon }))
+  }
+];
+
+const cellClass = 'flex h-12 items-center border-r px-3 text-sm transition-colors';
 
 export function LandingHeader() {
+  const [dark, setDark] = useState(false);
+  const [openMenu, setOpenMenu] = useState(null);
   const [mobileOpen, setMobileOpen] = useState(false);
-  const location = useLocation();
+  const headerRef = useRef(null);
 
-  // Close mobile menu on route change
+  // The bar takes on the colour of whichever section is underneath it.
   useEffect(() => {
-    setMobileOpen(false);
-  }, [location.pathname]);
-
-  // Handle escape key and prevent background scroll when open
-  useEffect(() => {
-    function handleKeyDown(event) {
-      if (event.key === 'Escape' && mobileOpen) {
-        setMobileOpen(false);
-      }
-    }
-    if (mobileOpen) {
-      document.body.style.overflow = 'hidden';
-      window.addEventListener('keydown', handleKeyDown);
-    } else {
-      document.body.style.overflow = '';
-    }
+    let frame = 0;
+    const update = () => {
+      frame = 0;
+      const under = [...document.querySelectorAll('[data-nav]')].filter((el) => {
+        const { top, bottom } = el.getBoundingClientRect();
+        return top <= 24 && bottom > 24;
+      }).pop();
+      setDark(under?.dataset.nav === 'dark');
+    };
+    const onScroll = () => { if (!frame) frame = requestAnimationFrame(update); };
+    update();
+    window.addEventListener('scroll', onScroll, { passive: true });
+    window.addEventListener('resize', onScroll);
     return () => {
-      document.body.style.overflow = '';
-      window.removeEventListener('keydown', handleKeyDown);
+      window.removeEventListener('scroll', onScroll);
+      window.removeEventListener('resize', onScroll);
+      cancelAnimationFrame(frame);
+    };
+  }, []);
+
+  useEffect(() => {
+    const onKey = (event) => {
+      if (event.key !== 'Escape') return;
+      // Hand focus back to whichever control opened the menu before it unmounts.
+      headerRef.current?.querySelector('[aria-expanded="true"]')?.focus();
+      setOpenMenu(null);
+      setMobileOpen(false);
+    };
+    const onPointer = (event) => {
+      if (!headerRef.current?.contains(event.target)) setOpenMenu(null);
+    };
+    const desktop = window.matchMedia('(min-width: 1024px)');
+    const onWiden = (event) => { if (event.matches) setMobileOpen(false); };
+    window.addEventListener('keydown', onKey);
+    window.addEventListener('pointerdown', onPointer);
+    desktop.addEventListener('change', onWiden);
+    return () => {
+      window.removeEventListener('keydown', onKey);
+      window.removeEventListener('pointerdown', onPointer);
+      desktop.removeEventListener('change', onWiden);
+    };
+  }, []);
+
+  // While the mobile menu is open the page behind it can't scroll or take focus.
+  // The lock goes on <html>: on <body> it would break the sticky header.
+  useEffect(() => {
+    if (!mobileOpen) return undefined;
+    const behind = [...headerRef.current.parentElement.children].filter(el => el !== headerRef.current);
+    document.documentElement.style.overflow = 'hidden';
+    behind.forEach((el) => { el.inert = true; });
+    return () => {
+      document.documentElement.style.overflow = '';
+      behind.forEach((el) => { el.inert = false; });
     };
   }, [mobileOpen]);
 
+  const closeOnFocusLeave = (event) => {
+    if (event.relatedTarget && !headerRef.current?.contains(event.relatedTarget)) setOpenMenu(null);
+  };
+
+  const edge = dark ? 'border-paper/40' : 'border-line';
+  const hover = dark ? 'hover:bg-paper hover:text-forge' : 'hover:bg-forge hover:text-paper';
+
   return (
-    <header className="sticky top-0 z-50 border-b border-[#292D34] bg-[#080808]/95 backdrop-blur-md transition-all">
-      <div className="mx-auto flex h-16 sm:h-20 max-w-7xl items-center justify-between px-4 sm:px-6 lg:px-8">
-        {/* Brand: ForgeQuote at top-left, with ForgeQuote™ product badge */}
-        <Link 
-          to="/" 
-          className="group flex items-center gap-2.5 sm:gap-3 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-forge rounded-lg p-1 -m-1 min-w-0"
-          aria-label="ForgeQuote Homepage"
-          onClick={() => setMobileOpen(false)}
-        >
-          {/* Logo Mark: FQ */}
-          <div className="flex h-9 w-9 sm:h-11 sm:w-11 shrink-0 items-center justify-center rounded-xl bg-[#181818] border border-[#292D34] text-white shadow-sm group-hover:border-forge transition-colors">
-            <span className="font-display text-base sm:text-lg font-black tracking-wider text-white">
-              <span className="text-forge font-extrabold mr-0.5">F</span>Q
-            </span>
+    <header
+      ref={headerRef}
+      onBlur={closeOnFocusLeave}
+      className={`sticky top-0 z-50 border-b transition-colors duration-200 ${edge} ${dark ? 'bg-forge text-paper' : 'bg-paper text-forge'}`}
+    >
+      <div className="flex h-12 items-stretch justify-between">
+        <nav aria-label="Main navigation" className="flex min-w-0 items-stretch">
+          <div className={`flex items-center border-r px-4 ${edge}`}>
+            <Logo light={dark} />
           </div>
-
-          <div className="flex flex-col min-w-0">
-            <div className="flex items-center gap-2">
-              <span className="font-display text-lg sm:text-xl font-bold tracking-tight text-[#F5F5F5] truncate">
-                FORGEQUOTE
-              </span>
-              <span className="hidden xs:inline-flex rounded bg-forge/15 border border-[#66301C] px-1.5 py-0.5 text-[9px] sm:text-[10px] font-semibold tracking-wider text-forge uppercase shrink-0">
-                ForgeQuote™
-              </span>
-            </div>
-            <span className="hidden sm:block text-[10px] sm:text-[11px] font-medium tracking-wider text-[#737373] uppercase truncate">
-              Manufacturing Quotation Engineering
-            </span>
-          </div>
-        </Link>
-
-        {/* Desktop Navigation (>= 1024px) */}
-        <nav aria-label="Main Navigation" className="hidden lg:flex items-center gap-6 xl:gap-8 text-sm font-semibold text-[#A3A3A3]">
-          <a href="#workflow" className="transition-colors hover:text-forge focus-visible:text-forge py-2">
-            Workflow
-          </a>
-          <a href="#capabilities" className="transition-colors hover:text-forge focus-visible:text-forge py-2">
-            Capabilities
-          </a>
-          <a href="#governance" className="transition-colors hover:text-forge focus-visible:text-forge py-2">
+          {MENUS.map(item => (
+            <Fragment key={item.label}>
+              <button
+                type="button"
+                aria-expanded={openMenu === item.label}
+                className={`hidden lg:flex gap-1.5 ${cellClass} ${edge} ${hover}`}
+                onClick={() => setOpenMenu(openMenu === item.label ? null : item.label)}
+              >
+                {item.label}
+                <ChevronDown size={14} className={`transition-transform ${openMenu === item.label ? 'rotate-180' : ''}`} />
+              </button>
+              {/* Rendered straight after its trigger so the links come next in tab order. */}
+              {openMenu === item.label && (
+                <div
+                  className={`absolute left-[calc(theme(spacing.4)+8.5rem)] top-full hidden w-[min(44rem,calc(100vw-12rem))] grid-cols-[13rem_1fr_1fr] border-x border-b lg:grid ${edge} ${dark ? 'bg-forge text-paper' : 'bg-paper text-forge'}`}
+                >
+                  <div className={`row-span-2 flex flex-col border-r ${edge}`}>
+                    <div className="p-4">
+                      <p className="text-xs">{item.title}</p>
+                      <p className="mt-3 text-[15px] leading-snug">{item.intro}</p>
+                    </div>
+                    <div className="relative min-h-16 flex-1">
+                      <PixelField cell={22} density={0.9} colors={TONES} />
+                    </div>
+                  </div>
+                  {item.items.map(({ title, text, href, icon: Icon }, i) => (
+                    <a
+                      key={title}
+                      href={href}
+                      onClick={() => setOpenMenu(null)}
+                      className={`flex items-start justify-between gap-3 p-4 transition-colors ${hover} ${i % 2 === 0 ? `border-r border-dashed ${edge}` : ''} ${i < 2 ? `border-b border-dashed ${edge}` : ''}`}
+                    >
+                      <span className="min-w-0">
+                        <span className="block font-display text-lg leading-tight">{title}</span>
+                        <span className="mt-1.5 block text-xs leading-snug opacity-90">{text}</span>
+                      </span>
+                      <Icon size={20} strokeWidth={1.5} className="mt-0.5 shrink-0" />
+                    </a>
+                  ))}
+                </div>
+              )}
+            </Fragment>
+          ))}
+          <a href="#governance" className={`hidden lg:flex ${cellClass} ${edge} ${hover}`} onClick={() => setOpenMenu(null)}>
             Governance
           </a>
-          <div className="h-4 w-px bg-[#292D34]" aria-hidden="true" />
-          <Link
-            to="/login"
-            className="inline-flex items-center gap-2 rounded-lg bg-forge px-4 py-2 text-sm font-semibold text-white transition-colors duration-150 hover:bg-[#E94B13] focus-visible:bg-[#E94B13]"
-          >
-            <span>Sign In</span>
-            <ArrowRight size={15} />
-          </Link>
         </nav>
 
-        {/* Mobile / Tablet Hamburger Toggle (< 1024px) */}
-        {/* <button
-          type="button"
-          aria-label={mobileOpen ? 'Close navigation menu' : 'Open navigation menu'}
-          aria-expanded={mobileOpen}
-          aria-controls="mobile-navigation"
-          className="inline-flex min-h-11 min-w-11 items-center justify-center rounded-lg border border-[#292D34] bg-[#181818] text-[#F5F5F5] transition hover:bg-[#202020] hover:border-[#737373] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-forge lg:hidden"
-          onClick={() => setMobileOpen(!mobileOpen)}
-        >
-          {mobileOpen ? <X size={22} /> : <Menu size={22} />}
-        </button> */}
+        <div className="flex items-stretch">
+          <Link
+            to="/login"
+            className={`hidden sm:flex items-center px-5 text-sm transition-colors ${dark ? 'bg-paper text-forge hover:bg-sunken' : 'bg-forge text-paper hover:bg-forge-hover'}`}
+          >
+            Sign in
+          </Link>
+          <button
+            type="button"
+            aria-label={mobileOpen ? 'Close navigation menu' : 'Open navigation menu'}
+            aria-expanded={mobileOpen}
+            className={`flex w-12 items-center justify-center border-l lg:hidden ${edge}`}
+            onClick={() => setMobileOpen(!mobileOpen)}
+          >
+            {mobileOpen ? <X size={20} /> : <Menu size={20} />}
+          </button>
+        </div>
       </div>
 
-      {/* Mobile / Tablet Full Drawer & Backdrop */}
       {mobileOpen && (
-        <div 
-          id="mobile-navigation" 
-          className="fixed inset-x-0 top-[64px] sm:top-[80px] bottom-0 z-50 flex flex-col bg-[#080808]/98 backdrop-blur-xl border-t border-[#292D34] lg:hidden overflow-y-auto transition-all"
-        >
-          <div className="mx-auto w-full max-w-lg px-5 py-6 flex flex-col flex-1 justify-between">
-            <nav aria-label="Mobile Navigation" className="flex flex-col gap-2">
-              <span className="eyebrow text-[#737373] text-[10px] mb-2 px-3">
-                Navigation
-              </span>
+        <div className="fixed inset-x-0 bottom-0 top-12 z-50 flex flex-col overflow-y-auto bg-forge text-paper lg:hidden">
+          <nav aria-label="Mobile navigation" className="flex flex-col">
+            {[
+              ['Workflow', '#workflow', 'RFQ to quotation'],
+              ['Capabilities', '#capabilities', 'Engine and AI'],
+              ['Governance', '#governance', 'Roles and audit']
+            ].map(([label, href, note]) => (
               <a
-                href="#workflow"
-                className="flex items-center justify-between rounded-lg px-4 py-3 text-base font-semibold text-[#F5F5F5] hover:bg-[#181818] hover:text-forge transition-colors min-h-12 border border-transparent hover:border-[#292D34]"
+                key={label}
+                href={href}
                 onClick={() => setMobileOpen(false)}
+                className="flex min-h-16 items-center justify-between border-b border-paper/40 px-5 font-display text-2xl"
               >
-                <span>Workflow</span>
-                <span className="text-xs text-[#737373]">01–04 Lifecycle</span>
+                {label}
+                <span className="font-sans text-xs">{note}</span>
               </a>
-              <a
-                href="#capabilities"
-                className="flex items-center justify-between rounded-lg px-4 py-3 text-base font-semibold text-[#F5F5F5] hover:bg-[#181818] hover:text-forge transition-colors min-h-12 border border-transparent hover:border-[#292D34]"
-                onClick={() => setMobileOpen(false)}
-              >
-                <span>Capabilities</span>
-                <span className="text-xs text-[#737373]">Engine & AI</span>
-              </a>
-              <a
-                href="#governance"
-                className="flex items-center justify-between rounded-lg px-4 py-3 text-base font-semibold text-[#F5F5F5] hover:bg-[#181818] hover:text-forge transition-colors min-h-12 border border-transparent hover:border-[#292D34]"
-                onClick={() => setMobileOpen(false)}
-              >
-                <span>Governance</span>
-                <span className="text-xs text-[#737373]">Audit & RBAC</span>
-              </a>
-            </nav>
-
-            <div className="mt-8 pt-6 border-t border-[#292D34] space-y-4">
-              <Link
-                to="/login"
-                className="button button-primary w-full justify-center min-h-12 text-base font-bold shadow-lg shadow-forge/20"
-                onClick={() => setMobileOpen(false)}
-              >
-                Sign In to Workspace <ArrowRight size={18} />
-              </Link>
-              
-              <div className="flex items-center justify-center gap-2 text-xs text-[#737373] text-center pt-2">
-                <ShieldCheck size={14} className="text-forge shrink-0" />
-                <span>AS9100 / ISO 9001 Auditable Quoting</span>
-              </div>
-            </div>
+            ))}
+          </nav>
+          <div className="p-5">
+            <Link to="/login" className="button button-invert w-full">Sign in</Link>
+          </div>
+          <div className="relative min-h-32 flex-1">
+            <PixelField cell={28} density={0.4} />
           </div>
         </div>
       )}

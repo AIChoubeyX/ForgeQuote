@@ -55,12 +55,12 @@ export function RfqsPage({ user, canCreate = false }) {
   };
 
   return (
-    <main className="mx-auto w-full max-w-7xl px-3.5 py-4 sm:p-6 md:p-8 lg:p-10 text-[#F5F5F5] min-w-0">
+    <main className="mx-auto w-full max-w-7xl px-3.5 py-4 sm:p-6 md:p-8 lg:p-10 text-ink min-w-0">
       <div className="mb-8 flex flex-col justify-between gap-5 md:flex-row md:items-end">
         <div>
           <p className="eyebrow mb-2">Manufacturing Operations</p>
           <h1 className="page-title">RFQ register</h1>
-          <p className="mt-2 text-sm text-[#A3A3A3]">
+          <p className="mt-2 text-sm text-ink-soft">
             {workflowLabels[workflow] || 'Search, track, cost, and govern customer quotation requests.'}
           </p>
         </div>
@@ -87,19 +87,19 @@ export function RfqsPage({ user, canCreate = false }) {
 
       {(workflow || status) && (
         <div className="mb-5 flex items-center gap-2">
-          <span className="text-xs uppercase tracking-wider text-[#737373]">Active filter:</span>
-          <span className="inline-flex items-center gap-1.5 rounded-full bg-[#181818] border border-[#292D34] px-3 py-1 text-xs font-medium text-[#F5F5F5]">
+          <span className="text-xs text-ink-muted">Active filter:</span>
+          <span className="inline-flex items-center gap-1.5 bg-surface border border-line px-3 py-1 text-xs font-medium text-ink">
             {workflow ? `Workflow: ${workflow}` : `Status: ${status}`}
             <button
               onClick={() => setParams({})}
-              className="ml-1 text-[#737373] hover:text-[#FF5A1F]"
+              className="ml-1 text-ink-muted hover:text-forge"
               title="Clear filter"
             >
               ×
             </button>
           </span>
           <button
-            className="text-xs font-semibold text-forge hover:text-[#E94B13] underline transition-colors"
+            className="text-xs font-medium text-forge hover:text-forge-hover underline transition-colors"
             onClick={() => setParams({})}
           >
             Clear all
@@ -129,7 +129,7 @@ export function RfqsPage({ user, canCreate = false }) {
         <div className="relative flex-1 max-w-md min-w-0">
           <Search
             size={16}
-            className="pointer-events-none absolute left-3.5 top-1/2 -translate-y-1/2 text-[#737373]"
+            className="pointer-events-none absolute left-3.5 top-1/2 -translate-y-1/2 text-ink-muted"
           />
           <input
             className="field m-0 pl-10 h-11 w-full"
@@ -139,21 +139,21 @@ export function RfqsPage({ user, canCreate = false }) {
           />
         </div>
         <select
-          className="field m-0 h-11 sm:w-60 bg-[#111111]"
+          className="field m-0 h-11 sm:w-60 bg-surface"
           value={status}
           onChange={event => {
             setStatus(event.target.value);
             setParams(event.target.value ? { status: event.target.value } : {});
           }}
         >
-          <option value="" className="bg-[#111111] text-[#F5F5F5]">All statuses</option>
-          <option value="draft" className="bg-[#111111] text-[#F5F5F5]">Draft</option>
-          <option value="in_progress" className="bg-[#111111] text-[#F5F5F5]">In progress</option>
-          <option value="pending_plant_review" className="bg-[#111111] text-[#F5F5F5]">Pending plant review</option>
-          <option value="returned_for_revision" className="bg-[#111111] text-[#F5F5F5]">Returned for revision</option>
-          <option value="pending_sales_approval" className="bg-[#111111] text-[#F5F5F5]">Pending sales approval</option>
-          <option value="ready_for_quote" className="bg-[#111111] text-[#F5F5F5]">Ready for quote</option>
-          <option value="quoted" className="bg-[#111111] text-[#F5F5F5]">Quoted</option>
+          <option value="" className="bg-paper text-ink">All statuses</option>
+          <option value="draft" className="bg-paper text-ink">Draft</option>
+          <option value="in_progress" className="bg-paper text-ink">In progress</option>
+          <option value="pending_plant_review" className="bg-paper text-ink">Pending plant review</option>
+          <option value="returned_for_revision" className="bg-paper text-ink">Returned for revision</option>
+          <option value="pending_sales_approval" className="bg-paper text-ink">Pending sales approval</option>
+          <option value="ready_for_quote" className="bg-paper text-ink">Ready for quote</option>
+          <option value="quoted" className="bg-paper text-ink">Quoted</option>
         </select>
       </div>
 

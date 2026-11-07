@@ -276,31 +276,31 @@ export function AiRfqIntakePage() {
   }
 
   return (
-    <main className="mx-auto w-full max-w-7xl px-3.5 py-4 sm:p-6 md:p-8 lg:p-10 text-[#F5F5F5] min-w-0">
+    <main className="mx-auto w-full max-w-7xl px-3.5 py-4 sm:p-6 md:p-8 lg:p-10 text-ink min-w-0">
       <div className="mb-8">
         <Link
-          className="inline-flex items-center gap-1.5 text-sm font-semibold text-forge hover:text-[#E94B13] transition-colors"
+          className="inline-flex items-center gap-1.5 text-sm font-medium text-forge hover:text-forge-hover transition-colors"
           to="/app"
         >
           <ArrowLeft size={16} /> Back to dashboard
         </Link>
         <p className="eyebrow mb-2 mt-5">AI-Powered RFQ Ingestion</p>
         <h1 className="page-title">AI RFQ Intake</h1>
-        <p className="mt-2 text-sm text-[#A3A3A3]">
+        <p className="mt-2 text-sm text-ink-soft">
           Upload customer RFQ documents or paste inquiry text to extract structured part specifications and commercial details.
         </p>
       </div>
 
       {error && (
-        <div className="mb-6 flex items-start gap-3 rounded-lg border border-red-500/30 bg-red-500/10 p-4 text-sm text-red-400">
+        <div className="mb-6 flex items-start gap-3 rounded-lg border border-red-500/30 bg-red-500/10 p-4 text-sm text-red-700">
           <AlertCircle size={18} className="shrink-0 mt-0.5" />
           <div className="flex-1">
-            <p className="font-semibold">{error}</p>
+            <p className="font-medium">{error}</p>
             {!extraction && (
               <button
                 type="button"
                 onClick={startManualEntry}
-                className="mt-2 inline-flex items-center gap-1.5 text-xs font-semibold text-forge hover:underline"
+                className="mt-2 inline-flex items-center gap-1.5 text-xs font-medium text-forge hover:underline"
               >
                 <Edit3 size={13} /> Enter RFQ details manually instead
               </button>
@@ -312,13 +312,13 @@ export function AiRfqIntakePage() {
       {!extraction ? (
         <form className="panel max-w-3xl p-4 sm:p-6 md:p-8 min-w-0 w-full" onSubmit={handleExtract}>
           <div className="mb-6">
-            <h2 className="font-display text-lg font-bold text-[#F5F5F5]">Source RFQ Material</h2>
-            <p className="mt-1 text-sm text-[#A3A3A3]">
+            <h2 className="font-display text-lg font-normal text-ink">Source RFQ Material</h2>
+            <p className="mt-1 text-sm text-ink-soft">
               Upload a drawing sheet (PDF), Excel part schedule (XLS/XLSX), or paste the email inquiry below.
             </p>
           </div>
 
-          <label className="block text-sm font-semibold text-[#F5F5F5]">
+          <label className="block text-sm font-medium text-ink">
             <span className="mb-2 block">Upload RFQ document</span>
             <input
               className="field h-[42px] m-0 w-full"
@@ -326,20 +326,20 @@ export function AiRfqIntakePage() {
               accept=".pdf,.xls,.xlsx,application/pdf,application/vnd.ms-excel,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
               onChange={event => setFile(event.target.files?.[0] || null)}
             />
-            <span className="mt-1.5 block text-xs text-[#737373]">
+            <span className="mt-1.5 block text-xs text-ink-muted">
               Supported: PDF, XLS, or XLSX up to 10 MB. Scanned image-only PDFs require OCR before extraction.
             </span>
           </label>
 
           <div className="my-6 flex items-center gap-3">
-            <div className="flex-1 border-t border-[#292D34]" />
-            <span className="text-xs font-bold uppercase tracking-wider text-[#737373]">
+            <div className="flex-1 border-t border-line" />
+            <span className="text-xs font-medium text-ink-muted">
               or paste email inquiry text
             </span>
-            <div className="flex-1 border-t border-[#292D34]" />
+            <div className="flex-1 border-t border-line" />
           </div>
 
-          <label className="block text-sm font-semibold text-[#F5F5F5]">
+          <label className="block text-sm font-medium text-ink">
             <span className="mb-2 block">RFQ email content</span>
             <textarea
               className="field m-0 w-full min-h-36"
@@ -350,11 +350,11 @@ export function AiRfqIntakePage() {
             />
           </label>
 
-          <div className="mt-6 flex flex-wrap items-center justify-between gap-4 border-t border-[#292D34] pt-6">
+          <div className="mt-6 flex flex-wrap items-center justify-between gap-4 border-t border-line pt-6">
             <button
               type="button"
               onClick={startManualEntry}
-              className="button border border-[#292D34] bg-[#181818] text-[#A3A3A3] hover:text-[#F5F5F5] hover:border-[#737373]"
+              className="button border border-line bg-surface text-ink-soft hover:text-ink hover:border-line-strong"
             >
               <Edit3 size={16} /> Enter manually
             </button>
@@ -379,13 +379,13 @@ export function AiRfqIntakePage() {
       ) : (
         <form onSubmit={handleConfirm} noValidate className="min-w-0 w-full">
           <section className="panel mb-6 p-4 sm:p-6 md:p-8 min-w-0 w-full">
-            <div className="flex flex-col justify-between gap-4 sm:flex-row sm:items-start border-b border-[#292D34] pb-5">
+            <div className="flex flex-col justify-between gap-4 sm:flex-row sm:items-start border-b border-line pb-5">
               <div>
                 <div className="flex items-center gap-2">
                   <Sparkles size={18} className="text-forge" />
-                  <h2 className="font-display text-xl font-bold text-[#F5F5F5]">Review & Verify Extraction</h2>
+                  <h2 className="font-display text-xl font-normal text-ink">Review & Verify Extraction</h2>
                 </div>
-                <p className="mt-1 text-sm text-[#A3A3A3]">
+                <p className="mt-1 text-sm text-ink-soft">
                   Values extracted by AI are advisory proposals. Inspect, edit, and verify each field before creating the RFQ.
                 </p>
               </div>
@@ -397,7 +397,7 @@ export function AiRfqIntakePage() {
                   setRouting(null);
                   setError('');
                 }}
-                className="button border border-[#292D34] bg-[#181818] text-xs text-[#A3A3A3] hover:text-[#F5F5F5]"
+                className="button border border-line bg-surface text-xs text-ink-soft hover:text-ink"
               >
                 Upload different document
               </button>
@@ -409,7 +409,7 @@ export function AiRfqIntakePage() {
                 {extraction.result.warnings.map((warn, i) => (
                   <div
                     key={`warn-${i}`}
-                    className="flex items-center gap-2 rounded-lg border border-amber-500/30 bg-amber-500/10 p-3 text-xs text-amber-300"
+                    className="flex items-center gap-2 rounded-lg border border-amber-500/30 bg-amber-500/10 p-3 text-xs text-amber-800"
                   >
                     <AlertCircle size={15} className="shrink-0" />
                     <span>{warn}</span>
@@ -420,7 +420,7 @@ export function AiRfqIntakePage() {
 
             {/* Missing from document notice (only if still empty in form) */}
             {genuinelyUnfilledMissing.length > 0 && (
-              <div className="mt-4 rounded-lg border border-[#66301C] bg-[#FF5A1F]/10 p-3 text-xs text-[#F5F5F5]">
+              <div className="mt-4 rounded-lg border border-line-strong bg-forge/10 p-3 text-xs text-ink">
                 <strong className="text-forge">Missing from document: </strong>
                 {genuinelyUnfilledMissing.join(', ')}. Please provide these required values manually before confirming.
               </div>
@@ -428,11 +428,11 @@ export function AiRfqIntakePage() {
 
             {/* Section 1: Request Metadata */}
             <div className="mt-6">
-              <h3 className="mb-4 text-xs font-bold uppercase tracking-wider text-forge">
+              <h3 className="mb-4 text-xs font-medium text-forge">
                 1. Request Metadata
               </h3>
               <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-                <label className="block text-sm font-medium text-[#F5F5F5]">
+                <label className="block text-sm font-medium text-ink">
                   <span className="mb-1.5 block">RFQ Number <span className="text-forge">*</span></span>
                   <input
                     className="field h-[42px] m-0 w-full"
@@ -443,7 +443,7 @@ export function AiRfqIntakePage() {
                   />
                 </label>
 
-                <label className="block text-sm font-medium text-[#F5F5F5]">
+                <label className="block text-sm font-medium text-ink">
                   <span className="mb-1.5 block">Customer Name <span className="text-forge">*</span></span>
                   <input
                     className="field h-[42px] m-0 w-full"
@@ -453,13 +453,13 @@ export function AiRfqIntakePage() {
                     onChange={event => setValue(['customerName'], event.target.value)}
                   />
                   {!form.customerName.trim() && (
-                    <span className="mt-1 block text-xs text-[#A3A3A3]">
+                    <span className="mt-1 block text-xs text-ink-soft">
                       Customer name could not be extracted. Please enter it manually.
                     </span>
                   )}
                 </label>
 
-                <label className="block text-sm font-medium text-[#F5F5F5]">
+                <label className="block text-sm font-medium text-ink">
                   <span className="mb-1.5 block">Received Date <span className="text-forge">*</span></span>
                   <input
                     className="field h-[42px] m-0 w-full"
@@ -470,7 +470,7 @@ export function AiRfqIntakePage() {
                   />
                 </label>
 
-                <label className="block text-sm font-medium text-[#F5F5F5]">
+                <label className="block text-sm font-medium text-ink">
                   <span className="mb-1.5 block">Due Date <span className="text-forge">*</span></span>
                   <input
                     className="field h-[42px] m-0 w-full"
@@ -482,7 +482,7 @@ export function AiRfqIntakePage() {
                 </label>
               </div>
 
-              <label className="mt-4 block text-sm font-medium text-[#F5F5F5]">
+              <label className="mt-4 block text-sm font-medium text-ink">
                 <span className="mb-1.5 block">Commercial & Intake Notes</span>
                 <textarea
                   rows={2}
@@ -495,12 +495,12 @@ export function AiRfqIntakePage() {
             </div>
 
             {/* Section 2: Part Technical Specifications */}
-            <div className="mt-8 border-t border-[#292D34] pt-6">
-              <h3 className="mb-4 text-xs font-bold uppercase tracking-wider text-forge">
+            <div className="mt-8 border-t border-line pt-6">
+              <h3 className="mb-4 text-xs font-medium text-forge">
                 2. Part Technical Specifications
               </h3>
               <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-                <label className="block text-sm font-medium text-[#F5F5F5]">
+                <label className="block text-sm font-medium text-ink">
                   <span className="mb-1.5 block">Part Name <span className="text-forge">*</span></span>
                   <input
                     className="field h-[42px] m-0 w-full"
@@ -511,7 +511,7 @@ export function AiRfqIntakePage() {
                   />
                 </label>
 
-                <label className="block text-sm font-medium text-[#F5F5F5]">
+                <label className="block text-sm font-medium text-ink">
                   <span className="mb-1.5 block">Material Grade <span className="text-forge">*</span></span>
                   <input
                     className="field h-[42px] m-0 w-full"
@@ -522,7 +522,7 @@ export function AiRfqIntakePage() {
                   />
                 </label>
 
-                <label className="block text-sm font-medium text-[#F5F5F5]">
+                <label className="block text-sm font-medium text-ink">
                   <span className="mb-1.5 block">Gross Weight (kg) <span className="text-forge">*</span></span>
                   <input
                     className="field h-[42px] m-0 w-full"
@@ -536,7 +536,7 @@ export function AiRfqIntakePage() {
                   />
                 </label>
 
-                <label className="block text-sm font-medium text-[#F5F5F5]">
+                <label className="block text-sm font-medium text-ink">
                   <span className="mb-1.5 block">Annual Volume (units) <span className="text-forge">*</span></span>
                   <input
                     className="field h-[42px] m-0 w-full"
@@ -551,7 +551,7 @@ export function AiRfqIntakePage() {
                 </label>
               </div>
 
-              <label className="mt-4 block text-sm font-medium text-[#F5F5F5]">
+              <label className="mt-4 block text-sm font-medium text-ink">
                 <span className="mb-1.5 block">Part Description & Technical Specifications</span>
                 <textarea
                   rows={3}
@@ -561,7 +561,7 @@ export function AiRfqIntakePage() {
                   onChange={event => setValue(['part', 'description'], event.target.value)}
                 />
                 {!form.part.description.trim() && (
-                  <span className="mt-1 block text-xs text-[#A3A3A3]">
+                  <span className="mt-1 block text-xs text-ink-soft">
                     Description could not be extracted from document. Please enter technical specifications manually if needed.
                   </span>
                 )}
@@ -570,8 +570,8 @@ export function AiRfqIntakePage() {
 
             {/* Section 3: Traceable Evidence */}
             {extraction.result.fields && Object.keys(extraction.result.fields).length > 0 && (
-              <div className="mt-8 border-t border-[#292D34] pt-6">
-                <h3 className="text-xs font-bold uppercase tracking-wider text-forge mb-3">
+              <div className="mt-8 border-t border-line pt-6">
+                <h3 className="text-xs font-medium text-forge mb-3">
                   3. Source Evidence & Traceability
                 </h3>
                 <div className="grid gap-2 sm:grid-cols-2">
@@ -579,17 +579,17 @@ export function AiRfqIntakePage() {
                     .filter(([, field]) => field.evidence && field.evidence.length > 0)
                     .map(([name, field]) => (
                       <details
-                        className="rounded-lg border border-[#292D34] bg-[#111111] p-3 text-xs"
+                        className="rounded-lg border border-line bg-paper p-3 text-xs"
                         key={name}
                       >
-                        <summary className="cursor-pointer font-semibold text-[#F5F5F5] hover:text-forge transition-colors">
-                          {name} · <span className="text-[#A3A3A3] font-normal">{field.status}</span>
+                        <summary className="cursor-pointer font-medium text-ink hover:text-forge transition-colors">
+                          {name} · <span className="text-ink-soft font-normal">{field.status}</span>
                         </summary>
-                        <div className="mt-2 space-y-1.5 border-t border-[#292D34] pt-2">
+                        <div className="mt-2 space-y-1.5 border-t border-line pt-2">
                           {field.evidence.map((item, idx) => (
                             <blockquote
                               key={idx}
-                              className="italic text-[#A3A3A3] border-l-2 border-forge pl-2"
+                              className="italic text-ink-soft border-l-2 border-forge pl-2"
                             >
                               “{item.quote}”
                             </blockquote>
@@ -603,27 +603,27 @@ export function AiRfqIntakePage() {
 
             {/* Routing suggestions from historical parts */}
             {routing && (
-              <div className="mt-8 rounded-lg bg-[#111111] border border-[#292D34] p-5">
-                <h3 className="font-semibold text-[#F5F5F5] flex items-center gap-2">
-                  <CheckCircle2 size={16} className="text-emerald-400" />
+              <div className="mt-8 rounded-lg bg-paper border border-line p-5">
+                <h3 className="font-medium text-ink flex items-center gap-2">
+                  <CheckCircle2 size={16} className="text-emerald-700" />
                   Historical Manufacturing Route Suggestions
                 </h3>
-                <p className="mt-1 text-xs text-[#737373]">
+                <p className="mt-1 text-xs text-ink-muted">
                   Historical reference only. Plant Head review and approval is still strictly required.
                 </p>
                 {routing.status === 'insufficient_evidence' ? (
-                  <p className="mt-3 text-sm text-amber-400">{routing.warnings.join(' ')}</p>
+                  <p className="mt-3 text-sm text-amber-700">{routing.warnings.join(' ')}</p>
                 ) : (
                   <div className="mt-4 space-y-3">
                     {routing.suggestions.map(item => (
                       <div
-                        className="rounded-md bg-[#181818] border border-[#292D34] p-3 text-sm"
+                        className="rounded-md bg-surface border border-line p-3 text-sm"
                         key={`${item.sequence}-${item.operationName}`}
                       >
-                        <strong className="text-[#F5F5F5]">
+                        <strong className="text-ink">
                           {item.sequence}. {item.operationName} · <span className="text-forge">{item.machineCode}</span>
                         </strong>
-                        <p className="mt-1 text-xs text-[#A3A3A3]">{item.rationale}</p>
+                        <p className="mt-1 text-xs text-ink-soft">{item.rationale}</p>
                       </div>
                     ))}
                   </div>
@@ -635,7 +635,7 @@ export function AiRfqIntakePage() {
           {/* Action Footer */}
           <div className="flex flex-wrap items-center justify-between gap-4">
             <button
-              className="button border border-[#292D34] bg-[#181818] text-[#A3A3A3] hover:text-[#F5F5F5] hover:border-[#737373]"
+              className="button border border-line bg-surface text-ink-soft hover:text-ink hover:border-line-strong"
               type="button"
               disabled={routingBusy || !form.part.name || !form.part.material}
               onClick={suggestRouting}
@@ -651,7 +651,7 @@ export function AiRfqIntakePage() {
 
             <div className="flex items-center gap-3">
               {!canConfirm && validationErrors.length > 0 && (
-                <span className="text-xs text-amber-400">
+                <span className="text-xs text-amber-700">
                   {validationErrors[0]}
                 </span>
               )}

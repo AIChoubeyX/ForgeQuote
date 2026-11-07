@@ -66,19 +66,19 @@ export function CommercialReviewPage() {
     URL.revokeObjectURL(url);
   }
 
-  if (!rows) return <main className="mx-auto w-full max-w-6xl px-3.5 py-4 sm:p-6 md:p-10 text-[#F5F5F5] min-w-0"><LoadingState label="Loading commercial queue…" /></main>;
+  if (!rows) return <main className="mx-auto w-full max-w-6xl px-3.5 py-4 sm:p-6 md:p-10 text-ink min-w-0"><LoadingState label="Loading commercial queue…" /></main>;
 
   return (
-    <main className="mx-auto w-full max-w-6xl px-3.5 py-4 sm:p-6 md:p-10 text-[#F5F5F5] min-w-0">
+    <main className="mx-auto w-full max-w-6xl px-3.5 py-4 sm:p-6 md:p-10 text-ink min-w-0">
       <div className="mb-8">
-        <Link className="text-sm font-semibold text-forge hover:text-[#E94B13] transition-colors" to="/app">← Dashboard</Link>
-        <p className="mb-2 mt-6 text-xs font-bold uppercase tracking-[.14em] text-forge">Commercial review</p>
-        <h1 className="font-display text-4xl font-semibold text-[#F5F5F5]">
+        <Link className="text-sm font-medium text-forge hover:text-forge-hover transition-colors" to="/app">← Dashboard</Link>
+        <p className="mb-2 mt-6 text-xs font-medium text-forge">Commercial review</p>
+        <h1 className="font-display text-4xl font-normal text-ink">
           {highValue ? 'High-value approvals' : statusFilter === 'pending' ? 'Quotation approvals' : 'Commercial decision history'}
         </h1>
-        <p className="mt-2 text-sm text-[#A3A3A3]">Approve or inspect persisted commercial decisions.</p>
+        <p className="mt-2 text-sm text-ink-soft">Approve or inspect persisted commercial decisions.</p>
         {(highValue || statusFilter !== 'pending') && (
-          <Link className="mt-3 inline-block text-sm font-semibold text-forge hover:text-[#E94B13] underline" to="/app/commercial-reviews">
+          <Link className="mt-3 inline-block text-sm font-medium text-forge hover:text-forge-hover underline" to="/app/commercial-reviews">
             Clear active filter
           </Link>
         )}
@@ -86,43 +86,43 @@ export function CommercialReviewPage() {
 
       {error && <ErrorState message={error} />}
       {quotationId && (
-        <div className="mb-5 rounded-lg border border-emerald-500/30 bg-emerald-500/10 p-4 text-sm text-emerald-400 flex items-center justify-between">
+        <div className="mb-5 rounded-lg border border-emerald-500/30 bg-emerald-500/10 p-4 text-sm text-emerald-700 flex items-center justify-between">
           <span>Quotation approved successfully.</span>
           <button className="button button-primary py-1.5 px-3 text-xs" onClick={download}>Download PDF</button>
         </div>
       )}
 
       {!rows.length ? (
-        <section className="panel min-w-0 w-full"><p className="text-sm text-[#A3A3A3]">No quotations are pending commercial review.</p></section>
+        <section className="panel min-w-0 w-full"><p className="text-sm text-ink-soft">No quotations are pending commercial review.</p></section>
       ) : (
         <div className="grid gap-6 lg:grid-cols-[1fr_1.3fr] min-w-0 w-full">
           {/* Left Column: Review Queue Table */}
           <section className="panel min-w-0 w-full overflow-hidden flex flex-col">
-            <div className="flex items-center justify-between pb-3 border-b border-[#292D34] mb-2 px-1">
-              <span className="text-xs font-bold uppercase tracking-wider text-[#A1A1AA]">
+            <div className="flex items-center justify-between pb-3 border-b border-line mb-2 px-1">
+              <span className="text-xs font-medium text-ink-soft">
                 Pending Commercial Queue ({rows.length})
               </span>
-              <span className="text-[11px] text-[#71717A]">Click row to inspect</span>
+              <span className="text-[11px] text-ink-muted">Click row to inspect</span>
             </div>
             <div className="overflow-x-auto w-full">
               <table className="w-full text-left text-sm table-fixed min-w-[320px]">
                 <thead>
-                  <tr className="border-b border-[#292D34] text-[11px] uppercase tracking-wider text-[#737373] bg-[#16161A]/50">
-                    <th className="p-3 w-[40%] font-semibold">RFQ #</th>
-                    <th className="p-3 w-[32%] font-semibold">Customer</th>
-                    <th className="p-3 w-[28%] font-semibold">Part</th>
+                  <tr className="border-b border-line text-[11px] text-ink-muted bg-surface/50">
+                    <th className="p-3 w-[40%] font-medium">RFQ #</th>
+                    <th className="p-3 w-[32%] font-medium">Customer</th>
+                    <th className="p-3 w-[28%] font-medium">Part</th>
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-[#292D34]/60">
+                <tbody className="divide-y divide-line/60">
                   {rows.map(row => {
                     const isRowSelected = selected?.id === row.id;
                     return (
                       <tr
                         aria-label={`Open commercial review for ${row.rfq_number}, ${row.name}`}
-                        className={`cursor-pointer transition-colors hover:bg-[#1E1E22] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-forge ${
+                        className={`cursor-pointer transition-colors hover:bg-surface focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-forge ${
                           isRowSelected
-                            ? 'bg-[#FF5A1F]/10 border-l-2 border-forge text-white'
-                            : 'text-[#D4D4D8]'
+                            ? 'bg-forge/10 border-l-2 border-forge text-ink'
+                            : 'text-ink-soft'
                         }`}
                         onKeyDown={event => {
                           if (event.key === 'Enter' || event.key === ' ') {
@@ -135,13 +135,13 @@ export function CommercialReviewPage() {
                         role="button"
                         tabIndex={0}
                       >
-                        <td className="p-3 font-mono text-xs font-semibold text-[#F5F5F5] truncate" title={row.rfq_number}>
+                        <td className="p-3 font-mono text-xs font-medium text-ink truncate" title={row.rfq_number}>
                           {row.rfq_number}
                         </td>
-                        <td className="p-3 text-xs text-[#A3A3A3] truncate" title={row.customer_name}>
+                        <td className="p-3 text-xs text-ink-soft truncate" title={row.customer_name}>
                           {row.customer_name}
                         </td>
-                        <td className="p-3 text-xs text-[#A3A3A3] truncate" title={row.name}>
+                        <td className="p-3 text-xs text-ink-soft truncate" title={row.name}>
                           {row.name}
                         </td>
                       </tr>
@@ -170,26 +170,26 @@ export function CommercialReviewPage() {
                 }
               />
 
-              <div className="border-b border-[#26262B] pb-4">
+              <div className="border-b border-line pb-4">
                 <div className="flex items-center gap-2 mb-1">
-                  <span className="text-xs font-mono font-semibold px-2 py-0.5 rounded bg-forge/15 text-forge border border-forge/25">
+                  <span className="text-xs font-mono font-medium px-2 py-0.5 rounded bg-forge/15 text-forge border border-forge/25">
                     {selected.rfq_number}
                   </span>
-                  <span className="text-xs text-[#71717A]">Revision {selected.revision_number || 'V1'}</span>
+                  <span className="text-xs text-ink-muted">Revision {selected.revision_number || 'V1'}</span>
                 </div>
-                <h2 className="font-display text-xl font-semibold text-[#F5F5F5] mt-1">{selected.name}</h2>
-                <p className="mt-1 text-xs sm:text-sm text-[#A3A3A3]">
-                  Customer: <span className="text-[#F5F5F5] font-medium">{selected.customer_name}</span> · Material: <span className="text-[#F5F5F5] font-medium">{selected.material}</span> · Annual Volume: <span className="text-[#F5F5F5] font-medium">{selected.annual_volume?.toLocaleString?.() || selected.annual_volume} pcs</span>
+                <h2 className="font-display text-xl font-normal text-ink mt-1">{selected.name}</h2>
+                <p className="mt-1 text-xs sm:text-sm text-ink-soft">
+                  Customer: <span className="text-ink font-medium">{selected.customer_name}</span> · Material: <span className="text-ink font-medium">{selected.material}</span> · Annual Volume: <span className="text-ink font-medium">{selected.annual_volume?.toLocaleString?.() || selected.annual_volume} pcs</span>
                 </p>
               </div>
 
-              <div className="rounded-xl border border-[#292D34] p-4 bg-[#141417]">
-                <div className="flex items-center justify-between pb-2.5 mb-3 border-b border-[#292D34]">
-                  <p className="text-xs font-bold uppercase tracking-wider text-[#A1A1AA]">
+              <div className="rounded-xl border border-line p-4 bg-paper">
+                <div className="flex items-center justify-between pb-2.5 mb-3 border-b border-line">
+                  <p className="text-xs font-medium text-ink-soft">
                     Cost & Pricing Breakdown
                   </p>
                   {selected.calculations?.sellingPrice && (
-                    <span className="text-xs font-mono font-bold text-forge">
+                    <span className="text-xs font-mono font-medium text-forge">
                       Selling Price: {formatCurrency(selected.calculations.sellingPrice)}
                     </span>
                   )}
@@ -201,23 +201,23 @@ export function CommercialReviewPage() {
                     const isScrap = key.toLowerCase().includes('scrap');
                     return (
                       <div
-                        className={`flex justify-between py-1.5 text-xs border-b border-[#292D34]/50 ${
-                          isSellingPrice ? 'pt-2.5 border-t-2 border-[#292D34] font-bold text-forge' : ''
+                        className={`flex justify-between py-1.5 text-xs border-b border-line/50 ${
+                          isSellingPrice ? 'pt-2.5 border-t-2 border-line font-medium text-forge' : ''
                         }`}
                         key={key}
                       >
-                        <span className={`capitalize ${isSellingPrice ? 'text-[#F5F5F5]' : 'text-[#A3A3A3]'}`}>
+                        <span className={`capitalize ${isSellingPrice ? 'text-ink' : 'text-ink-soft'}`}>
                           {key.replace(/([A-Z])/g, ' $1')}
                         </span>
                         <strong
                           className={`font-mono ${
                             isSellingPrice
-                              ? 'text-sm font-bold text-forge'
+                              ? 'text-sm font-medium text-forge'
                               : isScrap
-                              ? 'text-emerald-400'
+                              ? 'text-emerald-700'
                               : isMargin
                               ? 'text-forge'
-                              : 'text-[#F5F5F5]'
+                              : 'text-ink'
                           }`}
                         >
                           {typeof value === 'number'
@@ -232,31 +232,31 @@ export function CommercialReviewPage() {
 
               {/* Decision Section: Action Form if Pending; Authoritative Status Banner if Already Decided */}
               {selected.status === 'approved' ? (
-                <div className="rounded-xl border border-emerald-500/30 bg-emerald-500/10 p-4 text-xs sm:text-sm text-emerald-400">
+                <div className="rounded-xl border border-emerald-500/30 bg-emerald-500/10 p-4 text-xs sm:text-sm text-emerald-700">
                   <div className="flex items-start gap-3">
-                    <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-emerald-500/20 text-emerald-400 shrink-0 mt-0.5 border border-emerald-500/30">
+                    <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-emerald-500/20 text-emerald-700 shrink-0 mt-0.5 border border-emerald-500/30">
                       <ShieldCheck size={20} />
                     </div>
                     <div className="min-w-0 flex-1">
                       <div className="flex flex-wrap items-center gap-2 mb-1">
-                        <strong className="text-sm font-semibold text-emerald-300">Quotation Approved · Stage Complete</strong>
-                        <span className="rounded-full bg-emerald-500/20 px-2.5 py-0.5 text-[10px] font-bold uppercase tracking-wider text-emerald-300 border border-emerald-500/30 inline-flex items-center gap-1">
+                        <strong className="text-sm font-medium text-emerald-800">Quotation Approved · Stage Complete</strong>
+                        <span className=" bg-emerald-500/20 px-2.5 py-0.5 text-[10px] font-medium text-emerald-800 border border-emerald-500/30 inline-flex items-center gap-1">
                           <CheckCircle2 size={11} /> Ready for Customer Issuance
                         </span>
                       </div>
-                      <p className="text-xs text-[#D1D5DB] leading-relaxed">
+                      <p className="text-xs text-ink-soft leading-relaxed">
                         Commercial pricing and margins have been signed off. An authoritative quotation has been created and is ready to be released to the customer.
                       </p>
                       {selected.comment && (
-                        <div className="mt-3 rounded-lg bg-[#111114] border border-[#292D34] p-3 text-xs">
-                          <span className="block font-semibold text-[#8E8E93] text-[10px] uppercase tracking-wider mb-1">
+                        <div className="mt-3 rounded-lg bg-paper border border-line p-3 text-xs">
+                          <span className="block font-medium text-ink-muted text-[10px] mb-1">
                             Recorded Commercial Note:
                           </span>
-                          <p className="text-[#F5F5F5] italic font-mono text-[11px] leading-relaxed">"{selected.comment}"</p>
+                          <p className="text-ink italic font-mono text-[11px] leading-relaxed">"{selected.comment}"</p>
                         </div>
                       )}
                       {selected.reviewed_at && (
-                        <p className="mt-2.5 text-[10px] text-[#8E8E93]">
+                        <p className="mt-2.5 text-[10px] text-ink-muted">
                           Approved on {new Date(selected.reviewed_at).toLocaleString('en-IN')}
                           {selected.reviewer_name ? ` by ${selected.reviewer_name}` : ''}
                         </p>
@@ -265,27 +265,27 @@ export function CommercialReviewPage() {
                   </div>
                 </div>
               ) : selected.status === 'changes_requested' ? (
-                <div className="rounded-xl border border-rose-500/30 bg-rose-500/10 p-4 text-xs sm:text-sm text-rose-400">
+                <div className="rounded-xl border border-rose-500/30 bg-rose-500/10 p-4 text-xs sm:text-sm text-rose-700">
                   <div className="flex items-start gap-3">
-                    <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-rose-500/20 text-rose-400 shrink-0 mt-0.5 border border-rose-500/30">
+                    <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-rose-500/20 text-rose-700 shrink-0 mt-0.5 border border-rose-500/30">
                       <AlertCircle size={20} />
                     </div>
                     <div className="min-w-0 flex-1">
                       <div className="flex flex-wrap items-center gap-2 mb-1">
-                        <strong className="text-sm font-semibold text-rose-300">Commercial Changes Requested</strong>
-                        <span className="rounded-full bg-rose-500/20 px-2.5 py-0.5 text-[10px] font-bold uppercase tracking-wider text-rose-300 border border-rose-500/30 inline-flex items-center gap-1">
+                        <strong className="text-sm font-medium text-rose-800">Commercial Changes Requested</strong>
+                        <span className=" bg-rose-500/20 px-2.5 py-0.5 text-[10px] font-medium text-rose-800 border border-rose-500/30 inline-flex items-center gap-1">
                           <ArrowRight size={11} /> Returned for Correction
                         </span>
                       </div>
-                      <p className="text-xs text-[#D1D5DB] leading-relaxed">
+                      <p className="text-xs text-ink-soft leading-relaxed">
                         Corrections were requested for commercial margins or pricing basis.
                       </p>
                       {selected.comment && (
-                        <div className="mt-3 rounded-lg bg-[#111114] border border-[#292D34] p-3 text-xs">
-                          <span className="block font-semibold text-[#8E8E93] text-[10px] uppercase tracking-wider mb-1">
+                        <div className="mt-3 rounded-lg bg-paper border border-line p-3 text-xs">
+                          <span className="block font-medium text-ink-muted text-[10px] mb-1">
                             Correction Instructions:
                           </span>
-                          <p className="text-[#F5F5F5] italic font-mono text-[11px] leading-relaxed">"{selected.comment}"</p>
+                          <p className="text-ink italic font-mono text-[11px] leading-relaxed">"{selected.comment}"</p>
                         </div>
                       )}
                     </div>
@@ -294,7 +294,7 @@ export function CommercialReviewPage() {
               ) : (
                 <>
                   <div>
-                    <label className="block text-sm font-semibold mb-1 text-[#F5F5F5]">
+                    <label className="block text-sm font-medium mb-1 text-ink">
                       Commercial Decision Explanation <span className="text-forge">*</span>
                     </label>
                     <textarea
@@ -307,14 +307,14 @@ export function CommercialReviewPage() {
 
                   <div className="flex flex-col sm:flex-row gap-3 pt-2">
                     <button
-                      className="button button-primary py-2.5 px-4 text-xs font-semibold flex-1 justify-center"
+                      className="button button-primary py-2.5 px-4 text-xs font-medium flex-1 justify-center"
                       disabled={!comment.trim()}
                       onClick={() => decide('approved')}
                     >
                       Approve Quotation
                     </button>
                     <button
-                      className="button border border-[#292D34] bg-[#18181B] text-[#A3A3A3] hover:text-[#EF4444] hover:border-[#EF4444] py-2.5 px-4 text-xs font-semibold flex-1 justify-center transition-colors"
+                      className="button border border-line bg-surface text-ink-soft hover:text-danger hover:border-danger py-2.5 px-4 text-xs font-medium flex-1 justify-center transition-colors"
                       disabled={!comment.trim()}
                       onClick={() => decide('changes_requested')}
                     >
@@ -325,18 +325,18 @@ export function CommercialReviewPage() {
               )}
             </section>
           ) : (
-            <section className="panel min-w-0 w-full flex flex-col items-center justify-center p-8 sm:p-12 text-center border-dashed border-[#292D34] min-h-[380px] bg-[#121214]/60 rounded-xl">
-              <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-[#1C1C20] border border-[#2B2B30] text-forge mb-4 shadow-inner">
+            <section className="panel min-w-0 w-full flex flex-col items-center justify-center p-8 sm:p-12 text-center border-dashed border-line min-h-[380px] bg-paper/60 rounded-xl">
+              <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-surface border border-line text-forge mb-4 shadow-inner">
                 <Sparkles size={22} />
               </div>
-              <h3 className="font-display text-base font-semibold text-[#F5F5F5]">
+              <h3 className="font-display text-base font-normal text-ink">
                 Select a Quotation to Review
               </h3>
-              <p className="mt-2 text-xs sm:text-sm text-[#8E8E93] max-w-sm leading-relaxed">
+              <p className="mt-2 text-xs sm:text-sm text-ink-muted max-w-sm leading-relaxed">
                 Click on any quotation from the queue on the left to inspect margin adequacy, cost breakdowns, and launch real-time AI advisory analysis.
               </p>
-              <div className="mt-5 inline-flex items-center gap-2 rounded-full bg-[#18181B] border border-[#26262B] px-3.5 py-1 text-[11px] text-[#A1A1AA]">
-                <span className="h-1.5 w-1.5 rounded-full bg-emerald-400"></span>
+              <div className="mt-5 inline-flex items-center gap-2 bg-surface border border-line px-3.5 py-1 text-[11px] text-ink-soft">
+                <span className="h-1.5 w-1.5 rounded-full bg-emerald-600"></span>
                 <span>Live Groq Llama 3.3 · Immutable Audit Trail</span>
               </div>
             </section>
