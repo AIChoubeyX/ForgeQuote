@@ -6,6 +6,7 @@ export async function list({ search = '', status, workflow, page = 1, pageSize =
 
   const workflowFilters = {
     open: `r.status NOT IN ('closed','quoted','cancelled')`,
+    action_required: `r.status IN ('draft', 'in_progress', 'returned_for_revision')`,
     draft: `r.status = 'draft'`,
     costing: `r.status IN ('draft', 'in_progress')`,
     in_progress: `r.status = 'in_progress'`,
@@ -17,7 +18,9 @@ export async function list({ search = '', status, workflow, page = 1, pageSize =
     pending_sales_approval: `r.status = 'pending_sales_approval'`,
     ready_for_quote: `r.status = 'ready_for_quote'`,
     issued: `r.status = 'quoted'`,
-    quoted: `r.status = 'quoted'`
+    quoted: `r.status = 'quoted'`,
+    closed: `r.status = 'closed'`,
+    cancelled: `r.status = 'cancelled'`
   };
 
   const workflowFilter = workflowFilters[workflow] || 'TRUE';
@@ -25,7 +28,12 @@ export async function list({ search = '', status, workflow, page = 1, pageSize =
   const from = `FROM rfqs r
     JOIN customers c ON c.id=r.customer_id
     JOIN users u ON u.id=r.owner_id
-    JOIN rfq_parts p ON p.rfq_id=r.id
+    LEFT JOIN LATERAL (
+      SELECT id, name, description, material, gross_weight, annual_volume
+      FROM rfq_parts
+      WHERE rfq_id=r.id
+      ORDER BY id ASC LIMIT 1
+    ) p ON TRUE
     LEFT JOIN LATERAL (
       SELECT id, revision, status, created_at, updated_at
       FROM costing_revisions

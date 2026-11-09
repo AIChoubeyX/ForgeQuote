@@ -45,6 +45,11 @@ export function StatusBadge({ status }) {
       desc: 'Technical and commercial approvals complete. Ready for formal quotation issuance.',
       style: 'bg-emerald-500/15 text-emerald-700 border border-emerald-500/30'
     },
+    issued: {
+      label: 'Issued',
+      desc: 'Authoritative customer quotation document generated and formally issued.',
+      style: 'bg-emerald-500/15 text-emerald-700 border border-emerald-500/30'
+    },
     quoted: {
       label: 'Quoted',
       desc: 'Authoritative quotation document generated and formally issued to customer.',

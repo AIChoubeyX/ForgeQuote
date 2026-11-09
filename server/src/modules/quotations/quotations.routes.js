@@ -6,6 +6,6 @@ import * as controller from './quotations.controller.js';
 const router = Router();
 router.get('/', requirePermission('quotation:read'), asyncHandler(controller.list));
 router.get('/:id/pdf', requirePermission('quotation:download'), asyncHandler(controller.download));
-router.post('/:id/issue', requirePermission('quotation:download'), asyncHandler(controller.issue));
+router.post('/:id/issue', requirePermission('quotation:issue'), asyncHandler(controller.issue));
 
 export default router;

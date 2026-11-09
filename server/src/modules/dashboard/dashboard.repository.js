@@ -158,22 +158,95 @@ export async function metrics(user) {
       WHERE r.rfq_number NOT LIKE 'AI-GOV-%' AND r.rfq_number NOT LIKE 'TEST-%'`);
     return { role: user.role, ...result.rows[0], recent: [], state: 'ready' };
   }
-  const totals = await query(`SELECT count(*) FILTER (WHERE r.owner_id=$1 AND r.status NOT IN ('closed','quoted','cancelled'))::int AS open,
-    count(*) FILTER (WHERE r.owner_id=$1 AND r.due_date < current_date AND r.status NOT IN ('closed','quoted','cancelled'))::int AS overdue,
-    count(*) FILTER (WHERE r.owner_id=$1 AND r.due_date >= current_date AND r.due_date <= current_date + 7 AND r.status NOT IN ('closed','quoted','cancelled'))::int AS due_soon,
-    count(*) FILTER (WHERE r.owner_id=$1 AND (r.status IN ('draft', 'in_progress') OR cr.status IS NULL OR cr.status='draft'))::int AS awaiting_costing,
-    count(*) FILTER (WHERE r.owner_id=$1 AND (r.status = 'pending_plant_review' OR cr.status='pending_review'))::int AS awaiting_routing,
-    count(*) FILTER (WHERE r.owner_id=$1 AND (r.status = 'returned_for_revision' OR cr.status='changes_requested' OR cm.status='changes_requested'))::int AS returned_correction,
-    count(*) FILTER (WHERE r.owner_id=$1 AND (r.status = 'pending_sales_approval' OR cm.status='pending'))::int AS awaiting_commercial,
-    count(*) FILTER (WHERE r.owner_id=$1 AND (r.status = 'ready_for_quote' OR q.status='approved'))::int AS approved_quotations,
-    count(*) FILTER (WHERE r.owner_id=$1 AND (r.status = 'quoted' OR q.status='issued'))::int AS issued_quotations
-    FROM rfqs r JOIN rfq_parts p ON p.rfq_id=r.id
-    LEFT JOIN LATERAL (SELECT status FROM costing_revisions WHERE rfq_part_id=p.id ORDER BY revision DESC LIMIT 1) cr ON true
-    LEFT JOIN LATERAL (SELECT c.status FROM commercial_reviews c JOIN costing_revisions x ON x.id=c.costing_revision_id WHERE x.rfq_part_id=p.id ORDER BY c.created_at DESC LIMIT 1) cm ON true
-    LEFT JOIN LATERAL (SELECT q.status FROM quotations q JOIN commercial_reviews c ON c.id=q.commercial_review_id JOIN costing_revisions x ON x.id=c.costing_revision_id WHERE x.rfq_part_id=p.id ORDER BY q.created_at DESC LIMIT 1) q ON true
-    WHERE r.owner_id=$1 AND r.rfq_number NOT LIKE 'AI-GOV-%' AND r.rfq_number NOT LIKE 'TEST-%'`, [user.id]);
-  const recent = await query(`SELECT r.id,r.rfq_number,c.name AS customer_name,p.name AS part_name,r.status,r.due_date
-    FROM rfqs r JOIN customers c ON c.id=r.customer_id JOIN rfq_parts p ON p.rfq_id=r.id
-    WHERE r.owner_id=$1 AND r.rfq_number NOT LIKE 'AI-GOV-%' AND r.rfq_number NOT LIKE 'TEST-%' ORDER BY r.created_at DESC LIMIT 5`, [user.id]);
-  return { role: user.role, ...totals.rows[0], recent: recent.rows, state: 'ready' };
+  const totals = await query(`SELECT
+    COUNT(DISTINCT r.id)::int AS total_rfqs,
+    COUNT(DISTINCT r.id) FILTER (WHERE r.status NOT IN ('closed', 'quoted', 'cancelled'))::int AS open_rfqs,
+    COUNT(DISTINCT r.id) FILTER (WHERE r.status IN ('draft', 'in_progress', 'returned_for_revision'))::int AS action_required,
+    COUNT(DISTINCT r.id) FILTER (WHERE r.status = 'draft')::int AS draft_rfqs,
+    COUNT(DISTINCT r.id) FILTER (WHERE r.status = 'in_progress')::int AS in_progress_rfqs,
+    COUNT(DISTINCT r.id) FILTER (WHERE r.status = 'pending_plant_review')::int AS pending_plant_review,
+    COUNT(DISTINCT r.id) FILTER (WHERE r.status = 'returned_for_revision')::int AS returned_for_revision,
+    COUNT(DISTINCT r.id) FILTER (WHERE r.status = 'pending_sales_approval')::int AS pending_sales_approval,
+    COUNT(DISTINCT r.id) FILTER (WHERE r.status = 'ready_for_quote')::int AS ready_for_quote,
+    COUNT(DISTINCT r.id) FILTER (WHERE r.status = 'quoted')::int AS quoted_rfqs,
+    COUNT(DISTINCT q.id) FILTER (WHERE q.status = 'issued')::int AS issued_quotations,
+    COUNT(DISTINCT q.id) FILTER (WHERE q.status = 'approved')::int AS approved_quotations,
+    COUNT(DISTINCT r.id) FILTER (WHERE r.status NOT IN ('closed', 'quoted', 'cancelled') AND r.due_date < CURRENT_DATE)::int AS overdue,
+    COUNT(DISTINCT r.id) FILTER (WHERE r.status NOT IN ('closed', 'quoted', 'cancelled') AND r.due_date >= CURRENT_DATE AND r.due_date <= CURRENT_DATE + 7)::int AS due_soon,
+    COUNT(DISTINCT r.id) FILTER (WHERE r.updated_at >= NOW() - INTERVAL '7 days')::int AS recently_updated
+    FROM rfqs r
+    LEFT JOIN rfq_parts p ON p.rfq_id = r.id
+    LEFT JOIN costing_revisions crv ON crv.rfq_part_id = p.id
+    LEFT JOIN commercial_reviews cm ON cm.costing_revision_id = crv.id
+    LEFT JOIN quotations q ON q.commercial_review_id = cm.id
+    WHERE r.owner_id = $1
+      AND r.rfq_number NOT LIKE 'AI-GOV-%'
+      AND r.rfq_number NOT LIKE 'TEST-%'`, [user.id]);
+
+  const metricsRow = totals.rows[0] || {};
+  const calculatedMetrics = {
+    ...metricsRow,
+    open: metricsRow.open_rfqs ?? 0,
+    awaiting_costing: (metricsRow.draft_rfqs ?? 0) + (metricsRow.in_progress_rfqs ?? 0),
+    awaiting_routing: metricsRow.pending_plant_review ?? 0,
+    returned_correction: metricsRow.returned_for_revision ?? 0,
+    awaiting_commercial: metricsRow.pending_sales_approval ?? 0
+  };
+
+  const recentQuotations = await query(`SELECT 
+    q.id,
+    q.quotation_number,
+    q.status,
+    q.issued_at,
+    q.approved_at,
+    q.created_at,
+    r.id AS rfq_id,
+    r.rfq_number,
+    c.name AS customer_name,
+    p.name AS part_name,
+    (crv.calculations->'components'->>'sellingPrice')::numeric AS unit_price,
+    ((crv.calculations->'components'->>'sellingPrice')::numeric * p.annual_volume)::numeric AS total_value,
+    crv.calculations->'components'->>'sellingPrice' AS selling_price,
+    crv.revision AS costing_revision,
+    'INR' AS currency,
+    p.annual_volume,
+    (q.issued_at + INTERVAL '1 day' * COALESCE((q.snapshot->'company'->>'validityDays')::int, 30)) AS valid_until,
+    (q.approved_at + INTERVAL '1 day' * COALESCE((q.snapshot->'company'->>'validityDays')::int, 30)) AS approved_valid_until
+    FROM quotations q
+    JOIN commercial_reviews cr ON cr.id = q.commercial_review_id
+    JOIN costing_revisions crv ON crv.id = cr.costing_revision_id
+    JOIN rfq_parts p ON p.id = crv.rfq_part_id
+    JOIN rfqs r ON r.id = p.rfq_id
+    JOIN customers c ON c.id = r.customer_id
+    WHERE r.owner_id = $1
+      AND r.rfq_number NOT LIKE 'AI-GOV-%' AND r.rfq_number NOT LIKE 'TEST-%'
+    ORDER BY COALESCE(q.issued_at, q.approved_at, q.created_at) DESC
+    LIMIT 5`, [user.id]);
+
+  const recentRfqs = await query(`SELECT 
+    r.id,
+    r.rfq_number,
+    r.status,
+    r.created_at,
+    r.due_date,
+    c.name AS customer_name,
+    p.name AS part_name
+    FROM rfqs r
+    JOIN customers c ON c.id = r.customer_id
+    LEFT JOIN LATERAL (
+      SELECT name FROM rfq_parts WHERE rfq_id = r.id ORDER BY id ASC LIMIT 1
+    ) p ON TRUE
+    WHERE r.owner_id = $1
+      AND r.rfq_number NOT LIKE 'AI-GOV-%' AND r.rfq_number NOT LIKE 'TEST-%'
+    ORDER BY r.created_at DESC
+    LIMIT 5`, [user.id]);
+
+  return {
+    role: user.role,
+    ...calculatedMetrics,
+    recent_quotations: recentQuotations.rows,
+    recent_rfqs: recentRfqs.rows,
+    recent: recentQuotations.rows,
+    state: 'ready'
+  };
 }

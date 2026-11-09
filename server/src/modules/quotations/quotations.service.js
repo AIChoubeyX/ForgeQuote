@@ -7,11 +7,12 @@ import { decimal } from '../costing/costing.calculator.js';
 async function findQuotation(id) {
   const result = await query(
     `SELECT q.*, cr.status AS review_status, cr.costing_revision_id,
-            crv.rfq_part_id, p.rfq_id
+            crv.rfq_part_id, p.rfq_id, r.owner_id
      FROM quotations q
      JOIN commercial_reviews cr ON cr.id = q.commercial_review_id
      JOIN costing_revisions crv ON crv.id = cr.costing_revision_id
      JOIN rfq_parts p ON p.id = crv.rfq_part_id
+     JOIN rfqs r ON r.id = p.rfq_id
      WHERE q.id = $1`,
     [id]
   );
@@ -441,6 +442,9 @@ function render(snapshot) {
 export async function download(id, user) {
   const quotation = await findQuotation(id);
   if (!quotation) throw new AppError(404, 'Quotation not found');
+  if (user.role === 'estimator' && quotation.owner_id !== user.id) {
+    throw new AppError(403, 'You do not have permission to access this quotation');
+  }
   if (quotation.review_status !== 'approved') throw new AppError(409, 'Only approved quotations can be downloaded');
   if (!quotation.snapshot?.company) throw new AppError(422, 'Quotation snapshot is incomplete');
 
@@ -499,6 +503,9 @@ export async function download(id, user) {
 }
 
 export async function issue(id, user) {
+  if (user?.role === 'estimator') {
+    throw new AppError(403, 'Estimators are not authorized to issue commercial quotations');
+  }
   const quotation = await findQuotation(id);
   if (!quotation) throw new AppError(404, 'Quotation not found');
   if (quotation.review_status !== 'approved') throw new AppError(409, 'Only approved quotations can be issued');

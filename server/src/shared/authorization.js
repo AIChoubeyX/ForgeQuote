@@ -3,10 +3,10 @@ import { AppError } from './errors.js';
 export const ROLES = ['estimator', 'sales_head', 'plant_head', 'admin'];
 
 export const permissions = {
-  estimator: ['dashboard:read', 'rfq:read', 'rfq:create', 'rfq:update:own', 'rfq:documents:read', 'rfq:documents:write', 'rate:read', 'costing:read', 'costing:write', 'quotation:read', 'ai:intake', 'ai:review'],
-  sales_head: ['dashboard:read', 'rfq:read:commercial', 'rfq:documents:read', 'rate:read', 'costing:read', 'commercial:review', 'quotation:read', 'quotation:download', 'ai:review'],
+  estimator: ['dashboard:read', 'rfq:read', 'rfq:create', 'rfq:update:own', 'rfq:documents:read', 'rfq:documents:write', 'rate:read', 'costing:read', 'costing:write', 'quotation:read', 'quotation:download', 'ai:intake', 'ai:review'],
+  sales_head: ['dashboard:read', 'rfq:read:commercial', 'rfq:documents:read', 'rate:read', 'costing:read', 'commercial:review', 'quotation:read', 'quotation:download', 'quotation:issue', 'ai:review'],
   plant_head: ['dashboard:read', 'rfq:read:routing', 'rfq:documents:read', 'rate:read', 'costing:read', 'routing:review', 'routing:approve', 'ai:review'],
-  admin: ['dashboard:read', 'users:read', 'users:update', 'rfq:documents:read', 'rate:read', 'rate:manage', 'audit:read', 'quotation:read', 'quotation:download', 'costing:read', 'ai:review']
+  admin: ['dashboard:read', 'users:read', 'users:update', 'rfq:documents:read', 'rate:read', 'rate:manage', 'audit:read', 'quotation:read', 'quotation:download', 'quotation:issue', 'costing:read', 'ai:review']
 };
 
 export function can(user, permission) {
